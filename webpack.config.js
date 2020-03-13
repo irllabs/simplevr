@@ -32,10 +32,6 @@ const webpackConfig = {
   },
 
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin({
-      name: ['main', 'vendor', 'polyfills']
-    }),
-
     // TODO: check and enable
     // new ServiceWorkerWebpackPlugin({
     //   entry: path.join(__dirname, './src/_serviceworkers/sw.ts')

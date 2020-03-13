@@ -39,8 +39,6 @@ export class Fullscreen {
     if (!this.isInFullscreen) {
       if (this.docElm.requestFullscreen) {
         this.docElm.requestFullscreen();
-      } else if (this.docElm.webkitRequestFullScreen) {
-        this.docElm.webkitRequestFullScreen();
       }
       /*
       else if (this.docElm.mozRequestFullScreen) {
@@ -53,8 +51,6 @@ export class Fullscreen {
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
       }
       /*
       else if (document.mozCancelFullScreen) {

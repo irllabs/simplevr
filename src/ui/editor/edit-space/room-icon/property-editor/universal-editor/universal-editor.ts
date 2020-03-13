@@ -103,8 +103,8 @@ export class UniversalEditor {
   }
 
   public onRotateImage() {
-    const image = document.createElement('img');
-    const canvas = document.createElement('canvas');
+    const image = (document.createElement('img') as unknown) as HTMLImageElement;
+    const canvas = (document.createElement('canvas') as unknown) as HTMLCanvasElement;;
     const context = canvas.getContext('2d');
 
     if (this._originImage === null) {
@@ -147,7 +147,7 @@ export class UniversalEditor {
         this._onChange();
       })
       .catch((error) => this.eventBus.onModalMessage('Error', error))
-    
+
   }
 
   public onVolumeChange($event) {
