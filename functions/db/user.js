@@ -37,7 +37,7 @@ module.exports = functions.auth.user().onCreate(user => {
 
       return mailer.sendMail(
         {
-          from: "Social VR",
+          from: "SimpleVR",
           to: settings.emailRecepients.join(","),
           subject: "New user registered",
           html: `User with email ${

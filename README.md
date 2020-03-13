@@ -1,6 +1,6 @@
-## Social VR Editing Tool
+## SimpleVR Editing Tool
 ### About
-Browser based editor tool for the Social VR project.
+Browser based editor tool for the Simple VR project.
 ### Tools Used
 * Angular 2 - application framework
 * TypeScript - a strictly typed superset of JavaScript.
@@ -8,7 +8,7 @@ Browser based editor tool for the Social VR project.
 * PostCss - obviates the need for vendor prefixes in CSS files.
 * WebPack - provides JS bundling, an easy to use dev server, build options, and more.
 * ThreeJS - Cross-browser 3D graphics with WebGL.
-* VSCode Remote Container 
+* VSCode Remote Container
 <!-- ### Installation and Usage
 - See [WIKI page on Browser Editor Local Build](https://github.com/cmuartfab/social-vr/wiki/Browser-Editor-Local-Build)
 - See [WIKI page on CSS design instructions](https://github.com/cmuartfab/social-vr/wiki/Browser-Editor-CSS-Architecture) -->
@@ -16,7 +16,7 @@ Browser based editor tool for the Social VR project.
 - Install the VSCode extension [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 * Press <kbd>F1</kbd> to bring up the Command Palette and type in remote-containers for a full list of commands
 * Run the `Remote-Containers: Reopen in Container` command or run `Remote-Containers: Open Folder in Container...` command and select the local folder
-### Install Dependecies 
+### Install Dependecies
 * Run the next command inside container: ```npm install```
 ### Local Builds (Inside Containers)
 * Point to a locally running server: ```npm run dev-local```

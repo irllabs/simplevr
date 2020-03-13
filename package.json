@@ -1,7 +1,7 @@
 {
-  "name": "Social-VR-Editor",
+  "name": "Simple-VR-Editor",
   "version": "0.0.2",
-  "description": "Social VR Editor Application",
+  "description": "Simple VR Editor Application",
   "scripts": {
     "build:copy": "cp src/favicon.ico dist/favicon.ico; cp src/manifest.json dist/manifest.json; cp src/socialVr.png dist/socialVR.png; cp -r src/assets dist/assets; cp -r src/__stubs__ dist/__stubs__",
     "build:webpack": "webpack --colors --progress",
