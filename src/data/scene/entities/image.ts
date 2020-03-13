@@ -1,28 +1,31 @@
-import {BaseElement} from 'data/scene/entities/baseElement';
-import {MediaFile} from 'data/scene/entities/mediaFile';
+import { BaseElement } from 'data/scene/entities/baseElement';
+import { MediaFile } from 'data/scene/entities/mediaFile';
 
 export class Image extends BaseElement {
-
   private mediaFile: MediaFile = new MediaFile();
 
   constructor() {
     super();
   }
 
+  public setMediaFile(mediaFile) {
+    this.mediaFile = mediaFile;
+  }
+
   getMediaFile(): MediaFile {
     return this.mediaFile;
   }
 
-  hasAsset(): Boolean {
+  hasAsset(): boolean {
     return this.mediaFile.hasAsset();
   }
 
   getRemoteFileName(): string {
-    return this.mediaFile.getRemoteFileName();
+    return this.mediaFile.getRemoteFile();
   }
 
   setRemoteFileName(remoteFileName: string) {
-    this.mediaFile.setRemoteFileName(remoteFileName);
+    this.mediaFile.setRemoteFile(remoteFileName);
   }
 
   getFileName(): string {
@@ -33,8 +36,8 @@ export class Image extends BaseElement {
     this.mediaFile.setFileName(fileName);
   }
 
-  getBinaryFileData(): any {
-    return this.mediaFile.getBinaryFileData();
+  getBinaryFileData(unsafe: boolean = false): any {
+    return this.mediaFile.getBinaryFileData(unsafe);
   }
 
   setBinaryFileData(binaryFileData: any) {
@@ -48,10 +51,9 @@ export class Image extends BaseElement {
 
   toJson() {
     return Object.assign(super.toJson(), {
-      file: encodeURIComponent(this.mediaFile.getFileName()),
-      remoteFile: this.mediaFile.getRemoteFileName(),
-      size: '<2,1>' //TODO: get requirements for size vector
+      file: this.mediaFile.getFileName(),
+      remoteFile: this.mediaFile.getRemoteFile(),
+      size: '<2,1>', //TODO: get requirements for size vector
     });
   }
-
 }

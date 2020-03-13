@@ -1,9 +1,9 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
+import { AssetInteractor, AssetModel } from 'core/asset/assetInteractor';
 
-import {MetaDataInteractor} from 'core/scene/projectMetaDataInteractor';
-import {SceneInteractor} from 'core/scene/sceneInteractor';
-import {AssetInteractor, AssetModel} from 'core/asset/assetInteractor';
-import {AudioPlayService} from 'ui/editor/preview-space/modules/audioPlayService';
+import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
+import { SceneInteractor } from 'core/scene/sceneInteractor';
+import { AudioPlayService } from 'ui/editor/preview-space/modules/audioPlayService';
 
 @Injectable()
 export class AudioManager {
@@ -15,15 +15,43 @@ export class AudioManager {
     private metaDataInteractor: MetaDataInteractor,
     private sceneInteractor: SceneInteractor,
     private assetInteractor: AssetInteractor,
-    private audioPlayService: AudioPlayService
-  ) {}
+    private audioPlayService: AudioPlayService,
+  ) {
+  }
+
+  public checkAudioContextState() {
+    this.audioPlayService.checkAudioContextState();
+  }
+
+  public isAudioContextSuspended() {
+    return this.audioPlayService.isAudioContextSuspended();
+  }
+
+  public hasAutoplayAudio(roomId) {
+    const room = this.sceneInteractor.getRoomById(roomId);
+    const soundtrack = this.metaDataInteractor.getSoundtrack();
+
+    if(soundtrack.hasAsset()) {
+      return true;
+    }
+
+    if (room.getBackgroundAudioBinaryFileData()) {
+      return true;
+    }
+
+    if (room.getNarrationIntroBinaryFileData()) {
+      return true;
+    }
+
+    return false;
+  }
 
   loadBuffers(): Promise<any> {
     const soundtrackAudio = [];
     const soundtrack = this.metaDataInteractor.getSoundtrack();
     if (soundtrack.getBinaryFileData()) {
       const soundtrackPath = soundtrack.getBinaryFileData().changingThisBreaksApplicationSecurity ?
-            soundtrack.getBinaryFileData().changingThisBreaksApplicationSecurity : soundtrack.getBinaryFileData();
+        soundtrack.getBinaryFileData().changingThisBreaksApplicationSecurity : soundtrack.getBinaryFileData();
       soundtrackAudio.push(new AssetModel('soundtrack', soundtrack.getFileName(), soundtrackPath));
     }
 
@@ -43,11 +71,11 @@ export class AudioManager {
         if (bAudioPath.changingThisBreaksApplicationSecurity) {
           bAudioPath = bAudioPath.changingThisBreaksApplicationSecurity;
         }
-        return new AssetModel(room.getId()+'b', room.getBackgroundAudioFileName(), bAudioPath);
+        return new AssetModel(room.getId() + 'b', room.getBackgroundAudioFileName(), bAudioPath);
 
       });
 
-      const narrationAudios = this.sceneInteractor.getRoomIds()
+    const narrationAudios = this.sceneInteractor.getRoomIds()
       .map(roomId => this.sceneInteractor.getRoomById(roomId))
       .filter(room => {
         if (room.getNarrationIntroBinaryFileData()) {
@@ -60,23 +88,34 @@ export class AudioManager {
       })
       .map(room => {
         let nAudioPath = room.getNarrationIntroBinaryFileData();
+
         if (nAudioPath.changingThisBreaksApplicationSecurity) {
           nAudioPath = nAudioPath.changingThisBreaksApplicationSecurity;
         }
-        return new AssetModel(room.getId()+'n', room.getNarrationIntroFileName(), nAudioPath);
+        return new AssetModel(room.getId() + 'n', room.getNarrationIntroFileName(), nAudioPath);
       });
 
     const hotspotAudios = this.sceneInteractor.getRoomIds()
       .map(roomId => this.sceneInteractor.getRoomById(roomId))
       .reduce((accumulator, room) => {
-        const audioPropertyList = Array.from(room.getAudio())
-          .filter(audio => audio.getBinaryFileData())
-          .map(audio => {
-            const audioDataUri = audio.getBinaryFileData().changingThisBreaksApplicationSecurity ?
-              audio.getBinaryFileData().changingThisBreaksApplicationSecurity : audio.getBinaryFileData();
-            return new AssetModel(audio.getId(), audio.getFileName(), audioDataUri);
+        const audioUniversalPropertyList = Array.from(room.getUniversal())
+          .filter(universal => universal.audioContent.hasAsset())
+          .map(universal => {
+            const binaryFileData = universal.audioContent.getBinaryFileData();
+            let audioDataUri;
+
+            if (binaryFileData.changingThisBreaksApplicationSecurity) {
+              audioDataUri = binaryFileData.changingThisBreaksApplicationSecurity;
+            } else {
+              audioDataUri = binaryFileData;
+            }
+
+            return new AssetModel(universal.getId(), universal.audioContent.getFileName(), audioDataUri);
           });
-        return accumulator.concat(audioPropertyList);
+
+        accumulator = accumulator.concat(audioUniversalPropertyList);
+
+        return accumulator;
       }, []);
 
     const audioList = soundtrackAudio
@@ -87,14 +126,15 @@ export class AudioManager {
     return this.assetInteractor.loadAudioBuffers(audioList);
   }
 
-  stopAllAudio() {
-    this.audioPlayService.stopAll();
+  stopAllAudio(includeSoundtrack: boolean) {
+    this.audioPlayService.stopAll(includeSoundtrack);
   }
 
   playSoundtrack() {
     const soundtrack = this.metaDataInteractor.getSoundtrack();
-    if (soundtrack.getBinaryFileData()) {
-      this.audioPlayService.playSoundtrack('soundtrack');
+
+    if (soundtrack.hasAsset()) {
+      this.audioPlayService.playSoundtrack('soundtrack', soundtrack.getVolume());
     }
   }
 
@@ -107,9 +147,9 @@ export class AudioManager {
 
   playNarration() {
     if (this.roomNarrationMap.get(this.sceneInteractor.getActiveRoomId())) {
-      const NarrationId: string = this.sceneInteractor.getActiveRoomId() + 'n';
-      this.audioPlayService.playHotspotAudio(NarrationId);
+      const narrationId: string = this.sceneInteractor.getActiveRoomId() + 'n';
+
+      this.audioPlayService.playNarrationAudio(narrationId);
     }
   }
-
 }

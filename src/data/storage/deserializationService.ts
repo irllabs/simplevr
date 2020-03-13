@@ -1,311 +1,229 @@
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import { Injectable } from '@angular/core';
+import { AngularFireStorage } from 'angularfire2/storage';
 
-import {RoomManager} from 'data/scene/roomManager';
-import {PropertyBuilder} from 'data/scene/roomPropertyBuilder';
-import {Room} from 'data/scene/entities/room';
-import {Image} from 'data/scene/entities/image';
-import {Audio} from 'data/scene/entities/audio';
+import { ApiService } from 'data/api/apiService';
+import { Room } from 'data/scene/entities/room';
 
-import {ApiService} from 'data/api/apiService';
-import {FileLoaderUtil} from 'ui/editor/util/fileLoaderUtil';
+import { RoomManager } from 'data/scene/roomManager';
+import { PropertyBuilder } from 'data/scene/roomPropertyBuilder';
 
-import 'rxjs/add/observable/fromPromise';
-import 'isomorphic-fetch';
+import { Observable } from 'rxjs/Observable';
 
 import {
-  STORY_FILE_YAML, STORY_FILE_JSON, UINT8ARRAY,
-  MIME_TYPE_MP3, MIME_TYPE_PNG, MIME_TYPE_UTF8,
-  MIME_TYPE_JPG, MIME_TYPE_JPEG, MIME_TYPE_WAV, MIME_TYPE_AAC, MIME_TYPE_XM4A,
-  BACKGROUND_THUMBNAIL
+  MIME_TYPE_AAC,
+  MIME_TYPE_JPEG,
+  MIME_TYPE_JPG,
+  MIME_TYPE_MP3,
+  MIME_TYPE_PNG,
+  MIME_TYPE_WAV,
+  MIME_TYPE_XM4A,
+  STORY_VERSION,
 } from 'ui/common/constants';
+import { FileLoaderUtil } from 'ui/editor/util/fileLoaderUtil';
+import { MetaDataInteractor } from '../../core/scene/projectMetaDataInteractor';
+import { DEFAULT_IMAGE_PATH, STORY_FILE_YAML, UINT8ARRAY } from '../../ui/common/constants';
+import { Project } from '../project/projectModel';
+import { MediaFile } from '../scene/entities/mediaFile';
+import { Universal } from '../scene/entities/universal';
+import { reverbList } from '../scene/values/reverbList';
+import { resizeImage } from '../util/imageResizeService';
+import { deserializeLocationVector } from '../util/vector';
+import deserializeOldStory from './legacy/deserializeOldStory';
 
 const JSZip = require('jszip');
 const JsYaml = require('js-yaml');
 
 @Injectable()
 export class DeserializationService {
-
   private zip = new JSZip();
+  private _cachedStoryFile: any;
 
   constructor(
     private roomManager: RoomManager,
     private propertyBuilder: PropertyBuilder,
     private fileLoaderUtil: FileLoaderUtil,
     private apiService: ApiService,
-  ) {}
+    private afStorage: AngularFireStorage,
+    private metaDataInteractor: MetaDataInteractor,
+  ) {
+    this._cachedStoryFile = {};
+  }
 
-  private deserializeRooms(storyFile: any, binaryFileMap: any, baseFilePath: string): Promise<any> {
-    return storyFile.async('string')
-    .then(storyString => {
+  public deserializeProject(project: Project, quick: boolean = true) {
+    const story = project.story;
+    const rootRemoteFiles = this._extractRootRemoteFiles(story);
+    const roomsRemoteFiles = quick ?  this._extractHomeRoomRemoteFiles(story) : this._extractRoomsRemoteFiles(story.rooms);
 
-      let storyJson;
-      if (storyFile.name.indexOf(STORY_FILE_JSON) >= 0) {
-        storyJson = JSON.parse(storyString);
-      } else {
-        try {
-          //remove room property descriptions from yaml file (ex: - !image, - !door)
-          const bangDescriptionRegex = /!\w+\n/g;
-          const newLineStoryYaml: string = storyString.replace(/\r\n/g, '\n');
-          const cleanedStoryYaml: string = newLineStoryYaml.replace(bangDescriptionRegex, '\n');
-          storyJson = JsYaml.load(cleanedStoryYaml);
-        }
-        catch(error) {
-          console.error(error);
-          return;
-        }
-      }
-      this.roomManager.clearRooms();
+    this.metaDataInteractor.loadingProject(true);
 
-      this.roomManager.setProjectName(storyJson.name);
-      this.roomManager.setProjectTags(storyJson.tags || '');
-      this.roomManager.setProjectDescription(storyJson.description);
-      if (storyJson.homeRoomId) {
-        this.roomManager.setHomeRoomId(storyJson.homeRoomId);
-      }
-      if (storyJson.soundtrack) {
-        const soundtrack = binaryFileMap.find(mediaFile => mediaFile.name === storyJson.soundtrack);
-        const soundtrackData = soundtrack ? soundtrack.fileData : null;
-        this.roomManager.setSoundtrack(storyJson.soundtrack, storyJson.soundtrackVolume, soundtrackData);
-      } else {
-        this.roomManager.removeSoundtrack();
-      }
-
-      storyJson.rooms.map(roomData => {
-        const filePrefix = roomData.uuid;
-        console.log('buildRoom', `${baseFilePath}${filePrefix}`);
-
-        // Background image
-        let filename = roomData.image;
-        if (roomData.image.hasOwnProperty('file')) {
-          filename = roomData.image.file;
-        }
-        const roomImagePath = `${baseFilePath}${filePrefix}/${filename}`;
-        const roomImage = binaryFileMap.find(mediaFile => mediaFile.name === roomImagePath);
-        const roomImageData = roomImage ? roomImage.fileData : null;
-
-        // Background thumbnail
-        const roomThumbPath = `${baseFilePath}${filePrefix}/${BACKGROUND_THUMBNAIL}`;
-        const roomThumbnail = binaryFileMap.find(mediaFile => mediaFile.name === roomThumbPath);
-        const thumbnailImageData = roomThumbnail ? roomThumbnail.fileData : null;
-
-        filename = roomData.ambient;
-        if (roomData.ambient.hasOwnProperty('file')) {
-          filename = roomData.ambient.file;
-        }
-        // Background audio
-        const backgroundAudioPath = `${baseFilePath}${filePrefix}/${filename}`;
-        const backgroundAudio = binaryFileMap.find(mediaFile => mediaFile.name === backgroundAudioPath);
-        const backgroundAudioData = backgroundAudio ? backgroundAudio.fileData : null;
-
-        filename = roomData.narrator.intro;
-        if (roomData.narrator.intro.hasOwnProperty('file')) {
-          filename = roomData.narrator.intro.file;
-        }
-        // Narrator intro audio
-        const introAudioPath = roomData.narrator ? `${baseFilePath}${filePrefix}/${filename}` : '';
-        const introAudio = binaryFileMap.find(mediaFile => mediaFile.name === introAudioPath);
-        const introAudioData = introAudio ? introAudio.fileData : null;
-
-        filename = roomData.narrator.reprise;
-        if (roomData.narrator.reprise.hasOwnProperty('file')) {
-          filename = roomData.narrator.reprise.file;
-        }
-        // Narrator return audio
-        const returnAudioPath = roomData.narrator ? `${baseFilePath}${filePrefix}/${filename}` : '';
-        const returnAudio = binaryFileMap.find(mediaFile => mediaFile.name === returnAudioPath);
-        const returnAudioData = returnAudio ? returnAudio.fileData : null;
-
-        const room: Room = this.propertyBuilder.roomFromJson(roomData, roomImageData, thumbnailImageData, backgroundAudioData);
-        const doors = roomData.doors || [];
-        const autoDoors = roomData.autoDoors || [];
-        const allDoors = doors.concat(autoDoors);
-
-        // necessary if yaml files use undefined vs empty array
-        roomData.texts = roomData.texts || [];
-        roomData.clips = roomData.clips || [];
-        roomData.images = roomData.images || [];
-
-        roomData.texts
-          .map(textJson => this.propertyBuilder.textFromJson(textJson))
-          .forEach(text => room.addText(text));
-
-        roomData.clips
-          .map(audioJson => {
-            const fileName: string = `${baseFilePath}${filePrefix}/${audioJson.file}`;
-            const binaryFile = binaryFileMap
-              .find(mediaFile => mediaFile.name === fileName);
-            const binaryFileData: string = binaryFile ? binaryFile.fileData : null;
-            return this.propertyBuilder.audioFromJson(audioJson, binaryFileData);
-          })
-          .forEach(audio => room.addAudio(audio));
-
-        roomData.images
-          .map(imageJson => {
-            const fileName: string = `${baseFilePath}${filePrefix}/${imageJson.file}`;
-            const binaryFile = binaryFileMap
-              .find(mediaFile => mediaFile.name === fileName);
-            const binaryFileData: string = binaryFile ? binaryFile.fileData : null;
-            return this.propertyBuilder.imageFromJson(imageJson, binaryFileData);
-          })
-          .forEach(image => room.addImage(image));
-
-        allDoors
-          .map(doorJson => this.propertyBuilder.doorFromJson(doorJson))
-          .forEach(door => room.addDoor(door));
-
-        const narrator = this.propertyBuilder.narratorFromJson(roomData.narrator, introAudioData, returnAudioData);
-        room.setNarrator(narrator);
-
-        this.roomManager.addRoom(room);
+    return Promise.all([
+      this.loadRemoteFiles(rootRemoteFiles),
+      this.loadRemoteFiles(roomsRemoteFiles),
+    ])
+      .then(([rootMediaFiles, homeRoomMediaFiles]) => {
+        return this._deserializeProject(story, rootMediaFiles.concat(homeRoomMediaFiles), quick);
       });
-    });
   }
 
-  unzipStoryFile(file: any): Observable<any> {
+  public unzipStoryFile(zipFile) {
     return Observable.fromPromise(
-      this.zip.loadAsync(file).then(file => this.deserializeProject(file))
+      this.zip.loadAsync(zipFile).then(file => this._deserializeProjectFromZipFile(file)),
     );
-    // .catch(error => console.log('error', mediaFile.name, error));
-  }
-  // Given a jszip file containing an image or audio
-  // return a promise containing the name of the file
-  // and binary data
-  private loadMediaFile(mediaFile: any, getBinaryFileData: any): Promise<any> {
-    console.log('loading media file', mediaFile)
-    return mediaFile.async(UINT8ARRAY)
-    .then(fileData => {
-      console.log('---fileData', mediaFile);
-      const fileType = this.getFileType(mediaFile.name);
-      return new Blob([fileData], {type: fileType});
-    })
-    .then(blob => {
-      console.log('---blob', mediaFile);
-      return getBinaryFileData(blob);
-    })
-    .then(binaryDataFile => {
-      console.log('success', mediaFile.name)
-      return {
-        name: mediaFile.name,
-        fileData: binaryDataFile
-      };
-    });
   }
 
-  private loadRemoteMediaFile(mediaFile: any, getBinaryFileData: any): Promise<any> {
-    console.log('loading remote media file', mediaFile)
-    let remoteFileUrl = mediaFile.remoteFile;
-    if (mediaFile.remoteFile.indexOf('socialvr-staging.s3.amazonaws.com') > 0) {
-      remoteFileUrl = `${mediaFile.remoteFile.replace('socialvr-staging.s3.amazonaws.com','socialvr-staging.imgix.net')}?q=60`;
-    }
-    return this.apiService.downloadMedia(remoteFileUrl).toPromise()
-        .then(fileData => {
-          console.log('---fileData', mediaFile);
-          const fileType = this.getFileType(mediaFile.file);
-          return new Blob([fileData], {type: fileType});
-        })
-        .then(blob => {
-          console.log('---blob', mediaFile);
-          return getBinaryFileData(blob);
-        })
-        .then(binaryDataFile => {
-          console.log('success', mediaFile.file)
-          return {
-            name: mediaFile.filePath,
-            fileData: binaryDataFile,
-            remoteFile: remoteFileUrl,
-          };
-        })
-        .catch(error => console.log('error', mediaFile.file, error));
+  public extractAllRemoteFiles(story) {
+    return this._extractRootRemoteFiles(story).concat(this._extractRoomsRemoteFiles(story.rooms));
   }
 
-  // Given a json object of jszip files, return a list of
-  // promises containing image and audio binary data
-  private async loadMediaFiles(fileMap: any, storyFilePath: string, getBinaryFileData: any) {
-    console.log('load local media files', fileMap);
-    const files = Object.keys(fileMap)
-      .filter(fileKey => fileKey.indexOf(STORY_FILE_YAML) < 0)
-      .filter(fileKey => fileKey.indexOf(STORY_FILE_JSON) < 0)
-      .map(fileKey => fileMap[fileKey])
-      .filter(file => !file.dir);
-    console.log('local files to load', files);
+  public async loadRemoteFiles(remoteFiles) {
+    const mediaFiles = [];
 
-    console.log('load remote media files');
-    const remoteFiles = [];
-    let getRemoteFiles = new Promise((resolve, reject) => resolve(remoteFiles));
+    for (let i = 0; i < remoteFiles.length; i++) {
+      const remoteFile = remoteFiles[i];
+      const fileName = remoteFile.file;
+      const mimeType = this.getFileMimeType(fileName);
 
-    // Only check for remote files if storyFile is JSON
-    if (storyFilePath.indexOf(STORY_FILE_JSON) >= 0) {
-      getRemoteFiles = fileMap[storyFilePath].async('string')
-        .then(storyString => {
-          const storyJson = JSON.parse(storyString);
-          storyJson.rooms.map(room => {
-            const assets = [
-              ...room.clips,
-              ...room.images,
-              room.ambient,
-              room.image,
-              room.thumbnail || {}, // new key that is not present in older story files
-              room.narrator.intro,
-              room.narrator.reprise,
-            ];
-            assets.map(asset => {
-              if (asset.hasOwnProperty('remoteFile') && asset.remoteFile) {
-                // Add to remoteFiles if not present locally
-                asset.filePath = `${room.uuid}/${asset.file}`;
-                if (files.map(file => file.name).indexOf(asset.filePath) < 0) {
-                  remoteFiles.push(asset);
-                }
-              }
-            });
+      await this.afStorage
+        .ref(remoteFile.remoteFile)
+        .getDownloadURL().toPromise()
+        .then((fileStoreUrl) => this.apiService.loadBinaryData(fileStoreUrl).toPromise())
+        .then((data: ArrayBuffer) => new Blob([data], { type: mimeType }))
+        .then((blob) => this.fileLoaderUtil.getBinaryFileData(blob))
+        .then((binaryData) => {
+          return new MediaFile({
+            mimeType,
+            fileName,
+            remoteFile: remoteFile.remoteFile,
+            binaryFileData: binaryData,
           });
-          return remoteFiles;
+        })
+        .then(mediaFile => mediaFiles.push(mediaFile))
+        .catch((error) => {
+          console.log('Error to load remote file:', remoteFile);
+          console.log(error);
         });
     }
 
-    const mediaFiles = [];
-
-    await getRemoteFiles.then(async (remoteFiles: any) => {
-      console.log('remote files to load', remoteFiles)
-      for (let i = 0; i < remoteFiles.length; i++) {
-        const file = remoteFiles[i];
-        await this.loadRemoteMediaFile(file, getBinaryFileData).then(mediaFile => mediaFiles.push(mediaFile));
-      }
-    });
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      await this.loadMediaFile(file, getBinaryFileData).then(mediaFile => mediaFiles.push(mediaFile));
-    }
-    console.log('allfiles', mediaFiles)
     return mediaFiles;
   }
 
-  // Given a JSON object representing story file,
-  // return a promise that resolves when the story file is deserialized
-  private deserializeProject(jsZipData) {
-    console.log('jsZipData', jsZipData)
-    const fileMap = jsZipData.files;
+  public deserializeRooms(roomsData, homeRoomId, mediaFiles, quick = false): Room[] {
+    const rooms: Room[] = [];
 
-    let storyFilePath: string = Object.keys(fileMap)
-      .filter(fileKey => fileKey.indexOf(STORY_FILE_YAML) > -1)[0] || STORY_FILE_YAML;
-    let baseFilePath: string = storyFilePath.substring(0, storyFilePath.indexOf(STORY_FILE_YAML));
+    roomsData.forEach((roomData) => {
+      const roomId = roomData.uuid;
+      const isLoadedAssets = !quick || roomId === homeRoomId; //homeRoom.uuid;
+      const room: Room = <Room> this.propertyBuilder.setBaseProperties(roomData, new Room());
 
-    // If a story.json file is present, assume assets have been uploaded to S3
-    if (Object.keys(fileMap).indexOf(STORY_FILE_JSON) > -1) {
-      baseFilePath = storyFilePath.substring(0, storyFilePath.indexOf(STORY_FILE_JSON));
-      storyFilePath = `${baseFilePath}${STORY_FILE_JSON}`
-    }
+      room.setAssetsLoadedState(isLoadedAssets);
+      room.setReverb(roomData.reverb || reverbList[0]);
 
-    const storyFile = fileMap[storyFilePath];
-    console.log('storyFile', storyFile)
-    const getBinaryFileData = this.fileLoaderUtil.getBinaryFileData.bind(this.fileLoaderUtil);
-    const mediaFilePromises = this.loadMediaFiles(fileMap, storyFilePath, getBinaryFileData);
+      if (roomData.front) {
+        room.setLocation(deserializeLocationVector(roomData.front));
+      }
 
-    return mediaFilePromises.then(bianryFileMap => this.deserializeRooms(storyFile, bianryFileMap, baseFilePath));
+      // background image
+      if (roomData.image) {
+        const bgImageMediaFile = mediaFiles.find(mediaFile => mediaFile.getFileName() === roomData.image.file);
+
+        if (bgImageMediaFile) {
+          room.getBackgroundImage().setMediaFile(bgImageMediaFile);
+        } else {
+          const binaryData = quick ? null : DEFAULT_IMAGE_PATH;
+
+          room.setBackgroundImageBinaryData(binaryData);
+        }
+      } else {
+        room.getBackgroundImage().setBinaryFileData(DEFAULT_IMAGE_PATH);
+      }
+
+      // background thumbnail
+      if (roomData.thumbnail) {
+        const thumbnailMediaFile = mediaFiles.find(mediaFile => mediaFile.getFileName() === roomData.thumbnail.file);
+
+        if (thumbnailMediaFile) {
+          room.getThumbnail().setMediaFile(thumbnailMediaFile);
+        }
+      }
+
+      if (!room.getThumbnail().hasAsset() && isLoadedAssets) {
+        const bgImageBinaryData = room.getBackgroundImage().getBinaryFileData();
+
+        resizeImage(bgImageBinaryData, 'projectThumbnail')
+          .then(imageData => room.getThumbnail().setBinaryFileData(imageData))
+          .catch(error => console.log('generate thumbnail error', error));
+      }
+
+      // background audio
+      if (roomData.ambient) {
+        const ambientMediaFile = mediaFiles.find(mediaFile => mediaFile.getFileName() === roomData.ambient.file);
+
+        if (ambientMediaFile) {
+          room.getBackgroundAudio().setMediaFile(ambientMediaFile);
+          room.setBackgroundAudioVolume(roomData.bgVolume);
+        }
+      }
+
+      // narrator audio
+      if (roomData.narrator) {
+        const intro = roomData.narrator.intro;
+        const reprise = roomData.narrator.reprise;
+        const narrator = room.getNarrator();
+
+        narrator.setVolume(roomData.narrator.volume);
+
+        if (intro) {
+          const introMediaFile = mediaFiles.find(mediaFile => mediaFile.getFileName() === intro.file);
+
+          if (introMediaFile) {
+            narrator.getIntroAudio().setMediaFile(introMediaFile);
+          }
+        }
+
+        if (reprise) {
+          const repriseMediaFile = mediaFiles.find(mediaFile => mediaFile.getFileName() === reprise.file);
+
+          if (repriseMediaFile) {
+            narrator.getReturnAudio().setMediaFile(repriseMediaFile);
+          }
+        }
+      }
+
+      // doors
+      (roomData.doors || []).concat(roomData.autoDoors || [])
+        .map(doorJson => this.propertyBuilder.doorFromJson(doorJson))
+        .forEach(door => room.addDoor(door));
+
+      // hotspots
+      (roomData.universal || [])
+        .forEach((universalJson) => {
+          const universal: Universal = <Universal> this.propertyBuilder.setBaseProperties(universalJson, new Universal());
+          const imageMediaFile = universalJson.imageFile && mediaFiles.find(mediaFile => mediaFile.getFileName() === universalJson.imageFile);
+          const audioMediaFile = universalJson.audioFile && mediaFiles.find(mediaFile => mediaFile.getFileName() === universalJson.audioFile);
+
+          universal.textContent = universalJson.text;
+          universal.volume = universalJson.volume;
+          universal.loop = universalJson.loop;
+
+          if (imageMediaFile) {
+            universal.setImageMediaFile(imageMediaFile);
+          }
+
+          if (audioMediaFile) {
+            universal.setAudioMediaFile(audioMediaFile);
+          }
+
+          room.addUniversal(universal);
+        });
+
+
+      rooms.push(room);
+    });
+
+    return rooms;
   }
 
-  private getFileType(fileName) {
+  public getFileMimeType(fileName) {
     const fileType = fileName.substring(fileName.lastIndexOf('.'), fileName.length);
     const fileMap = {
       '.mp3': MIME_TYPE_MP3,
@@ -314,10 +232,266 @@ export class DeserializationService {
       '.m4a': MIME_TYPE_XM4A,
       '.png': MIME_TYPE_PNG,
       '.jpg': MIME_TYPE_JPG,
-      '.jpeg': MIME_TYPE_JPEG
+      '.jpeg': MIME_TYPE_JPEG,
     };
+
     return fileMap[fileType] || MIME_TYPE_PNG;
   }
 
+  private _deserializeProjectFromZipFile(jsZipData) {
+    const fileMap = jsZipData.files;
+    const jsonStoryFilePath: string = Object.keys(fileMap).find(path => path.endsWith('.json'));
+    const yamlStoryFilePath: string = Object.keys(fileMap).find(path => path.endsWith('.yml')) || STORY_FILE_YAML;
+    const storyFile = fileMap[jsonStoryFilePath || yamlStoryFilePath];
 
+    return this._parseStoryFile(storyFile)
+      .then((storyJson) => {
+        switch (storyJson.version) {
+          case STORY_VERSION: {
+            return this._loadMediaFiles(storyJson, fileMap).then((mediaFiles) => this._deserializeProject(storyJson, mediaFiles, false));
+          }
+          default: {
+            return deserializeOldStory(this, storyJson, fileMap);
+          }
+        }
+      });
+  }
+
+  private _parseStoryFile(storyFile) {
+    return storyFile.async('string').then((storyFileString) => {
+      if (storyFile.name.endsWith('.json')) {
+        return JSON.parse(storyFileString);
+      } else {
+        try {
+          //remove room property descriptions from yaml file (ex: - !image, - !door)
+          const bangDescriptionRegex = /!\w+\n/g;
+          const newLineStoryYaml: string = storyFileString.replace(/\r\n/g, '\n');
+          const cleanedStoryYaml: string = newLineStoryYaml.replace(bangDescriptionRegex, '\n');
+
+          return JsYaml.load(cleanedStoryYaml);
+        }
+        catch (error) {
+          console.error(error);
+          return;
+        }
+      }
+    });
+  }
+
+  private async _loadMediaFiles(storyJson, fileMap): Promise<MediaFile[]> {
+    const allRemoteFiles = this.extractAllRemoteFiles(storyJson);
+    const remoteFiles = [];
+    const localFiles = Object.keys(fileMap)
+      .filter(fileKey => !fileKey.endsWith('.yml'))
+      .filter(fileKey => !fileKey.endsWith('.json'))
+      .map(fileKey => fileMap[fileKey])
+      .filter(file => !file.dir);
+    
+    allRemoteFiles.forEach((rf) => {
+      const hasInZip = localFiles.find(f => f.name.indexOf(rf.filePath) > -1);
+
+      if (!hasInZip) {
+        remoteFiles.push(rf);
+      }
+    });
+
+    const mediaFiles = await this.loadRemoteFiles(remoteFiles);
+    const localMediaFiles = await this._loadLocalFiles(localFiles);
+    return mediaFiles.concat(localMediaFiles);
+  }
+
+  private _extractRootRemoteFiles(story) {
+    const remoteFiles = [];
+
+    if (story) {
+      // extract soundtrack
+      if (story.soundtrack && story.soundtrack.remoteFile) {
+        remoteFiles.push({
+          file: story.soundtrack.file,
+          filePath: story.soundtrack.file,
+          remoteFile: story.soundtrack.remoteFile,
+        });
+      }
+    }
+
+    return remoteFiles;
+  }
+
+  private _extractHomeRoomRemoteFiles(story) {
+    const rooms = story.rooms;
+
+    if (rooms && rooms.length > 0) {
+      const homeRoomId = story.homeRoomId;
+      const homeRoom = rooms.find(room => room.uuid === homeRoomId) || rooms[0];
+
+      return this._extractRoomsRemoteFiles([homeRoom]);
+    }
+
+    return [];
+  }
+
+  private _extractRestRoomsMediaFiles(story, homeRoom) {
+    const mediaFilesByRoom = [];
+    const mediaFiles = [];
+
+    const rooms = story.rooms;
+
+    if (rooms && rooms.length > 0) {
+      rooms
+        .filter(room => room.uuid !== homeRoom.uuid)
+        .forEach((room) => {
+          const roomId = room.uuid;
+          const roomMediaFiles = this._extractRoomsRemoteFiles([room]).map((remoteFile) => {
+            const mimeType = this.getFileMimeType(remoteFile.file);
+
+            return new MediaFile({
+              mimeType,
+              fileName: remoteFile.file,
+              remoteFile: remoteFile.remoteFile,
+              binaryFileData: null,
+            });
+          });
+
+          mediaFilesByRoom.push({
+            roomId,
+            roomMediaFiles,
+          });
+
+          roomMediaFiles.forEach((mediaFile) => mediaFiles.push(mediaFile));
+        });
+    }
+
+    return { mediaFilesByRoom, mediaFiles };
+  }
+
+  private _extractRoomsRemoteFiles(rooms) {
+    const remoteFiles = [];
+
+    (rooms || []).forEach((room) => {
+      const universalRemoteFiles = (room.universal || []).reduce((acc, universal) => {
+        return acc.concat([
+          {
+            file: universal.imageFile,
+            remoteFile: universal.remoteImageFile,
+          },
+          {
+            file: universal.audioFile,
+            remoteFile: universal.remoteAudioFile,
+          },
+        ]);
+      }, []);
+      const assets = [
+        ...universalRemoteFiles,
+        room.ambient,
+        room.image,
+        room.thumbnail || {},
+        (room.narrator || {}).intro,
+        (room.narrator || {}).reprise,
+      ].filter(a => !!a && !!a.remoteFile);
+
+      assets.forEach((asset) => {
+        asset.filePath = `${room.uuid}/${asset.file}`;
+        remoteFiles.push(asset);
+      });
+    });
+
+    return remoteFiles;
+  }
+
+  private async _loadLocalFiles(localFiles) {
+    const mediaFiles = [];
+
+    for (let i = 0; i < localFiles.length; i++) {
+      const localFile = localFiles[i];
+      const filePath = localFile.name;
+      const pathParts = filePath.split('/');
+      const fileName = pathParts[pathParts.length - 1];
+      const mimeType = this.getFileMimeType(fileName);
+
+      await localFile.async(UINT8ARRAY)
+        .then((fileData) => {
+          return new Blob([fileData], { type: mimeType });
+        })
+        .then((blob) => this.fileLoaderUtil.getBinaryFileData(blob))
+        .then((binaryData) => {
+          mediaFiles.push(new MediaFile({
+            mimeType,
+            fileName: fileName,
+            remoteFile: null,
+            binaryFileData: binaryData,
+          }));
+        });
+    }
+
+    return mediaFiles;
+  }
+
+  private _deserializeProject(story, mediaFiles, quick = true) {
+    const homeRoom = story.rooms.find(room => room.uuid === story.homeRoomId) || story.rooms[0];
+    const restRoomsMediaFiles = (quick ? this._extractRestRoomsMediaFiles(story, homeRoom) : {
+      mediaFilesByRoom: [],
+      mediaFiles: [],
+    });
+
+    const allMediaFiles = mediaFiles.concat(restRoomsMediaFiles.mediaFiles);
+
+    this.roomManager.clearRooms();
+    this.roomManager.setProjectName(story.name);
+    this.roomManager.setProjectTags(story.tags || '');
+    this.roomManager.setProjectDescription(story.description);
+
+    if (story.homeRoomId) {
+      this.roomManager.setHomeRoomId(story.homeRoomId);
+    }
+
+    if (story.soundtrack) {
+      const soundtrack = allMediaFiles.find(mediaFile => mediaFile.getFileName() === story.soundtrack.file);
+
+      if (soundtrack) {
+        this.roomManager.setSoundtrackMediaFile(soundtrack, story.soundtrackVolume);
+      } else {
+        this.roomManager.removeSoundtrack();
+      }
+    } else {
+      this.roomManager.removeSoundtrack();
+    }
+
+    this.deserializeRooms(story.rooms, homeRoom.uuid, allMediaFiles, quick)
+      .forEach(room => this.roomManager.addRoom(room));
+
+    return this._callbackLoadRestMediaFiles.bind(this, restRoomsMediaFiles.mediaFilesByRoom);
+  }
+
+  private async _callbackLoadRestMediaFiles(remoteMediaFilesByRoom) {
+    for (let i = 0; i < remoteMediaFilesByRoom.length; i++) {
+      const { roomId, roomMediaFiles } = remoteMediaFilesByRoom[i];
+      const room: Room = this.roomManager.getRoomById(roomId);
+      const filesCount = roomMediaFiles.length;
+      let filesLoaded = 0;
+
+      for (let j = 0; j < filesCount; j++) {
+        const remoteFile: MediaFile = roomMediaFiles[j];
+
+        await this.afStorage
+          .ref(remoteFile.getRemoteFile())
+          .getDownloadURL().toPromise()
+          .then((fileStoreUrl) => this.apiService.loadBinaryData(fileStoreUrl).toPromise())
+          .then((data: ArrayBuffer) => new Blob([data], { type: remoteFile.mimeType }))
+          .then((blob) => this.fileLoaderUtil.getBinaryFileData(blob))
+          .then((binaryData) => {
+            remoteFile.setUploadedBinaryFileData(binaryData);
+            filesLoaded += 1;
+            room.setProgressLoading(100 * (filesLoaded / filesCount));
+          })
+          .catch((error) => {
+            console.log('Error to load remote file:', remoteFile);
+            console.log(error);
+            filesLoaded += 1;
+            room.setProgressLoading(100 * (filesLoaded / filesCount));
+          });
+      }
+
+      room.setAssetsLoadedState(true);
+    }
+  }
 }

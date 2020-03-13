@@ -1,11 +1,8 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
+import { SceneInteractor } from 'core/scene/sceneInteractor';
+import { resizeImage } from 'data/util/imageResizeService';
 
-import {FileLoaderUtil, mimeTypeMap} from 'ui/editor/util/fileLoaderUtil';
-import {PropertyBuilder} from 'data/scene/roomPropertyBuilder';
-import {resizeImage} from 'data/util/imageResizeService';
-import {SceneInteractor} from 'core/scene/sceneInteractor';
-import {Door} from 'data/scene/entities/door';
-
+import { FileLoaderUtil, mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
 
 @Injectable()
 export class SlideshowBuilder {
@@ -13,8 +10,8 @@ export class SlideshowBuilder {
   constructor(
     private sceneInteractor: SceneInteractor,
     private fileLoaderUtil: FileLoaderUtil,
-    private propertyBuilder: PropertyBuilder
-  ) {}
+  ) {
+  }
 
   build(files): Promise<any> {
     const fileList = Object.keys(files)
@@ -30,30 +27,20 @@ export class SlideshowBuilder {
       .map(file => this.fileLoaderUtil.getBinaryFileData(file).then(dataUrl => resizeImage(dataUrl, 'backgroundImage')));
 
     return Promise.all(backgroundFiles)
-      .then(resizedList => resizedList.map((resized: any, index) => {
-        let roomId = this.sceneInteractor.getActiveRoomId();
-        let room = this.sceneInteractor.getRoomById(roomId);
-        if (room.hasBackgroundImage()) {
-          roomId = this.sceneInteractor.addRoom();
-          room = this.sceneInteractor.getRoomById(roomId);
-        }
-        const fileName = fileList[index].name;
-        room.setFileData(fileName, resized.backgroundImage);
-        room.setThumbnail(fileName, resized.thumbnail);
-        return room;
-        })
-      )
-      .then(roomList => roomList.forEach((room, index) => {
-        // disabled by Ali based on Aparna's request
-        // if (roomList.length>1) {
-        //   const outgoingIndex = (index >= roomList.length - 1) ? 0 : index + 1;
-        //   const outgoingRoomId = roomList[outgoingIndex].getId();
-        //   const outgoingRoomName = roomList[outgoingIndex].getName();
-        //   const door: Door = this.propertyBuilder.door(outgoingRoomId, outgoingRoomName);
-        //   door.setAutoTime(0);
-        //   room.addDoor(door);
-        // }
-      }));
+      .then(resizedList => resizedList.map((resized: any) => {
+          let roomId = this.sceneInteractor.getActiveRoomId();
+          let room = this.sceneInteractor.getRoomById(roomId);
+
+          if (room.hasBackgroundImage()) {
+            roomId = this.sceneInteractor.addRoom();
+            room = this.sceneInteractor.getRoomById(roomId);
+          }
+
+          room.setBackgroundImageBinaryData(resized.backgroundImage);
+          room.setThumbnail(resized.thumbnail);
+          return room;
+        }),
+      );
   }
 
 }

@@ -1,5 +1,4 @@
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import { Injectable } from '@angular/core';
 
 const POLICY_STORAGE: string = 'POLICY_STORAGE';
 
@@ -8,11 +7,13 @@ export class AssetService {
 
   private uploadPolicy: any;
 
-  constructor() {}
+  constructor() {
+  }
 
   getUploadPolicy() {
     if (!this.uploadPolicy && sessionStorage) {
       const uploadPolicy = sessionStorage.getItem(POLICY_STORAGE);
+
       this.uploadPolicy = JSON.parse(uploadPolicy);
     }
     return this.uploadPolicy;

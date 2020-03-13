@@ -7,6 +7,8 @@
   align-items: center;
   cursor: grab;
   width: $room-icon-container-width;
+  top: 0;
+  left: 0;
 
   &:active {
     cursor: grabbing;
@@ -24,7 +26,7 @@
   height: $room-icon-size-large;
   display: block;
   margin: 0 auto;
-  filter: drop-shadow(0 7px 14px rgba(0,0,0,.3));
+  filter: drop-shadow(0 7px 14px rgba(0, 0, 0, .3));
 }
 
 .icon__delete {

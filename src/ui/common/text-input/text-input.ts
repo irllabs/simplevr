@@ -1,10 +1,10 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 
 @Component({
   selector: 'text-input',
   styleUrls: ['./text-input.scss'],
-  templateUrl: './text-input.html'
+  templateUrl: './text-input.html',
 })
 export class TextInput {
 
@@ -12,12 +12,13 @@ export class TextInput {
   @Input() isRowItem: boolean = false;
   @Input() isActive: boolean = false;
   @Input() isRoomName: boolean = false;
+  @Input() isHotspotTitle: boolean = false;
   @Input() textModel: string;
   @Output() onTextChange = new EventEmitter();
 
   private onModelChange($event) {
     this.onTextChange.emit({
-      text: $event
+      text: $event,
     });
   }
 

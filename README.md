@@ -1,11 +1,3 @@
-# NOTE
-This repo is for archival purposes only.
-The most resent version of this repository has:
-- Moved to [Azure Devops](https://dev.azure.com/irllabs/SimpleVR/_git/simplevr)
-- Is in the [`Release` branch of the above repo](https://dev.azure.com/irllabs/SimpleVR/_git/simplevr)
-
-_____________________________
-_____________________________
 ## Social VR Editing Tool
 
 ### About

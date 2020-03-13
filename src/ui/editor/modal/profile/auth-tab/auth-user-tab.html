@@ -1,6 +1,6 @@
 <div class="modal-window__fields">
   <div class="dropdown-title">
-      <p>Hello {{getUserName()}}!</p>
+    <p>Hello {{getUserName()}}!</p>
   </div>
 
   <div
@@ -32,7 +32,7 @@
         <p
           class="user-view__project-title"
           *ngIf="!projectIsSelected(project.id)"
-          (click)="openProject(project.id)"
+          (click)="openProject(project)"
           [ngClass]="{'user-view__project-title--selected': projectIsSelected(project.id)}">
           {{project.name}}
         </p>
@@ -56,17 +56,10 @@
             Multi-View
           </span>
           <span
-            (click)="downloadProject(project.id, project.name)"
+            (click)="downloadProject(project)"
             class="user-view__project-option user-view__project-option--margin">
             Download
           </span>
-          <!--
-          <span
-            (click)="requestDeleteProject(project.id)"
-            class="user-view__project-option user-view__project-option--margin">
-            Delete
-          </span>
-          -->
         </p>
 
       </div>
@@ -74,26 +67,27 @@
   </div>
   <!-- Logout and Explore buttons -->
 
-<div class="button_row">
-  <div
-    (click)="onExploreClick($event)"
-    title="Click to explore other Social VR projects"
-    class="button">
-    Explore</div>
+  <div class="button_row">
+    <div
+      (click)="onExploreClick($event)"
+      title="Click to explore other Social VR projects"
+      class="button">
+      Explore
+    </div>
 
-  <div
-    class="button"
-    title="Click to add a room to current story"
-    (click)="onLogOutClick($event)">
-    Sign Out
-  </div>
+    <div
+      class="button"
+      title="Click to add a room to current story"
+      (click)="onLogOutClick($event)">
+      Sign Out
+    </div>
 
-  <div
-    *ngIf="userIsAdmin()"
-    (click)="onAdminClick($event)"
-    title="Click to administer your groups"
-    class="button">
-    Admin
-  </div>
+    <div
+      *ngIf="userIsAdmin()"
+      (click)="onAdminClick($event)"
+      title="Click to administer your groups"
+      class="button">
+      Admin
+    </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import {Vector2} from 'data/scene/entities/vector2';
+import { Vector2 } from 'data/scene/entities/vector2';
 
 export interface RoomProperty {
 
@@ -15,6 +15,8 @@ export interface RoomProperty {
   setLocation(location: Vector2): RoomProperty;
 
   getTimestamp(): number;
+
+  getIcon(): string;
 
   setTimestamp(timestamp: number): RoomProperty;
 

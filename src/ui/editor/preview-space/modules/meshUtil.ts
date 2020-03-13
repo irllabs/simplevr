@@ -4,8 +4,8 @@ function clearScene(scene: THREE.Scene) {
   scene.traverse(mesh => {
     if (mesh instanceof THREE.Mesh) {
       cleanMeshMemory(mesh);
-      if (mesh.material && mesh.material.map) {
-        mesh.material.map = null;
+      if (mesh.material && mesh.material['map']) {
+        mesh.material['map'] = null;
       }
       mesh.material = null;
       mesh.geometry = null;
@@ -31,4 +31,4 @@ function cleanMeshMemory(mesh) {
   }
 }
 
-export {clearScene, cleanMeshMemory};
+export { clearScene, cleanMeshMemory };

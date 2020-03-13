@@ -1,0 +1,169 @@
+<a-entity
+  [attr.hotspot]="params"
+  class="hotspot"
+  geometry="primitive: plane"
+  material="
+    transparent: true;
+    alphaTest:.5;
+    opacity:0"
+  scale="100 100"
+  look-at="[camera]">
+  <!-- Scene triggers -->
+  <a-entity
+    class="outer-trigger raycast-trigger"
+    material="
+      opacity: 0;
+      alphaTest: .5;
+      transparent: true"
+    geometry="
+      primitive: plane;
+      height: 1;
+      width: 1;"
+    position="0 0 -1">
+  </a-entity>
+  <a-entity
+    class="center-trigger raycast-trigger"
+    material="
+      opacity: 0;
+      alphaTest: .5;
+      transparent: true"
+    geometry="
+      primitive: plane;
+      height: .2;
+      width: .2;"
+    position="0 0 -1">
+  </a-entity>
+  <a-entity
+    class="content-zone-trigger raycast-trigger"
+    material="
+      opacity: 0;
+      alphaTest: .5;
+      transparent: true"
+    geometry="
+      primitive: plane;
+      height: .5;
+      width: .5">
+  </a-entity>
+  <!-- /Scene triggers -->
+
+  <!-- Pulsating marker -->
+  <a-entity 
+    pulsating-marker
+    animation__pulsation="
+      property: scale;
+      from: 1 1 1;
+      to: 1.3 1.3 1.3;
+      loop: true;
+      dur: 700;
+      dir: alternate;
+    ">
+    <a-image
+      [attr.src]="iconHotspot"
+      alpha-test=".5"
+      animation__scale-in="
+        property: scale;
+        dur: 500;
+        to: 1 1 1;
+        startEvents: start-scale-in;
+        pauseEvents: stop-scale-in;
+      "
+      animation__scale-out="
+        property: scale;
+        dur: 500;
+        to: .001 .001 .001;
+        startEvents: start-scale-out;
+        pauseEvents: stop-scale-out;
+      ">
+    </a-image>
+  </a-entity>
+  <!-- /Pulsating marker -->
+
+  <!-- Hotspot hidden marker(audio) -->
+  <a-image 
+    *ngIf="isAudioOnly"
+    [attr.src]="iconAudio"
+    position="0 0 .1"
+    hidden-marker 
+    opacity="0"
+    alpha-test=".5"
+    scale=".5 .5 .5"
+    animation__fade-in="
+      property: opacity;
+      from: 0;
+      to: 1;
+      dur: 500;
+      pauseEvents: stop-fade-in;
+      startEvents: start-fade-in;
+    "
+    animation__fade-out="
+      property: opacity;
+      from: 1;
+      to: 0;
+      dur: 500;
+      pauseEvents: stop-fade-out;
+      startEvents: start-fade-out;
+    ">
+  </a-image>
+  <!-- / Hotspot hidden marker(audio) -->
+
+  <!-- Hotspot hidden marker -->
+  <a-image 
+    *ngIf="!sAudioOnly"
+    [attr.src]="iconHotspotHover"
+    hidden-marker
+    position="0 0 .1"
+    opacity="0"
+    alpha-test=".5"
+    animation__fade-in="
+      property: opacity;
+      from: 0;
+      to: 1;
+      dur: 500;
+      pauseEvents: stop-fade-in;
+      startEvents: start-fade-in;
+    "
+    animation__fade-out="
+      property: opacity;
+      from: 1;
+      to: 0;
+      dur: 500;
+      pauseEvents: stop-fade-out;
+      startEvents: start-fade-out;
+    ">      
+  </a-image>
+  <!-- /Hotspot hidden marker -->
+
+  <!-- Hotspot name -->
+  <a-text 
+    [attr.value]="name"
+    class="hotspot-name"
+    align="center" 
+    visible="false"
+    position="0 -.5 0"
+    alpha-test=".5">
+  </a-text>
+  <!-- /Hotspot name -->
+
+  <!--   /Hidden marker -->
+  <a-entity
+      #hotspotContent
+      hotspot-content
+      class="hotspot-content"
+      scale="0 0 0"
+      width="2"
+      height="2"
+      position="0 0 -.3">
+      <a-image 
+        *ngIf="hasImage"
+        #assetImage>
+      </a-image>
+      <a-sound
+        #assetAudio
+        *ngIf="hasAudio"
+        [attr.volume]="hotspot.volume"
+        [attr.loop]="hotspot.loop"
+        sound="positional: false">
+      </a-sound>
+      
+    </a-entity>
+</a-entity>

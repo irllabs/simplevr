@@ -1,19 +1,18 @@
+import { Vector2 } from 'data/scene/entities/vector2';
 
-import {Vector2} from 'data/scene/entities/vector2';
+import { RoomProperty } from 'data/scene/interfaces/roomProperty';
 
-import {RoomProperty} from 'data/scene/interfaces/roomProperty';
-
-import {generateUniqueId} from 'data/util/uuid';
+import { generateUniqueId } from 'data/util/uuid';
 
 export class BaseElement implements RoomProperty {
-
   private id: string = generateUniqueId();
-  private name: string;
-  private location: Vector2 = Vector2.build();
+  private name: string = '';
+  public location: Vector2 = Vector2.build();
   private timestamp: number = Date.now();
   private isPossibleCombinedHotspot: boolean = false;
 
-  constructor() {}
+  constructor() {
+  }
 
   getId(): string {
     return this.id;
@@ -59,12 +58,16 @@ export class BaseElement implements RoomProperty {
     this.isPossibleCombinedHotspot = isPossibleCombinedHotspot;
   }
 
+  getIcon(): string {
+    return null;
+  }
+
   toJson(): any {
     return {
       uuid: this.id,
       name: this.name,
       vect: this.location.toString(),
-      time: this.timestamp
+      time: this.timestamp,
     };
   }
 

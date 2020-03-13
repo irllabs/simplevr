@@ -21,7 +21,7 @@
 
     <!-- Soundtrack -->
 
-<div class="button_row">
+    <div class="button_row">
       <div
         class="button"
         title="Click to create new story"
@@ -29,15 +29,15 @@
         New Story
       </div>
       <div class="button" title="Click to save current story to server"
-       (click)="onSaveStoryClick($event)">
+           (click)="onSaveStoryClick($event)">
         Save Story
       </div>
 
-</div>
+    </div>
 
-<div class="button_row">
+    <div class="button_row">
       <div class="button" title="Click to download story as zip file"
-       (click)="onSaveStroyLocallyClick($event)">
+           (click)="onSaveStoryLocallyClick($event)">
         Download as .zip
       </div>
       <div
@@ -47,15 +47,16 @@
         Upload from .zip
       </div>
 
-      </div>
+    </div>
 
-      <div class="dropdown-input-row">
+    <div class="dropdown-input-row">
       <file-loader
         *ngIf="!getSoundtrack().hasAsset()"
-          (onFileLoad)="onSoundtrackLoad($event)"
-          [acceptedFileType]="'audio'"
-          [displayText]="'Add Soundtrack'"
-          class="story__soundtrack__upload-button">
+        (onFileLoad)="onSoundtrackLoad($event)"
+        [acceptedFileType]="'audio'"
+        [displayText]="'Add Soundtrack'"
+        [maxFileSize]="50"
+        class="story__soundtrack__upload-button">
       </file-loader>
 
       <div
@@ -64,18 +65,15 @@
         (click)="removeSoundtrack()">
         Remove Soundtrack
       </div>
-
-      <audio
+      
+      <audio-element 
         *ngIf="getSoundtrack().hasAsset()"
-        [attr.src]="getSoundtrack().getBinaryFileData()"
-        type="audio/mp3"
-        controls="controls"
-        [volume]="getSoundtrackVolume()"
         (volumechange)="onVolumeChange($event)"
-        class="story__soundtrack__audio-player">
-      </audio>
+        [volume]="getSoundtrackVolume()"
+        [src]="getSoundtrack().getObjectUrl() | urlSanitize">
+      </audio-element>
 
-</div>
+    </div>
 
   </div>
 

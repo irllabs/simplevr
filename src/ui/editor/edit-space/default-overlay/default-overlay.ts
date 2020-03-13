@@ -1,18 +1,18 @@
-import {Component, Output, EventEmitter} from '@angular/core';
-import {EventBus} from 'ui/common/event-bus';
-import {FileLoaderUtil, mimeTypeMap} from 'ui/editor/util/fileLoaderUtil';
-import {SceneInteractor} from 'core/scene/sceneInteractor';
-import {Room} from 'data/scene/entities/room';
-import {resizeImage} from 'data/util/imageResizeService';
-import {ZipFileReader} from 'ui/editor/util/zipFileReader';
-import {SlideshowBuilder} from 'ui/editor/util/SlideshowBuilder';
-import {FileLoaderMulti} from 'ui/editor/util/file-loader-multi/file-loader-multi';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { SceneInteractor } from 'core/scene/sceneInteractor';
+import { Room } from 'data/scene/entities/room';
+import { resizeImage } from 'data/util/imageResizeService';
+import { EventBus } from 'ui/common/event-bus';
+import { FileLoaderUtil, mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
+import { SlideshowBuilder } from 'ui/editor/util/SlideshowBuilder';
+import { ZipFileReader } from 'ui/editor/util/zipFileReader';
+import { SettingsInteractor } from 'core/settings/settingsInteractor'
 
 
 @Component({
   selector: 'default-overlay',
   styleUrls: ['./default-overlay.scss'],
-  templateUrl: './default-overlay.html'
+  templateUrl: './default-overlay.html',
 })
 export class DefaultOverlay {
 
@@ -23,8 +23,10 @@ export class DefaultOverlay {
     private fileLoaderUtil: FileLoaderUtil,
     private zipFileReader: ZipFileReader,
     private sceneInteractor: SceneInteractor,
-    private slideshowBuilder: SlideshowBuilder
-  ) {}
+    private slideshowBuilder: SlideshowBuilder,
+    private settingsInteractor: SettingsInteractor
+  ) {
+  }
 
   /*
   private selectBackground () {
@@ -39,7 +41,7 @@ export class DefaultOverlay {
 
   */
 
-  private onFileDrop(event) {
+  public onFileDrop(event) {
     if (event.files && event.files.length > 1) {
       this.eventBus.onStartLoading();
       this.slideshowBuilder.build(event.files)
@@ -50,40 +52,50 @@ export class DefaultOverlay {
       return;
     }
     const file = event.files[0];
-    if (mimeTypeMap.image.indexOf(file.type)>-1) {
+    if (mimeTypeMap.image.indexOf(file.type) > -1) {
       this.loadImageFile(file);
-    } else if (mimeTypeMap.zip.indexOf(file.type)>-1) {
+    } else if (mimeTypeMap.zip.indexOf(file.type) > -1) {
       this.loadZipFile(file);
     }
   }
 
-  private onFileChange($event) {
+  public onFileChange($event) {
     const file = $event.target.files && $event.target.files[0];
     const files = $event.target.files;
+
     if (!file) {
       this.eventBus.onModalMessage('Error', 'No valid file selected');
       return;
     }
 
-    if ($event.target.files.length > 1 ) {
+    if ($event.target.files.length > 1) {
       this.addSlideshow(files);
-    } else if (mimeTypeMap.image.indexOf(file.type)>-1) {
+    } else if (mimeTypeMap.image.indexOf(file.type) > -1) {
       this.loadImageFile(file);
-    } else if (mimeTypeMap.zip.indexOf(file.type)>-1) {
+    } else if (mimeTypeMap.zip.indexOf(file.type) > -1) {
       this.loadZipFile(file);
     }
   }
 
-  private loadImageFile(file ) {
+  private loadImageFile(file) {
+    const { maxBackgroundImageSize } = this.settingsInteractor.settings
+    
+    if(file.size/1024/1024 >= maxBackgroundImageSize){
+      this.eventBus.onModalMessage('Error', `File is too large. Max file size is ${maxBackgroundImageSize} mb`)
+      return;
+    }
+
     this.eventBus.onStartLoading();
     this.fileLoaderUtil.validateFileLoadEvent(file, 'image')
       .then(this.fileLoaderUtil.getBinaryFileData.bind(this.fileLoaderUtil))
       .then(fileData => resizeImage(fileData, 'backgroundImage'))
-      .then(resized => {
+      .then((resized) => {
         const roomId: string = this.sceneInteractor.getActiveRoomId();
         const room: Room = this.sceneInteractor.getRoomById(roomId);
-        room.setFileData(file.name, resized.backgroundImage);
-        room.setThumbnail(file.name, resized.thumbnail);
+
+        room.setBackgroundImageBinaryData(resized.backgroundImage);
+        room.setThumbnail(resized.thumbnail);
+
         if (this.onFileLoad) {
           this.onFileLoad.emit();
         }
@@ -99,7 +111,7 @@ export class DefaultOverlay {
       .catch(error => this.eventBus.onModalMessage('error', error));
   }
 
-  private loadZipFile (file) {
+  private loadZipFile(file) {
     this.zipFileReader.loadFile(file);
   }
 

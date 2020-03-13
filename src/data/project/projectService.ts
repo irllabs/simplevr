@@ -1,22 +1,25 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
+import { Project } from './projectModel';
 
 @Injectable()
 export class ProjectService {
+  private _project: Project;
 
-  private projectId: string;
-
-  constructor() {}
-
-  getProjectId(): string {
-    return this.projectId;
+  constructor() {
+  }
+  public getProjectId(): string {
+    return this._project ? this._project.id : null;
   }
 
-  setProjectId(projectId: string) {
-    this.projectId = projectId;
+  public getProject(): Project {
+    return this._project;
   }
 
-  isWorkingOnSavedProject(): boolean {
-    return !!this.projectId;
+  public setProject(project: Project) {
+    this._project = project;
   }
 
+  public isWorkingOnSavedProject(): boolean {
+    return !!this.getProjectId();
+  }
 }

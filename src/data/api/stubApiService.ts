@@ -1,21 +1,21 @@
-import {Injectable} from '@angular/core';
-import {Http, Response, Headers, RequestOptions, ResponseContentType} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
+import { Injectable } from '@angular/core';
+import { Http, ResponseContentType } from '@angular/http';
 
 import Api from 'data/api/api';
-import {AuthenticationService} from 'data/authentication/authenticationService';
+import { AuthService } from 'data/authentication/authService';
+import { Observable } from 'rxjs/Observable';
+
 const getUser = require('../../__stubs__/user.json');
 const getProjects = require('../../__stubs__/projects.json');
-
-console.log(getUser, getProjects);
 
 @Injectable()
 export class ApiService implements Api {
 
   constructor(
     private http: Http,
-    private authenticationService: AuthenticationService
-  ) {}
+    private authService: AuthService,
+  ) {
+  }
 
   logIn(userName: string, password: string): Observable<string> {
     return Observable.from('STUB_TOKEN');
@@ -56,8 +56,13 @@ export class ApiService implements Api {
     return Observable.from(projectUrl);
   }
 
+  getShortenedUrl(url: string) {
+    // TODO
+    return Observable.from('');
+  }
+
   getProject(signedProjectUrl: string): Observable<any> {
-    return this.http.get(signedProjectUrl, {responseType: ResponseContentType.ArrayBuffer})
+    return this.http.get(signedProjectUrl, { responseType: ResponseContentType.ArrayBuffer })
       .map(response => response.arrayBuffer());
   }
 

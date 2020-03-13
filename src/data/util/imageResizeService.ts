@@ -1,5 +1,5 @@
-import {Vector2} from 'data/scene/entities/vector2';
-import {MIME_TYPE_JPEG} from 'ui/common/constants';
+import { Vector2 } from 'data/scene/entities/vector2';
+import { MIME_TYPE_JPEG } from 'ui/common/constants';
 
 const MAX_SIZE_HOTSPOT = 1024;
 
@@ -8,7 +8,7 @@ function getNearestPowerOfTwo(x: number): number {
     .map((_, index) => Math.pow(2, index))
     .map((power, index) => {
       const distance = Math.abs(x - power);
-      return {distance: distance, value: power};
+      return { distance: distance, value: power };
     })
     .sort((a, b) => a.distance - b.distance)[0].value;
 }
@@ -20,7 +20,7 @@ export function fitToMax(width: number, height: number, maxSize: number): Vector
     x = maxSize;
     y = (height / width) * maxSize;
   }
-  else if (height > width && height > maxSize){
+  else if (height > width && height > maxSize) {
     x = (width / height) * maxSize;
     y = maxSize;
   }
@@ -49,7 +49,7 @@ const SIZE_OPTIONS = {
       const x = Math.floor((width / height) * y);
       return new Vector2(x, y);
     }
-  }
+  },
 };
 
 function getResizedImage(imageUrl: any, sizeOption: string): Promise<string> {
@@ -57,17 +57,19 @@ function getResizedImage(imageUrl: any, sizeOption: string): Promise<string> {
     try {
       const canvas = document.createElement('canvas');
       const img = new Image();
+
       img.onload = () => {
         const resizeDimensions: Vector2 = SIZE_OPTIONS[sizeOption](img.width, img.height);
+
         canvas.width = resizeDimensions.getX();
         canvas.height = resizeDimensions.getY();
         canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 0, resizeDimensions.getX(), resizeDimensions.getY());
+
         resolve(canvas.toDataURL(MIME_TYPE_JPEG, 1));
       };
-      img.src = imageUrl.changingThisBreaksApplicationSecurity ?
-        imageUrl.changingThisBreaksApplicationSecurity : imageUrl;
-    }
-    catch(error) {
+
+      img.src = imageUrl.changingThisBreaksApplicationSecurity || imageUrl;
+    } catch (error) {
       reject(error);
     }
   });
@@ -80,18 +82,15 @@ export function resizeImage(imageUrl: any, sizeOption: string): Promise<any> {
   if (sizeOption === 'backgroundImage') {
     return Promise.all([
       getResizedImage(imageUrl, 'backgroundImage'),
-      getResizedImage(imageUrl, 'projectThumbnail')
+      getResizedImage(imageUrl, 'projectThumbnail'),
     ])
-    .then(resizeList => {
-      return {
-        backgroundImage: resizeList[0],
-        thumbnail: resizeList[1]
-      };
-    });
-  }
-  else {
+      .then(resizeList => {
+        return {
+          backgroundImage: resizeList[0],
+          thumbnail: resizeList[1],
+        };
+      });
+  } else {
     return getResizedImage(imageUrl, sizeOption);
   }
-
-
 }

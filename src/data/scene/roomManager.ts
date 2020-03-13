@@ -1,18 +1,12 @@
 import { Injectable } from '@angular/core';
 
-import {Audio} from 'data/scene/entities/audio';
-import {Room} from 'data/scene/entities/room';
-import {Door} from 'data/scene/entities/door';
+import { Audio } from 'data/scene/entities/audio';
+import { Room } from 'data/scene/entities/room';
 
-import {
-  DEFAULT_PROJECT_NAME,
-  DEFAULT_PROJECT_DESCRIPTION,
-  DEFAULT_VOLUME
-} from 'ui/common/constants';
+import { DEFAULT_PROJECT_DESCRIPTION, DEFAULT_PROJECT_NAME, DEFAULT_VOLUME } from 'ui/common/constants';
 
 @Injectable()
 export class RoomManager {
-
   private projectName: string;
   private projectTags: string;
   private projectDescription: string;
@@ -20,7 +14,6 @@ export class RoomManager {
   private homeRoomId: string;
   private isReadOnly: boolean = false;
   private soundtrack: Audio = new Audio();
-  private soundtrackVolume: number = DEFAULT_VOLUME;
 
   constructor() {
     this.initValues();
@@ -35,7 +28,9 @@ export class RoomManager {
   }
 
   addRoom(room: Room) {
-    this.rooms.add(room);
+    if (room) {
+      this.rooms.add(room);
+    }
   }
 
   getRoomById(roomId: string): Room {
@@ -85,8 +80,7 @@ export class RoomManager {
   getProjectIsEmpty(): boolean {
     if (this.rooms.size === 1) {
       return !Array.from(this.rooms)[0].hasBackgroundImage();
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -115,19 +109,23 @@ export class RoomManager {
     if (fileName === undefined || fileName === null) {
       this.soundtrack.setFileName('');
     } else {
-    this.soundtrack.setFileName(fileName);
-    this.soundtrack.setBinaryFileData(dataUrl);
-    this.setSoundtrackVolume(volume);
+      this.soundtrack.setFileName(fileName);
+      this.soundtrack.setBinaryFileData(dataUrl);
+      this.soundtrack.setVolume(volume);
     }
+  }
+
+  setSoundtrackMediaFile(mediaFile = null, volume: number = 0.5) {
+    this.soundtrack.setMediaFile(mediaFile);
+    this.setSoundtrackVolume(volume);
   }
 
   setSoundtrackVolume(v: number) {
     if (v === undefined || v === null) {
-      this.soundtrackVolume = DEFAULT_VOLUME
+      v = DEFAULT_VOLUME;
     }
-    else {
-      this.soundtrackVolume = v
-    }
+
+    this.soundtrack.setVolume(v);
   }
 
   removeSoundtrack() {
@@ -135,8 +133,6 @@ export class RoomManager {
   }
 
   getSoundtrackVolume(): number {
-    return this.soundtrackVolume;
+    return this.soundtrack.getVolume();
   }
-
-
 }

@@ -1,37 +1,28 @@
-import {
-  Component,
-  Input,
-  Output,
-  HostListener,
-  ElementRef,
-  EventEmitter
-} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {Subscription} from 'rxjs/Subscription';
+import { Component, ElementRef, EventEmitter, HostListener, Output } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
+import { SceneInteractor } from 'core/scene/sceneInteractor';
+import { VideoInteractor } from 'core/video/VideoInteractor';
+import { Room } from 'data/scene/entities/room';
+import { Universal } from 'data/scene/entities/universal';
+import { Vector2 } from 'data/scene/entities/vector2';
+import { resizeImage } from 'data/util/imageResizeService';
+import { Subscription } from 'rxjs/Subscription';
+import { EventBus, EventType } from 'ui/common/event-bus';
+import { ShareableLoader } from 'ui/common/shareable-loader';
 
-import {EditSpaceSphere} from 'ui/editor/edit-space/edit-space-sphere/edit-space-sphere';
-import {FileLoaderUtil, mimeTypeMap} from 'ui/editor/util/fileLoaderUtil';
-import {EventBus, EventType} from 'ui/common/event-bus';
-import {normalizeAbsolutePosition} from 'ui/editor/util/iconPositionUtil';
-import {SHARED_KEY} from 'ui/editor/util/publicLinkHelper';
-import {ZipFileReader} from 'ui/editor/util/zipFileReader';
-import {SceneInteractor} from 'core/scene/sceneInteractor';
-import {VideoInteractor} from 'core/video/VideoInteractor';
-import {RoomProperty} from 'data/scene/interfaces/RoomProperty';
-import {Audio} from 'data/scene/entities/audio';
-import {Image} from 'data/scene/entities/image';
-import {Room} from 'data/scene/entities/room';
-import {Vector2} from 'data/scene/entities/vector2';
-import {resizeImage} from 'data/util/imageResizeService';
-import {SlideshowBuilder} from 'ui/editor/util/SlideshowBuilder';
-import {ShareableLoader} from 'ui/common/shareable-loader';
-import {MetaDataInteractor} from 'core/scene/projectMetaDataInteractor';
-import {ResponsiveUtil} from 'ui/editor/util/responsiveUtil';
+import { EditSpaceSphere } from 'ui/editor/edit-space/edit-space-sphere/edit-space-sphere';
+import { FileLoaderUtil, mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
+import { normalizeAbsolutePosition } from 'ui/editor/util/iconPositionUtil';
+import { SHARED_KEY } from 'ui/editor/util/publicLinkHelper';
+import { ResponsiveUtil } from 'ui/editor/util/responsiveUtil';
+import { SlideshowBuilder } from 'ui/editor/util/SlideshowBuilder';
+import { ZipFileReader } from 'ui/editor/util/zipFileReader';
 
 @Component({
   selector: 'editor',
   styleUrls: ['./editor.scss'],
-  templateUrl: './editor.html'
+  templateUrl: './editor.html',
 })
 export class Editor {
 
@@ -56,8 +47,9 @@ export class Editor {
     private shareableLoader: ShareableLoader,
     private metaDataInteractor: MetaDataInteractor,
     private element: ElementRef,
-    private responsiveUtil: ResponsiveUtil
-  ) {}
+    private responsiveUtil: ResponsiveUtil,
+  ) {
+  }
 
   ngAfterViewInit() {
     this.route.queryParams
@@ -65,9 +57,9 @@ export class Editor {
       .filter(value => !!value)
       .subscribe(
         sharableValue => {
-          setTimeout(() => this.shareableLoader.openProject(sharableValue))
+          setTimeout(() => this.shareableLoader.openProject(sharableValue));
         },
-        error => console.log('error', error)
+        error => console.log('error', error),
       );
     this.subscribeToEvents();
   }
@@ -115,22 +107,17 @@ export class Editor {
     }
   }
 
-  //added by alik to handle multiple hotspot making
-  // private buildHotspots(files): Promise<any> {
-  //
-  //     const fileList = Object.keys(files)
-  //       .map(key => files[key])
-  //       .sort((a, b) => a.lastModified - b.lastModified);
-  //
-  //     return this.processDroppedFile(fileList, event.clientX, event.clientY);
-  //
-  // }
+  public isLoadedAssets() {
+    const isLoaded = this.sceneInteractor.isLoadedAssets();
+
+    return isLoaded;
+  }
 
   private subscribeToEvents() {
     const subscription = this.eventBus.getObservable(EventType.HOTSPOT_EDITOR_VISIBILITY)
       .subscribe(
         event => this.hotspotEditorIsOpen = event.isVisible,
-        error => console.log('error', error)
+        error => console.log('error', error),
       );
     this.subscriptions.add(subscription);
   }
@@ -141,8 +128,8 @@ export class Editor {
 
   private showPreviewCheckbox(): boolean {
     return ((this.roomEditorIsVisible() ||
-            this.isPreview()) &&
-            !this.isReadOnly())
+      this.isPreview()) &&
+      !this.isReadOnly());
   }
 
   private isFlat(): boolean {
@@ -197,12 +184,12 @@ export class Editor {
   }
 
   private topCenterButtonsClass(): string {
-    console.log("what to do");
+    console.log('what to do');
     if (this.roomEditorIsVisible()
       && this.hasBackgroundImage()) {
-      return "editor_center1";
+      return 'editor_center1';
     } else {
-      return "editor_center";
+      return 'editor_center';
     }
   }
 
@@ -211,7 +198,7 @@ export class Editor {
   }
 
   private hasBackgroundImage(): boolean {
-    const activeRoomId: string  = this.sceneInteractor.getActiveRoomId();
+    const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
     return this.sceneInteractor.roomHasBackgroundImage(activeRoomId);
   }
 
@@ -221,46 +208,50 @@ export class Editor {
       console.log('cannot import files in preview mode');
       return;
     }
+
     //this.eventBus.onStartLoading();
     const filePromises = files.map(file => {
-      const fileName: string = file.name;
       const dropPosition: Vector2 = this.isFlat() ?
-          normalizeAbsolutePosition(x, y) :
-          this.editSpaceSphere.transformScreenPositionTo3dNormal(x, y);
+        normalizeAbsolutePosition(x, y) :
+        this.editSpaceSphere.transformScreenPositionTo3dNormal(x, y);
+
       if (!this.isFlat()) {
         dropPosition.setY(-1 * dropPosition.getY());
       }
+
       const fileType: string = Object.keys(mimeTypeMap)
         .find(fileType => mimeTypeMap[fileType].indexOf(file.type) > -1);
+
       if (!fileType) {
-        const errorTitle: string = 'Incompatible File Type';
         const errorMessage: string = 'Try using an image (.jpg, .jpeg, .png), an audio file (.mp3, .wav), or a story file (.zip)';
-        //this.eventBus.onModalMessage(errorTitle, errorMessage);
+
         return Promise.reject(errorMessage);
       }
+
       if (fileType === 'video') {
-        console.log('bam, video', file);
         this.getFileTypeStrategy(fileType)(file, null, dropPosition);
+
         return;
-        //this.getFileTypeStrategy(fileType)(file, binaryFileData, dropPosition))
       }
+
       return this.fileLoaderUtil.getBinaryFileData(file)
-      .then(binaryFileData => {
-        this.getFileTypeStrategy(fileType)(file, binaryFileData, dropPosition);
-        return Promise.resolve();
-      })
-      .catch(error => this.eventBus.onModalMessage('Error', error));
+        .then(binaryFileData => {
+          this.getFileTypeStrategy(fileType)(file, binaryFileData, dropPosition);
+          return Promise.resolve();
+        })
+        .catch(error => this.eventBus.onModalMessage('Error', error));
     });
+
     Promise.all(filePromises)
-    .then(allDone => {
-      //this.eventBus.onStopLoading();
-      //console.log('all hotspots are now loaded');
-    })
-    .catch(error => {
-      this.eventBus.onStopLoading();
-      this.eventBus.onModalMessage('error', error);
-      console.log(error);
-    })
+      .then(allDone => {
+        //this.eventBus.onStopLoading();
+        //console.log('all hotspots are now loaded');
+      })
+      .catch(error => {
+        this.eventBus.onStopLoading();
+        this.eventBus.onModalMessage('error', error);
+        console.log(error);
+      });
   }
 
   private getFileTypeStrategy(fileType: string) {
@@ -268,10 +259,11 @@ export class Editor {
 
       audio: (file, binaryFileData, position) => {
         const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
-        const audio: Audio = this.sceneInteractor.addAudio(activeRoomId);
-        audio.setFileName(file.name);
-        audio.setBinaryFileData(binaryFileData);
-        audio.setLocation(position);
+        const universal: Universal = this.sceneInteractor.addUniversal(activeRoomId);
+
+        universal.setAudioContent(binaryFileData);
+        universal.setLocation(position);
+
         this.requestRender();
       },
 
@@ -282,8 +274,10 @@ export class Editor {
           resizeImage(binaryFileData, 'backgroundImage')
             .then(resized => {
               const room: Room = this.sceneInteractor.getRoomById(activeRoomId);
-              room.setFileData(file.name, resized.backgroundImage);
-              room.setThumbnail(file.name, resized.thumbnail);
+
+              room.setBackgroundImageBinaryData(resized.backgroundImage);
+              room.setThumbnail(resized.thumbnail);
+
               this.requestRender();
               this.eventBus.onStopLoading();
             })
@@ -293,10 +287,11 @@ export class Editor {
 
         resizeImage(binaryFileData, 'hotspotImage')
           .then(resizedImageData => {
-            const image: Image = this.sceneInteractor.addImage(activeRoomId);
-            image.setFileName(file.name);
-            image.setBinaryFileData(resizedImageData);
-            image.setLocation(position);
+            const universal: Universal = this.sceneInteractor.addUniversal(activeRoomId);
+
+            universal.setImageContent(resizedImageData);
+            universal.setLocation(position);
+
             this.requestRender();
           })
           .catch(error => this.eventBus.onModalMessage('Image loading error', error));
@@ -318,12 +313,12 @@ export class Editor {
             data => {
               const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
               const room: Room = this.sceneInteractor.getRoomById(activeRoomId);
-              room.setBackgroundVideo('', data.downloadUrl);
-              console.log('bam, success', data);
+
+              room.setBackgroundVideo(data.downloadUrl);
             },
-            error => console.log('damn', error)
+            error => console.log('damn', error),
           );
-      }
+      },
 
     };
     return fileTypeStrategy[fileType];
@@ -339,9 +334,7 @@ export class Editor {
   }
 
   private uploadIsOpen(): boolean {
-    var uploadIsVisible = this.router.url.includes('modal:upload');
-    //console.log("uploadIsVisible: ", uploadIsVisible);
-    return uploadIsVisible;
+    return this.router.url.includes('modal:upload');
   }
 
   private editorIsSphere(): boolean {
@@ -359,13 +352,14 @@ export class Editor {
       this.on2dViewClick($event);
     }
   }
+
   private on2dViewClick($event) {
-    this.router.navigate(['/editor', {outlets: {'view': 'flat'}}]);
+    this.router.navigate(['/editor', { outlets: { 'view': 'flat' } }]);
     this.isInFlatMode = true;
-    }
+  }
 
   private on3dViewClick($event) {
-    this.router.navigate(['editor', {outlets: {'view': 'sphere'}}]);
+    this.router.navigate(['editor', { outlets: { 'view': 'sphere' } }]);
     this.isInFlatMode = false;
   }
 
@@ -374,15 +368,15 @@ export class Editor {
     //this.eventBus.onStartLoading();
     if ($event.value == 1) {
       //console.log('switch to preview');
-      this.router.navigate(['editor', {outlets: {'view': 'preview'}}]);
+      this.router.navigate(['editor', { outlets: { 'view': 'preview' } }]);
     } else {
-      if (this.isInFlatMode){
-        this.router.navigate(['/editor', {outlets: {'view': 'flat'}}]);
+      if (this.isInFlatMode) {
+        this.router.navigate(['/editor', { outlets: { 'view': 'flat' } }]);
       } else {
-        this.router.navigate(['/editor', {outlets: {'view': 'sphere'}}]);
+        this.router.navigate(['/editor', { outlets: { 'view': 'sphere' } }]);
       }
     }
-    this.changeEmitter.emit({value: $event.value});
+    this.changeEmitter.emit({ value: $event.value });
   }
 
 }

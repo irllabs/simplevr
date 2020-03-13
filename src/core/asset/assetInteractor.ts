@@ -1,19 +1,16 @@
-import {Observable} from 'rxjs';
-import {Injectable} from '@angular/core';
-import {Texture} from 'three';
+import { Injectable } from '@angular/core';
 
-import {ApiService} from 'data/api/apiService';
-import {AssetService} from 'data/asset/assetService';
-import {AssetManager} from 'data/asset/assetManager';
+import { ApiService } from 'data/api/apiService';
+import { AssetManager } from 'data/asset/assetManager';
+import { Texture } from 'three';
 
 @Injectable()
 export class AssetInteractor {
-
   constructor(
     private apiService: ApiService,
     private assetManager: AssetManager,
-    private assetService: AssetService,
-  ) {}
+  ) {
+  }
 
   loadTextures(imageDataList: AssetModel[]): Promise<any> {
     return this.assetManager.loadTextures(imageDataList);
@@ -30,37 +27,14 @@ export class AssetInteractor {
   getAudioBufferById(id: string): AudioBuffer {
     return this.assetManager.getAudioBufferById(id);
   }
-
-  setUploadPolicy() {
-    return this.apiService.getUploadPolicy()
-      .do(response => {
-        this.assetService.setUploadPolicy(response);
-      });
-  }
-
-  getUploadPolicy() {
-    let uploadPolicy = this.assetService.getUploadPolicy();
-    if (!uploadPolicy) {
-      return this.setUploadPolicy()
-        .subscribe(
-          uploadPolicy => uploadPolicy,
-          error => console.error(error)
-        )
-    }
-    return uploadPolicy;
-  }
-
-  uploadMedia(key: string, file): Observable<any> {
-    const uploadPolicy = this.getUploadPolicy();
-    return this.apiService.uploadMedia(key, file, uploadPolicy);
-  }
-
 }
 
 export class AssetModel {
-  id: string;
-  fileName: string;
-  filePath: string;
+  public id: string;
+  public fileName: string;
+  public filePath: string;
+  public force: boolean; // if force is true this asset will be reloaded by textureLoader
+
   constructor(id: string, fileName: string, filePath: string) {
     this.id = id;
     this.fileName = fileName;

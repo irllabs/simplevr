@@ -1,30 +1,54 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
+import { AssetManager } from 'data/asset/assetManager';
 
-import {Audio} from 'data/scene/entities/audio';
-import {Image} from 'data/scene/entities/image';
-import {Text} from 'data/scene/entities/text';
-import {Door} from 'data/scene/entities/door';
-import {Room} from 'data/scene/entities/room';
-import {Link} from 'data/scene/entities/link';
+import { Door } from 'data/scene/entities/door';
+import { Room } from 'data/scene/entities/room';
+import { Universal } from 'data/scene/entities/universal';
+import { RoomProperty } from 'data/scene/interfaces/roomProperty';
 
-import {RoomManager} from 'data/scene/roomManager';
-import {PropertyBuilder} from 'data/scene/roomPropertyBuilder';
-import {RoomProperty} from 'data/scene/interfaces/roomProperty';
-import {AssetManager} from 'data/asset/assetManager';
+import { RoomManager } from 'data/scene/roomManager';
+import { PropertyBuilder } from 'data/scene/roomPropertyBuilder';
+import { EventBus } from '../../ui/common/event-bus';
+import { MetaDataInteractor } from './projectMetaDataInteractor';
+import { SettingsInteractor } from 'core/settings/settingsInteractor';
 
 @Injectable()
 export class SceneInteractor {
-
-  private activeRoomId: string;
+  private _activeRoomId: string;
 
   constructor(
     private roomManager: RoomManager,
     private propertyBuilder: PropertyBuilder,
-    private assetManager: AssetManager
+    private assetManager: AssetManager,
+    private projectMetaDataInteractor: MetaDataInteractor,
+    private settingsInteractor: SettingsInteractor,
+    private eventBus: EventBus,
   ) {
     if (!this.getRoomIds().length) {
-      this.addRoom();
+      this.addRoom(true);
     }
+  }
+
+  public isLoadedAssets() {
+    const rooms = Array.from(this.roomManager.getRooms());
+    const hasRoomWithoutAssets = rooms.find(room => !room.isLoadedAssets);
+
+    return !hasRoomWithoutAssets;
+  }
+
+  changeRoomPosition(room, position) {
+    const rooms = this.roomManager.getRooms();
+
+    this.roomManager.clearRooms();
+    rooms.delete(room);
+
+    const roomsArray = Array.from(rooms);
+
+    rooms.clear();
+
+    roomsArray.splice(position, 0, room);
+
+    roomsArray.forEach(room => this.roomManager.addRoom(room));
   }
 
   getRoomIds(): string[] {
@@ -36,13 +60,27 @@ export class SceneInteractor {
     return this.roomManager.getRoomById(roomId);
   }
 
-  addRoom(): string {
-    const numberOfRooms: number = this.roomManager.getRooms().size + 1;
-    const roomName: string = `Room ${numberOfRooms}`;
+  addRoom(silent = false): string {
+    const numberOfRooms: number = this.roomManager.getRooms().size;
+
+    if(!silent){
+      const { maxRooms } = this.settingsInteractor.settings;
+      if(numberOfRooms >= maxRooms){
+        throw new Error('You have reached maximum amount of rooms');
+      }
+    }
+   
+    const roomName: string = `Room ${numberOfRooms+1}`;
     const room: Room = this.propertyBuilder.room(roomName);
+
     this.roomManager.addRoom(room);
-    this.activeRoomId = room.getId();
-    return this.activeRoomId;
+    this._activeRoomId = room.getId();
+
+    if (!silent) {
+      this.projectMetaDataInteractor.onProjectChanged();
+    }
+
+    return this._activeRoomId;
   }
 
   removeRoom(roomId: string) {
@@ -50,43 +88,61 @@ export class SceneInteractor {
       console.warn('user should not be allowed to remove last room');
       return;
     }
-    this.activeRoomId = null;
-    this.roomManager.removeRoomById(roomId);
+    this.eventBus.onModalMessage(
+      '',
+      'Do you want to delete the room?',
+      true,
+      // modal dismissed callback
+      () => {
+      },
+      // modal accepted callback
+      () => {
+        this._activeRoomId = null;
+        this.roomManager.removeRoomById(roomId);
 
-    //remove door references to deleted room
-    Array.from(this.roomManager.getRooms())
-      .map(room => room.getDoors())
-      .reduce((aggregateList, doorSet) => {
-        return aggregateList.concat(
-          Array.from(doorSet).filter(door => door.getRoomId() === roomId)
-        );
-      }, new Array<Door>())
-      .forEach(door => door.reset());
+        //remove door references to deleted room
+        Array.from(this.roomManager.getRooms())
+          .map(room => room.getDoors())
+          .reduce((aggregateList, doorSet) => {
+            return aggregateList.concat(
+              Array.from(doorSet).filter(door => door.getRoomId() === roomId),
+            );
+          }, [])
+          .forEach(door => door.reset());
 
+        this.projectMetaDataInteractor.onProjectChanged();
+      },
+    );
   }
 
   getActiveRoomId(): string {
-    if (!this.activeRoomId) {
+    if (!this._activeRoomId) {
       return this.getRoomIds()[0];
     }
-    return this.activeRoomId;
+    return this._activeRoomId;
+  }
+
+  getActiveRoom(): Room {
+    return this.getRoomById(this.getActiveRoomId())
   }
 
   setActiveRoomId(roomId: string) {
-    this.activeRoomId = roomId;
+    this._activeRoomId = roomId;
+    this.projectMetaDataInteractor.onProjectChanged();
   }
 
   getRoomProperties(roomId: string): RoomProperty[] {
     const room: Room = this.getRoomById(roomId);
-    if (!room) { return null; }
+
+    if (!room) {
+      return null;
+    }
+
     return [
-      ...Array.from(room.getText()),
-      ...Array.from(room.getAudio()),
-      ...Array.from(room.getImages()),
+      ...Array.from(room.getUniversal()),
       ...Array.from(room.getDoors()),
-      ...Array.from(room.getLink())
     ]
-    .sort((a, b) => a.getTimestamp() - b.getTimestamp());
+      .sort((a, b) => a.getTimestamp() - b.getTimestamp());
   }
 
   getPropertyById(roomId: string, propertyId: string): RoomProperty {
@@ -94,40 +150,46 @@ export class SceneInteractor {
       .find(roomProperty => roomProperty.getId() === propertyId);
   }
 
-  addText(roomId: string): Text {
-    const numberOfTexts: number = this.getRoomById(roomId).getText().size + 1;
-    const textName: string = `Text ${numberOfTexts}`;
-    const text: Text = this.propertyBuilder.text(textName, '');
-    this.getRoomById(roomId).addText(text);
-    return text;
+  addUniversal(roomId: string): Universal {
+    const { maxHotspots } = this.settingsInteractor.settings;
+    const numberOfUniversals: number = this.getRoomById(roomId).getUniversal().size;
+
+    if(numberOfUniversals >= maxHotspots) {
+      throw new Error('You have reached maximum amount of hotspots per room')
+    }
+
+    const hotSpotName: string = `Hotspot ${numberOfUniversals+1}`;
+    const universal: Universal = this.propertyBuilder.universal(hotSpotName, '');
+
+    this.getRoomById(roomId).addUniversal(universal);
+
+    this.projectMetaDataInteractor.onProjectChanged();
+
+    return universal;
   }
 
-  removeText(roomId: string, text: Text) {
-    this.getRoomById(roomId).removeText(text);
+  removeUniversal(roomId: string, universal: Universal) {
+    if (universal.hasData) {
+      this.eventBus.onModalMessage(
+        '',
+        'Do you want to delete the hotspot?',
+        true,
+        // modal dismissed callback
+        () => {
+        },
+        // modal accepted callback
+        () => {
+          this._removeUniversal(roomId, universal);
+        },
+      );
+    } else {
+      this._removeUniversal(roomId, universal);
+    }
   }
 
-  addAudio(roomId: string): Audio {
-    const numberOfAudio: number = this.getRoomById(roomId).getAudio().size + 1;
-    const audioName: string = `Audio ${numberOfAudio}`;
-    const audio: Audio = this.propertyBuilder.audio(audioName);
-    this.getRoomById(roomId).addAudio(audio);
-    return audio;
-  }
-
-  removeAudio(roomId: string, audio: Audio) {
-    this.getRoomById(roomId).removeAudio(audio);
-  }
-
-  addImage(roomId: string): Image {
-    const numberOfImages: number = this.getRoomById(roomId).getImages().size + 1;
-    const imageName: string = `Image ${numberOfImages}`;
-    const image: Image = this.propertyBuilder.image(imageName);
-    this.getRoomById(roomId).addImage(image);
-    return image;
-  }
-
-  removeImage(roomId: string, image: Image) {
-    this.getRoomById(roomId).removeImage(image);
+  _removeUniversal(roomId: string, universal: Universal) {
+    this.getRoomById(roomId).removeUniversal(universal);
+    this.projectMetaDataInteractor.onProjectChanged();
   }
 
   addDoor(roomId: string): Door {
@@ -141,23 +203,15 @@ export class SceneInteractor {
     }
 
     this.getRoomById(roomId).addDoor(door);
+
+    this.projectMetaDataInteractor.onProjectChanged();
+
     return door;
   }
 
   removeDoor(roomId: string, door: Door) {
     this.getRoomById(roomId).removeDoor(door);
-  }
-
-  addLink(roomId: string): Link {
-    const numberOfLinks: number = this.getRoomById(roomId).getLink().size + 1;
-    const linkName: string = `Link ${numberOfLinks}`;
-    const link: Link = this.propertyBuilder.link(linkName, '');
-    this.getRoomById(roomId).addLink(link);
-    return link;
-  }
-
-  removeLink(roomId: string, link: Link) {
-    this.getRoomById(roomId).removeLink(link);
+    this.projectMetaDataInteractor.onProjectChanged();
   }
 
   roomHasBackgroundImage(roomId: string): boolean {
@@ -174,6 +228,7 @@ export class SceneInteractor {
 
   setHomeRoomId(roomId: string) {
     this.roomManager.setHomeRoomId(roomId);
+    this.projectMetaDataInteractor.onProjectChanged();
   }
 
   resetRoomManager() {
@@ -192,8 +247,9 @@ export class SceneInteractor {
         const doorsToRenamedRoom: Door[] = Array.from(doorSet)
           .filter(door => door.getRoomId() === roomId && !door.hasCustomName());
         return aggregateList.concat(doorsToRenamedRoom);
-      }, new Array<Door>())
+      }, [])
       .forEach(door => door.setName(name));
-  }
 
+    this.projectMetaDataInteractor.onProjectChanged();
+  }
 }

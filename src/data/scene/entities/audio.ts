@@ -1,26 +1,31 @@
-import {BaseElement} from 'data/scene/entities/baseElement';
-import {MediaFile} from 'data/scene/entities/mediaFile';
-import {DEFAULT_VOLUME} from 'ui/common/constants';
+import { BaseElement } from 'data/scene/entities/baseElement';
+import { MediaFile } from 'data/scene/entities/mediaFile';
+import { DEFAULT_VOLUME } from 'ui/common/constants';
 
 export class Audio extends BaseElement {
-
   private mediaFile: MediaFile = new MediaFile();
   private volume: number = DEFAULT_VOLUME;
 
   constructor() {
     super();
+
+    this.mediaFile = new MediaFile();
   }
 
   getRemoteFileName(): string {
-    return this.mediaFile.getRemoteFileName();
+    return this.mediaFile.getRemoteFile();
   }
 
   setRemoteFileName(remoteFileName: string) {
-    this.mediaFile.setRemoteFileName(remoteFileName);
+    this.mediaFile.setRemoteFile(remoteFileName);
   }
 
   getMediaFile(): MediaFile {
     return this.mediaFile;
+  }
+
+  setMediaFile(mediaFile) {
+    this.mediaFile = mediaFile;
   }
 
   hasAsset(): Boolean {
@@ -35,8 +40,12 @@ export class Audio extends BaseElement {
     this.mediaFile.setFileName(fileName);
   }
 
-  getBinaryFileData(): any {
-    return this.mediaFile.getBinaryFileData();
+  getBinaryFileData(unsafe: boolean = false): any {
+    return this.mediaFile.getBinaryFileData(unsafe);
+  }
+
+  getObjectUrl(): string {
+    return this.mediaFile.getObjectUrl();
   }
 
   setBinaryFileData(binaryFileData: any) {
@@ -50,13 +59,13 @@ export class Audio extends BaseElement {
   }
 
   setVolume(volume: number) {
-      if (volume === undefined || volume === null) {
-        this.volume = DEFAULT_VOLUME
-      }
-      else {
-        this.volume = volume
-      }
+    if (volume === undefined || volume === null) {
+      this.volume = DEFAULT_VOLUME;
     }
+    else {
+      this.volume = volume;
+    }
+  }
 
   getVolume(): number {
     return this.volume;
@@ -64,10 +73,9 @@ export class Audio extends BaseElement {
 
   toJson() {
     return Object.assign(super.toJson(), {
-      file: encodeURIComponent(this.mediaFile.getFileName()),
-      remoteFile: this.mediaFile.getRemoteFileName(),
-      volume: this.getVolume()
+      file: this.mediaFile.getFileName(),
+      remoteFile: this.mediaFile.getRemoteFile(),
+      volume: this.getVolume(),
     });
   }
-
 }

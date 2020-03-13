@@ -1,28 +1,26 @@
-import {Component} from '@angular/core';
-import {Router} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/operator/switchMap';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AdminInteractor } from 'core/admin/adminInteractor';
+import { ProjectInteractor } from 'core/project/projectInteractor';
 
-import {MetaDataInteractor} from 'core/scene/projectMetaDataInteractor';
-import {DEFAULT_PROJECT_NAME} from 'ui/common/constants';
-import {StorageInteractor} from 'core/storage/storageInteractor';
-import {UserInteractor} from 'core/user/userInteractor';
-import {ProjectInteractor} from 'core/project/projectInteractor';
-import {SceneInteractor} from 'core/scene/sceneInteractor';
-import {AdminInteractor} from 'core/admin/adminInteractor';
-import {EventBus, EventType} from 'ui/common/event-bus';
-import {MIME_TYPE_ZIP} from 'ui/common/constants';
+import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
+import { SceneInteractor } from 'core/scene/sceneInteractor';
+import { StorageInteractor } from 'core/storage/storageInteractor';
+import { UserInteractor } from 'core/user/userInteractor';
+import { Project } from 'data/project/projectModel';
+import { MIME_TYPE_ZIP } from 'ui/common/constants';
+import { EventBus } from 'ui/common/event-bus';
 
 const FileSaver = require('file-saver');
 
 @Component({
   selector: 'auth-user-tab',
   styleUrls: ['./auth-user-tab.scss'],
-  templateUrl: './auth-user-tab.html'
+  templateUrl: './auth-user-tab.html',
 })
-export class AuthUserTab {
-
+export class AuthUserTab implements OnInit, OnDestroy {
   private projectList = <any>[]; //TODO: move to repo / cache
+  private subscription;
 
   constructor(
     private userInteractor: UserInteractor,
@@ -32,141 +30,100 @@ export class AuthUserTab {
     private storageInteractor: StorageInteractor,
     private metaDataInteractor: MetaDataInteractor,
     private adminInteractor: AdminInteractor,
-    private router: Router
-  ) {}
+    private router: Router,
+  ) {
+  }
 
   ngOnInit() {
-    setTimeout(() => {
-      this.userInteractor.getUser()
-        .switchMap(user => this.projectInteractor.getProjects(user.id))
-        .subscribe(
-          projects => {
-            this.projectList = projects.sort((a, b) => {
-              if (!a.name) { return -1; }
-              if (!b.name) { return 1; }
-              const projectNameA = a.name.toUpperCase();
-              const projectNameB = b.name.toUpperCase();
-              if (projectNameA < projectNameB) { return -1; }
-              if (projectNameA > projectNameB) { return 1; }
-              return 0;
-            });
-          },
-          error => console.error('GET /users', error)
-        );
-    });
-
-  }
-
-  private getUserName(): string {
-    return this.userInteractor.getUserName();
-  }
-
-  private onLogOutClick() {
-    this.userInteractor.logOut()
-      .subscribe(
-        response => {},
-        error => console.log('error', error)
-      );
-  }
-
-  private openProject(projectId: string) {
-    console.log("openProject");
-    const userId: string = this.userInteractor.getUserId();
-    this.eventBus.onStartLoading();
-    console.log("onStartLoading done");
-    this.projectInteractor.openProject(userId, projectId)
-      .subscribe(
-        response => {
-          //reset the current scene
-          console.log('observable done', response);
-          this.sceneInteractor.setActiveRoomId(null);
-          this.eventBus.onSelectRoom(null, false);
-          this.metaDataInteractor.setIsReadOnly(false);
-        },
-        error => console.error('error', error),
-        () => this.eventBus.onStopLoading()
-      );
-    this.router.navigateByUrl('/editor');
-  }
-
-  private createProject($event) {
-    const userId: string = this.userInteractor.getUserId();
-    this.eventBus.onStartLoading();
-    this.projectInteractor.createProject(userId)
-      .subscribe(
-        projectData => this.projectList.push(projectData),
-        error => console.error('error', error),
-        () => this.eventBus.onStopLoading()
-      );
-  }
-
-  private updateProject() {
-    const userId: string = this.userInteractor.getUserId();
-    const projectId: string = this.projectInteractor.getProjectId();
-    this.eventBus.onStartLoading();
-    this.projectInteractor.updateProject(userId, projectId)
-      .subscribe(
-        response => {},
-        error => console.error('error', error),
-        () => this.eventBus.onStopLoading()
-      );
-  }
-
-  private requestDeleteProject(projectId: string) {
-    this.eventBus.onModalMessage(
-      'Are you sure?',
-      'There is no way to undo this action.',
-      true,
-      () => {}, // modal dismissed callback
-      () => this.deleteProject(projectId) // modal accepted callback
+    this.subscription = this.projectInteractor.getProjects().subscribe(
+      (projects) => {
+        this.projectList = projects.map((p) => new Project(p));
+      },
+      error => console.error('GET /projects', error),
     );
   }
 
-  private deleteProject(projectId: string) {
-    const userId: string = this.userInteractor.getUserId();
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
+    }
+  }
+
+  public getUserName(): string {
+    return this.userInteractor.getUserName();
+  }
+
+  public onLogOutClick() {
+    this.metaDataInteractor.checkAndConfirmResetChanges().then(() => {
+      this.userInteractor.logOut();
+      this.metaDataInteractor.loadingProject(true);
+      this.router.navigate(['/editor']);
+      this.sceneInteractor.setActiveRoomId(null);
+      this.sceneInteractor.resetRoomManager();
+      this.projectInteractor.setProject(null);
+      this.eventBus.onSelectRoom(null, false);
+      this.metaDataInteractor.setIsReadOnly(false);
+      this.metaDataInteractor.loadingProject(false);
+    }, () => {});
+  }
+
+  public openProject(project: Project) {
+    this.metaDataInteractor.checkAndConfirmResetChanges().then(() => {
+      this.eventBus.onStartLoading();
+
+      this.projectInteractor.openProject(project)
+        .then(
+          () => {
+            //reset the current scene
+            this.metaDataInteractor.setIsReadOnly(false);
+            this.sceneInteractor.setActiveRoomId(project.story.homeRoomId);
+            this.eventBus.onSelectRoom(this.sceneInteractor.getActiveRoomId(), false);
+            this.eventBus.onStopLoading();
+            this.metaDataInteractor.loadingProject(false);
+            this.router.navigateByUrl('/editor');
+          },
+          (error) => {
+            console.error('error', error);
+            this.eventBus.onStopLoading();
+          },
+        );
+    }, () => {});
+  }
+
+  public downloadProject(project: Project) {
     this.eventBus.onStartLoading();
-    this.projectInteractor.deleteProject(userId, projectId)
-      .subscribe(
-        success => {
+
+    this.projectInteractor.getProjectAsBlob(project)
+      .then(
+        (projectBlob) => {
+          const blob = new Blob([projectBlob], { type: MIME_TYPE_ZIP });
+
+          FileSaver.saveAs(blob, `${project.name}.zip`);
+
           this.eventBus.onStopLoading();
-          this.eventBus.onModalMessage('', `Project has been deleted from the server.`);
         },
-        error => {
+        (error) => {
           this.eventBus.onStopLoading();
           this.eventBus.onModalMessage('error', error.message);
-        }
+        },
       );
   }
 
-  private downloadProject(projectId: number, projectName: string) {
-    const userId: string = this.userInteractor.getUserId();
-    this.eventBus.onStartLoading();
-    this.projectInteractor.getProjectAsBlob(userId, `${projectId}`)
-      .subscribe(
-        projectBlob => {
-          const blob = new Blob([projectBlob], {type: MIME_TYPE_ZIP});
-          FileSaver.saveAs(blob, `${projectName}.zip`);
-          this.eventBus.onStopLoading();
-        },
-        error => {
-          this.eventBus.onStopLoading();
-          this.eventBus.onModalMessage('error', error.message);
-        }
-      );
-  }
-
-  private shareProject(projectId: number) {
+  public shareProject(projectId: number) {
     const userId: string = this.userInteractor.getUserId();
     this.eventBus.onShareableModal(userId, projectId + '');
   }
 
-  private openMultiView(projectId: number) {
-    console.log('onOpenMultiView');
-    const userId = this.userInteractor.getUserId();
-    const queryParams = {
-      multiview: `${userId}-${projectId}`
-    };
-    this.router.navigate(['editor', 'preview'], { queryParams });
+  public openMultiView(projectId: number) {
+    this.metaDataInteractor.checkAndConfirmResetChanges().then(() => {
+      console.log('onOpenMultiView');
+      const userId = this.userInteractor.getUserId();
+      const queryParams = {
+        multiview: `${userId}-${projectId}`,
+      };
+      this.router.navigate(['editor', 'preview'], { queryParams });
+    }, () => {});
   }
 
   private isWorkingOnSavedProject(): boolean {
@@ -178,13 +135,15 @@ export class AuthUserTab {
   }
 
   private getActiveProjectName(): string {
-    const projectId: string = this.projectInteractor.getProjectId();
+    const projectId: string = this.projectInteractor.getProject().id;
     const activeProject = this.projectList.find(project => (project.id === projectId));
     return activeProject && activeProject.name;
   }
 
   private projectIsSelected(projectId: string): boolean {
-    return this.projectInteractor.getProjectId() === projectId;
+    const project: Project = this.projectInteractor.getProject();
+
+    return project && project.id === projectId;
   }
 
   private userIsAdmin(): boolean {
@@ -199,9 +158,4 @@ export class AuthUserTab {
   private onAdminClick($event) {
     this.router.navigateByUrl('/admin');
   }
-
-
-
-
-
 }

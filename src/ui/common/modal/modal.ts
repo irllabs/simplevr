@@ -1,21 +1,21 @@
-import {Component} from '@angular/core';
-import {ViewEncapsulation} from '@angular/core';
-import {Subscription} from 'rxjs/Subscription';
+import { Component, ViewEncapsulation } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
-import {EventBus, EventType} from 'ui/common/event-bus';
+import { EventBus, EventType } from 'ui/common/event-bus';
 
 const MODAL_TYPE = {
   MESSAGE: 'MESSAGE',
   LOADER: 'LOADER',
   SHARABLE: 'SHARABLE',
-  EXPLORE: 'EXPLORE'
+  EXPLORE: 'EXPLORE',
+  PLAY_STORY: 'PLAY_STORY',
 };
 
 @Component({
   selector: 'modal',
   styleUrls: ['./modal.scss'],
   templateUrl: './modal.html',
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class Modal {
 
@@ -23,9 +23,10 @@ export class Modal {
   private messageData = {
     headerText: '',
     bodyText: '',
-    isMessage: false
+    isMessage: false,
   };
   private shareableData;
+  private playStoryCallback;
 
   private isOpen: boolean;
   private sharableId: string = '';
@@ -33,7 +34,8 @@ export class Modal {
   private onAccept: Function;
   private subscriptions: Set<Subscription> = new Set<Subscription>();
 
-  constructor(private eventBus: EventBus) {}
+  constructor(private eventBus: EventBus) {
+  }
 
   ngOnInit() {
     this.clearValues();
@@ -47,9 +49,10 @@ export class Modal {
   closeModal($event) {
     if (!$event.isAccepted && this.onDismiss) {
       this.onDismiss();
-    }
-    else if ($event.isAccepted && this.onAccept) {
+    } else if ($event.isAccepted && this.onAccept) {
       this.onAccept();
+    } else if (this.isPlayStoryModal() && this.playStoryCallback) {
+      this.playStoryCallback($event);
     }
     this.clearValues();
   }
@@ -66,7 +69,7 @@ export class Modal {
           this.onDismiss = event.onDismiss;
           this.onAccept = event.onAccept;
         },
-        error => console.log('error', error)
+        error => console.log('error', error),
       );
 
     const onStartLoading: Subscription = this.eventBus.getObservable(EventType.START_LOADING)
@@ -78,7 +81,7 @@ export class Modal {
         error => {
           console.log('error', error);
           this.isOpen = false;
-        }
+        },
       );
 
     const onStopLoading: Subscription = this.eventBus.getObservable(EventType.STOP_LOADING)
@@ -87,7 +90,7 @@ export class Modal {
         error => {
           console.log('error', error);
           this.isOpen = false;
-        }
+        },
       );
 
     const onSharable: Subscription = this.eventBus.getObservable(EventType.SHAREABLE_MODAL)
@@ -96,6 +99,19 @@ export class Modal {
           this.isOpen = true;
           this.activeModalType = MODAL_TYPE.SHARABLE;
           this.shareableData = event;
+        },
+        error => {
+          console.log('error', error);
+          this.isOpen = false;
+        },
+      );
+
+    const onPlayStory: Subscription = this.eventBus.getObservable(EventType.PLAY_STORY_MODAL)
+      .subscribe(
+        event => {
+          this.isOpen = true;
+          this.activeModalType = MODAL_TYPE.PLAY_STORY;
+          this.playStoryCallback = event.callback;
         },
         error => {
           console.log('error', error);
@@ -112,10 +128,11 @@ export class Modal {
         error => {
           console.log('error', error);
           this.isOpen = false;
-        }
+        },
       );
 
     this.subscriptions.add(onSharable);
+    this.subscriptions.add(onPlayStory);
     this.subscriptions.add(onStartLoading);
     this.subscriptions.add(onStopLoading);
     this.subscriptions.add(onMessage);
@@ -129,7 +146,7 @@ export class Modal {
     this.messageData = {
       headerText: '',
       bodyText: '',
-      isMessage: false
+      isMessage: false,
     };
     this.shareableData = null;
   }
@@ -144,6 +161,10 @@ export class Modal {
 
   private isLoaderModal() {
     return this.activeModalType === MODAL_TYPE.LOADER;
+  }
+
+  private isPlayStoryModal() {
+    return this.activeModalType === MODAL_TYPE.PLAY_STORY;
   }
 
 }

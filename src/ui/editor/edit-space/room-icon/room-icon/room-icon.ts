@@ -1,54 +1,47 @@
-import {
-  Component,
-  Input,
-  ViewChild,
-  ViewChildren,
-  Output,
-  EventEmitter,
-  ElementRef,
-  HostListener,
-  NgZone
-} from '@angular/core';
-import {Subscription} from 'rxjs/Subscription';
+import { Component, ElementRef, EventEmitter, HostListener, Input, NgZone, Output, ViewChild } from '@angular/core';
+import { Door } from 'data/scene/entities/door';
+import { Vector2 } from 'data/scene/entities/vector2';
+import { RoomProperty } from 'data/scene/interfaces/roomProperty';
+import { Subscription } from 'rxjs/Subscription';
 
-import {Hotspot} from 'ui/editor/interfaces/hotspot';
-import {EventBus, EventType} from 'ui/common/event-bus';
-import {RoomProperty} from 'data/scene/interfaces/roomProperty';
-import {Vector2} from 'data/scene/entities/vector2';
-import {Door} from 'data/scene/entities/door';
-import {RoomPropertyTypeService} from 'ui/editor/util/roomPropertyTypeService';
-import {PropertyRemovalService} from 'ui/editor/util/propertyRemovalService';
-import {CombinedHotspotUtil} from 'ui/editor/util/combinedHotspotUtil';
+import { ICON_PATH, ROOM_ICON_BUFFER_HEIGHT, ROOM_ICON_BUFFER_WIDTH } from 'ui/common/constants';
+import { EventBus, EventType } from 'ui/common/event-bus';
 
-import {
-  normalizeAbsolutePosition,
-  denormalizePosition
-} from 'ui/editor/util/iconPositionUtil';
+import { Hotspot } from 'ui/editor/interfaces/hotspot';
+import { CombinedHotspotUtil } from 'ui/editor/util/combinedHotspotUtil';
 
-import {
-  ICON_PATH,
-  ROOM_ICON_BUFFER_WIDTH,
-  ROOM_ICON_BUFFER_HEIGHT
-} from 'ui/common/constants';
+import { denormalizePosition, normalizeAbsolutePosition } from 'ui/editor/util/iconPositionUtil';
+import { PropertyRemovalService } from 'ui/editor/util/propertyRemovalService';
+import { RoomPropertyTypeService } from 'ui/editor/util/roomPropertyTypeService';
+import { MetaDataInteractor } from '../../../../../core/scene/projectMetaDataInteractor';
 
 const ICON_MAP = {
-  text: 'text_filled.png',
-  image: 'image_filled.png',
-  audio: 'audio_filled.png',
-  door: 'door_filled.png',
-  link: 'link_filled.png'
+  universal: 'icon-add.png',
+
+  text: 'icon-text.png',
+  textAudio: 'icon-text-audio.png',
+
+  image: 'icon-image.png',
+  imageText: 'icon-image-text.png',
+  imageAudio: 'icon-image-audio.png',
+  imageTextAudio: 'icon-image-text-audio.png',
+  audio: 'icon-audio.png',
+
+  video: 'icon-video.png',
+  door: 'icon-doorhotspot.png',
+  link: 'link_filled.png',
 };
 
 const iconSizes = {
   SMALL: 'SMALL',
   MEDIUM: 'MEDIUM',
-  LARGE: 'LARGE'
+  LARGE: 'LARGE',
 };
 
 const instanceSet: Set<RoomIcon> = new Set<RoomIcon>();
 
 window.addEventListener('resize', $event =>
-  instanceSet.forEach(instance => instance.onResize($event))
+  instanceSet.forEach((instance: RoomIcon) => instance.onResize()),
 );
 
 const ROUND_UNIT: number = 0.5;
@@ -60,7 +53,7 @@ function round(n: number, precision: number): number {
 function snapToGrid(position: Vector2): Vector2 {
   return new Vector2(
     round(position.getX(), ROUND_UNIT),
-    round(position.getY(), ROUND_UNIT)
+    round(position.getY(), ROUND_UNIT),
   );
 }
 
@@ -68,7 +61,7 @@ function snapToGrid(position: Vector2): Vector2 {
 @Component({
   selector: 'room-icon',
   styleUrls: ['./room-icon.scss'],
-  templateUrl: './room-icon.html'
+  templateUrl: './room-icon.html',
 })
 export class RoomIcon implements Hotspot {
 
@@ -93,31 +86,35 @@ export class RoomIcon implements Hotspot {
     private combinedHotspotUtil: CombinedHotspotUtil,
     protected ngZone: NgZone,
     private element: ElementRef,
-  ) {}
+    private metaDataInteractor: MetaDataInteractor
+  ) {
+  }
 
   @HostListener('document:click', ['$event'])
   private onDocumentClick($event) {
     const isClicked: boolean = this.element.nativeElement.contains($event.target);
+
     if (!isClicked) {
       this.setPropertyEditorVisibility(false);
     }
   }
 
   ngOnInit() {
+
     this.propertyType = RoomPropertyTypeService.getTypeString(this.roomProperty);
-    this.iconPath = `${ICON_PATH}${ICON_MAP[this.propertyType]}`;
+
 
     this.subscriptions.add(
       this.eventBus.getObservable(EventType.SELECT_PROPERTY)
         .subscribe(
           event => {
             // if a door is added and there are more than 2 rooms, then open the property editor
-            if (event.shouldOpenEditor &&  event.propertyId === this.roomProperty.getId()) {
+            if (event.shouldOpenEditor && event.propertyId === this.roomProperty.getId()) {
               this.setPropertyEditorVisibility(true);
             }
           },
-          error => console.log('error', error)
-      )
+          error => console.log('error', error),
+        ),
     );
 
     this.updatePosition();
@@ -128,6 +125,12 @@ export class RoomIcon implements Hotspot {
   ngOnDestroy() {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
     instanceSet.delete(this);
+  }
+
+  getIconPath() {
+    const propertyIcon = this.roomProperty.getIcon();
+
+    return `${ICON_PATH}${propertyIcon !== null ? propertyIcon : ICON_MAP[this.propertyType]}`;
   }
 
   setPosition(location: Vector2) {
@@ -152,7 +155,7 @@ export class RoomIcon implements Hotspot {
     const shift = {
       right: x < (280 / 2),
       left: x > this.windowDimensions.getX() - (280 / 2),
-      up: y > this.windowDimensions.getY() - 200
+      up: y > this.windowDimensions.getY() - 200,
     };
     this.screenPosition.setPosition(x, y);
   }
@@ -160,11 +163,16 @@ export class RoomIcon implements Hotspot {
   // Hotspot interface method
   //set absolute screen position without updating the data model
   setPixelLocation(x: number, y: number) {
-    this.iconElement.nativeElement.style.left = `${x}px`;
     this.iconElement.nativeElement.style.top = `${y}px`;
+    this.iconElement.nativeElement.style.left = `${x}px`;
+  }
+
+  onMouseDown(){
+    event.stopPropagation();
   }
 
   onMove($event) {
+    event.stopPropagation();
     const x: number = $event.x + ROOM_ICON_BUFFER_WIDTH;
     const y: number = $event.y + ROOM_ICON_BUFFER_HEIGHT;
 
@@ -176,10 +184,9 @@ export class RoomIcon implements Hotspot {
             this.setLocation(snapToGrid(new Vector2(x, y)));
           },
           x: x,
-          y: y
+          y: y,
         });
-      }
-      else {
+      } else {
         // snap to grid in 2D view
         const normalizedLocation: Vector2 = normalizeAbsolutePosition(x, y);
         const snappedLocation: Vector2 = snapToGrid(normalizedLocation);
@@ -187,22 +194,23 @@ export class RoomIcon implements Hotspot {
         this.setScreenPosition(denormalizedPosition.getX(), denormalizedPosition.getY());
         this.setPixelLocation(
           denormalizedPosition.getX() - ROOM_ICON_BUFFER_WIDTH,
-          denormalizedPosition.getY() - ROOM_ICON_BUFFER_HEIGHT
+          denormalizedPosition.getY() - ROOM_ICON_BUFFER_HEIGHT,
         );
       }
-    }
-    else {
+    } else {
       // don't snap to grid
       this.setScreenPosition(x, y);
       this.setPixelLocation($event.x, $event.y);
     }
-
+    return false;
     //this.combinedHotspotUtil.onIconMove(this.roomProperty, x, y);
   }
 
   onMoveEnd($event) {
     if (!$event.didMove) {
-      setTimeout(() => {this.setPropertyEditorVisibility(true);}, 200);      //this.setPropertyEditorVisibility(true);
+      setTimeout(() => {
+        this.setPropertyEditorVisibility(true);
+      }, 200);      //this.setPropertyEditorVisibility(true);
       return;
     }
 
@@ -223,7 +231,7 @@ export class RoomIcon implements Hotspot {
           this.setLocation(location);
         },
         x: adjustedX,
-        y: adjustedY
+        y: adjustedY,
       });
     }
     // if parent components are not observing onIconDragEnd
@@ -283,9 +291,12 @@ export class RoomIcon implements Hotspot {
 
   onNameChange($event) {
     this.roomProperty.setName($event.text);
+
     if (this.propertyIs('door')) {
       (this.roomProperty as Door).setNameIsCustom(true);
     }
+
+    this.metaDataInteractor.onProjectChanged();
   }
 
   propertyIs(propertyType: string): boolean {
@@ -306,7 +317,6 @@ export class RoomIcon implements Hotspot {
   }
 
   onMouseOver($event) {
-    console.log("mouseover")
     this.deleteVisible = true;
   }
 
@@ -324,6 +334,7 @@ export class RoomIcon implements Hotspot {
 
   setLocation(location: Vector2) {
     this.roomProperty.setLocation(location);
+    this.metaDataInteractor.onProjectChanged();
   }
 
 }

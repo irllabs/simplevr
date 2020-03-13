@@ -1,34 +1,44 @@
-import {Component} from '@angular/core';
-import {Subscription} from 'rxjs/Subscription';
+import { Component } from '@angular/core';
+import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
+import { SceneInteractor } from 'core/scene/sceneInteractor';
+import { Room } from 'data/scene/entities/room';
+import { RoomProperty } from 'data/scene/interfaces/roomProperty';
+import { resizeImage } from 'data/util/imageResizeService';
+import { Subscription } from 'rxjs/Subscription';
 
-import {EventBus, EventType} from 'ui/common/event-bus';
-import {SceneInteractor} from 'core/scene/sceneInteractor';
-import {MetaDataInteractor} from 'core/scene/projectMetaDataInteractor';
-import {RoomProperty} from 'data/scene/interfaces/roomProperty';
-import {Room} from 'data/scene/entities/room';
-import {resizeImage} from 'data/util/imageResizeService';
-import {SlideshowBuilder} from 'ui/editor/util/SlideshowBuilder';
+import { EventBus, EventType } from 'ui/common/event-bus';
+import { SlideshowBuilder } from 'ui/editor/util/SlideshowBuilder';
+import { SettingsInteractor } from 'core/settings/settingsInteractor';
 
 @Component({
   selector: 'story-scroll',
   styleUrls: ['./story-scroll.scss'],
-  templateUrl: './story-scroll.html'
+  templateUrl: './story-scroll.html',
 })
 export class StoryScroll {
 
-  private projectIsSelected: boolean = true;
   private activeProperty: RoomProperty;
   private subscriptions: Set<Subscription> = new Set<Subscription>();
   private activeRoomIsExpanded: boolean = true;
   private inspectorIsVisible: boolean = false;
   private isOpen: boolean = false;
 
+  public get roomIds(): string[] {
+    return this.sceneInteractor.getRoomIds();
+  }
+
+  public get canAddMoreRooms(){
+    return this.roomIds.length < this.settingsInteractor.settings.maxRooms
+  }
+
   constructor(
     private sceneInteractor: SceneInteractor,
     private metaDataInteractor: MetaDataInteractor,
     private eventBus: EventBus,
-    private slideshowBuilder: SlideshowBuilder
-  ) {}
+    private slideshowBuilder: SlideshowBuilder,
+    private settingsInteractor: SettingsInteractor
+  ) {
+  }
 
   ngOnInit() {
     this.subscribeToEvents();
@@ -41,89 +51,82 @@ export class StoryScroll {
   private subscribeToEvents() {
     const roomPropertySubscription: Subscription = this.eventBus.getObservable(EventType.SELECT_PROPERTY)
       .subscribe(
-        observedData => {
+        (observedData) => {
           const propertyId: string = observedData.propertyId;
           const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
+
           this.activeProperty =
             this.sceneInteractor.getPropertyById(activeRoomId, propertyId) ||
             this.sceneInteractor.getRoomById(activeRoomId);
-          this.projectIsSelected = false;
           this.activeRoomIsExpanded = true;
         },
-        error => console.log('error', error)
+        error => console.log('error', error),
       );
 
     const roomSubscription: Subscription = this.eventBus.getObservable(EventType.SELECT_ROOM)
       .subscribe(
-        observedData => {
+        () => {
           const activeRoomId = this.sceneInteractor.getActiveRoomId();
           this.activeProperty = this.sceneInteractor.getRoomById(activeRoomId);
-          this.projectIsSelected = false;
         },
-        error => console.log('error', error)
+        error => console.log('error', error),
       );
 
     this.subscriptions.add(roomPropertySubscription);
     this.subscriptions.add(roomSubscription);
   }
 
-  onProjectSelect() {
-    this.projectIsSelected = true;
+  public hasPrevRoomFor(roomId) {
+    return this.roomIds.indexOf(roomId) > 0;
   }
 
-  getPropertyList(): RoomProperty[] {
-    const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
-    return this.sceneInteractor.getRoomProperties(activeRoomId);
+  public hasNextRoomFor(roomId) {
+    return this.roomIds.indexOf(roomId) < this.roomIds.length - 1;
   }
 
-  getRoomIdList(): string[] {
-    return this.sceneInteractor.getRoomIds();
-  }
-
-  getRoomById(roomId: string): Room {
+  public getRoomById(roomId: string): Room {
     return this.sceneInteractor.getRoomById(roomId);
   }
 
-  onRoomSelect(roomId: string) {
+  public onRoomSelect(roomId: string) {
     const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
+
     if (roomId === activeRoomId) {
       this.activeRoomIsExpanded = !this.activeRoomIsExpanded;
-    }
-    else {
+    } else {
       this.activeRoomIsExpanded = true;
     }
+
     this.sceneInteractor.setActiveRoomId(roomId);
     this.eventBus.onSelectRoom(roomId, false);
   }
 
-  onPropertySelect(roomProperty: RoomProperty) {
-    const propertyId: string = roomProperty  && roomProperty.getId() || null;
-    this.eventBus.onSelectProperty(propertyId, false);
-  }
+  public roomIsSelected(roomId: string): boolean {
+    const numberOfRooms: number = this.roomIds.length;
 
-  propertyIsSelected(item): boolean {
-    return item === this.activeProperty;
-  }
-
-  roomIsSelected(roomId: string): boolean {
-    const numberOfRooms: number = this.sceneInteractor.getRoomIds().length;
     if (numberOfRooms === 0) {
       return false;
     }
     return roomId === this.sceneInteractor.getActiveRoomId();
   }
 
-  roomIsExpanded(roomId: string): boolean {
-    return this.roomIsSelected(roomId)
-        && this.activeRoomIsExpanded
-        && !!this.sceneInteractor.getRoomProperties(roomId).length;
+  public roomIsLoaded(roomId: string): boolean {
+    const room: Room = this.sceneInteractor.getRoomById(roomId);
+
+    return room.isLoadedAssets;
   }
 
-  getProjectName(): string {
+  public roomIsExpanded(roomId: string): boolean {
+    return this.roomIsSelected(roomId)
+      && this.activeRoomIsExpanded
+      && !!this.sceneInteractor.getRoomProperties(roomId).length;
+  }
+
+  public getProjectName(): string {
     return this.metaDataInteractor.getProjectName();
   }
 
-  onInfoClick($event) {
+  public onInfoClick($event) {
     setTimeout(() => this.inspectorIsVisible = true);
   }
 
@@ -133,11 +136,11 @@ export class StoryScroll {
     }
   }
 
-  toggleOpen($event) {
+  public toggleOpen() {
     this.isOpen = !this.isOpen;
   }
 
-  private onFileLoad($event) {
+  public onFileLoad($event) {
     const fileName: string = $event.file.name;
     const binaryFileData: any = $event.binaryFileData;
     //const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
@@ -148,15 +151,24 @@ export class StoryScroll {
       .then(resized => {
         const newRoomId = this.sceneInteractor.addRoom();
         const room: Room = this.sceneInteractor.getRoomById(newRoomId);
-        room.setFileData(fileName, resized.backgroundImage);
-        room.setThumbnail(fileName, resized.thumbnail);
+
+        room.setBackgroundImageBinaryData(resized.backgroundImage);
+        room.setThumbnail(resized.thumbnail);
+
         this.eventBus.onSelectRoom(null, false);
         this.eventBus.onStopLoading();
       })
-      .catch(error => this.eventBus.onModalMessage('Image loading error', error));
+      .catch(error => this.eventBus.onModalMessage('Error', error));
   }
 
-  private addSlideshow($event) {
+  public onSwapRoom({ roomId, direction }) {
+    const room = this.sceneInteractor.getRoomById(roomId);
+    const currentIndex = this.roomIds.indexOf(roomId);
+
+    this.sceneInteractor.changeRoomPosition(room, currentIndex + direction);
+  }
+
+  public addSlideShow($event) {
     this.eventBus.onStartLoading();
     this.slideshowBuilder.build($event.files)
       .then(resolve => this.eventBus.onStopLoading())

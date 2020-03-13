@@ -1,23 +1,19 @@
-import {Component, Output, EventEmitter, ElementRef, HostListener,  ViewChild,} from '@angular/core';
-import {Router} from '@angular/router';
-import {EventBus} from 'ui/common/event-bus';
-import {FileLoaderUtil} from 'ui/editor/util/fileLoaderUtil';
-import {SceneInteractor} from 'core/scene/sceneInteractor';
-import {Room} from 'data/scene/entities/room';
-import {resizeImage} from 'data/util/imageResizeService';
+import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
+import { SceneInteractor } from 'core/scene/sceneInteractor';
+import { Room } from 'data/scene/entities/room';
+import { resizeImage } from 'data/util/imageResizeService';
+import { EventBus } from 'ui/common/event-bus';
+import { FileLoaderUtil } from 'ui/editor/util/fileLoaderUtil';
 //added by ali for dragging images in
-import {SlideshowBuilder} from 'ui/editor/util/SlideshowBuilder';
-import {normalizeAbsolutePosition} from 'ui/editor/util/iconPositionUtil';
-import {mimeTypeMap} from 'ui/editor/util/fileLoaderUtil';
-import {Audio} from 'data/scene/entities/audio';
-import {Image} from 'data/scene/entities/image';
-import {Vector2} from 'data/scene/entities/vector2';
-import {ZipFileReader} from 'ui/editor/util/zipFileReader';
+import { SlideshowBuilder } from 'ui/editor/util/SlideshowBuilder';
+import { ZipFileReader } from 'ui/editor/util/zipFileReader';
+import { SettingsInteractor } from 'core/settings/settingsInteractor'
 
 @Component({
   selector: 'upload',
   styleUrls: ['./upload.scss'],
-  templateUrl: './upload.html'
+  templateUrl: './upload.html',
 })
 export class Upload {
 
@@ -32,20 +28,24 @@ export class Upload {
     private slideshowBuilder: SlideshowBuilder,
     private sceneInteractor: SceneInteractor,
     private zipFileReader: ZipFileReader,
-    private element: ElementRef
-  ) {}
+    private element: ElementRef,
+    private settingsInteractor: SettingsInteractor
+  ) {
+  }
 
   @HostListener('drop', ['$event'])
   onDrop(event) {
-      event.stopPropagation();
-      event.preventDefault();
-      const file = event.dataTransfer.files && event.dataTransfer.files[0];
-      if (!file) { return; }
-      if (event.dataTransfer.files && event.dataTransfer.files.length > 1) {
-        this.loadSlideshow(event.dataTransfer.files);
-        return;
-      }
-      this.loadBackgroundImage(file);
+    event.stopPropagation();
+    event.preventDefault();
+    const file = event.dataTransfer.files && event.dataTransfer.files[0];
+    if (!file) {
+      return;
+    }
+    if (event.dataTransfer.files && event.dataTransfer.files.length > 1) {
+      this.loadSlideshow(event.dataTransfer.files);
+      return;
+    }
+    this.loadBackgroundImage(file);
   }
 
   @HostListener('document:click', ['$event'])
@@ -56,7 +56,7 @@ export class Upload {
       return;
     }
     if (!isClicked) {
-      this.router.navigate(['/editor', {outlets: {'modal': null}}]);
+      this.router.navigate(['/editor', { outlets: { 'modal': null } }]);
     }
   }
 
@@ -78,7 +78,14 @@ export class Upload {
   }
 
   private loadBackgroundImage(file) {
-    this.router.navigate(['/editor', {outlets: {'modal': null}}]);
+    const { maxBackgroundImageSize } = this.settingsInteractor.settings
+    
+    if(file.size/1024/1024 >= maxBackgroundImageSize){
+      this.eventBus.onModalMessage('Error', `File is too large. Max file size is ${maxBackgroundImageSize} mb`)
+      return;
+    }
+
+    this.router.navigate(['/editor', { outlets: { 'modal': null } }]);
     this.eventBus.onStartLoading();
     this.fileLoaderUtil.validateFileLoadEvent(file, 'image')
       .then(this.fileLoaderUtil.getBinaryFileData.bind(this.fileLoaderUtil))
@@ -86,11 +93,14 @@ export class Upload {
       .then(resized => {
         const roomId: string = this.sceneInteractor.addRoom();
         const room: Room = this.sceneInteractor.getRoomById(roomId);
-        room.setFileData(file.name, resized.backgroundImage);
-        room.setThumbnail(file.name, resized.thumbnail);
+
+        room.setBackgroundImageBinaryData(resized.backgroundImage);
+        room.setThumbnail(resized.thumbnail);
+
         if (this.onFileLoad) {
           this.onFileLoad.emit();
         }
+
         this.eventBus.onStopLoading();
       })
       .catch(error => this.eventBus.onModalMessage('Error', error));

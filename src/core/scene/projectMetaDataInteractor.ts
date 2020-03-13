@@ -1,11 +1,62 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
-import {RoomManager} from 'data/scene/roomManager';
+import { RoomManager } from 'data/scene/roomManager';
+import { EventBus } from '../../ui/common/event-bus';
 
 @Injectable()
 export class MetaDataInteractor {
+  private _hasUnsavedChanges: boolean = false;
+  private _loading: boolean = false;
 
-  constructor(private roomManager: RoomManager) {}
+  public get hasUnsavedChanges(): boolean {
+    return this._hasUnsavedChanges;
+  }
+
+  constructor(
+    private roomManager: RoomManager,
+    private eventBus: EventBus,
+  ) {
+    window.addEventListener('beforeunload',  (e) => {
+      if (this.hasUnsavedChanges) {
+        const confirmationMessage = "You are about lose your work. Are you sure?";
+
+        e.returnValue = confirmationMessage;     // Gecko, Trident, Chrome 34+
+        return confirmationMessage;
+      }
+    });
+  }
+
+  public loadingProject(isLoading) {
+    this._loading = isLoading;
+  }
+
+  public onProjectChanged() {
+    if (!this._loading) {
+      this._hasUnsavedChanges = true;
+    }
+  }
+
+  public onProjectSaved() {
+    this._hasUnsavedChanges = false;
+  }
+
+  public checkAndConfirmResetChanges(msg = 'If you do not save your changes before opening a new story file, those changes will be lost.') {
+    return new Promise((resolve, reject) => {
+      if (this.hasUnsavedChanges) {
+        this.eventBus.onModalMessage(
+          '',
+          msg,
+          true,
+          // modal dismissed callback
+          reject,
+          // modal accepted callback
+          resolve,
+        );
+      } else {
+        resolve();
+      }
+    });
+  }
 
   getProjectName(): string {
     return this.roomManager.getProjectName();
@@ -20,7 +71,7 @@ export class MetaDataInteractor {
   }
 
   setProjectDescription(projectDescription: string) {
-    this.roomManager.setProjectDescription(projectDescription)
+    this.roomManager.setProjectDescription(projectDescription);
   }
 
   projectIsEmpty(): boolean {
@@ -62,5 +113,4 @@ export class MetaDataInteractor {
   getSoundtrackVolume(): number {
     return this.roomManager.getSoundtrackVolume();
   }
-
 }

@@ -1,6 +1,4 @@
-
 export enum AuthenticationMethod {
-  SOCIAL_VR,
+  FIREBASE,
   GOOGLE,
-  FACEBOOK
 }
