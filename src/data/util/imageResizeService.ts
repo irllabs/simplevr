@@ -55,7 +55,7 @@ const SIZE_OPTIONS = {
 function getResizedImage(imageUrl: any, sizeOption: string): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
-      const canvas = document.createElement('canvas');
+      const canvas = (document.createElement('canvas') as unknown) as HTMLCanvasElement;
       const img = new Image();
 
       img.onload = () => {

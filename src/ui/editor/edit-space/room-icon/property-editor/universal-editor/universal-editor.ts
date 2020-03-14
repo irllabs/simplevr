@@ -15,6 +15,8 @@ import { SettingsInteractor } from 'core/settings/settingsInteractor';
 })
 export class UniversalEditor {
 
+  public title;
+
   @Input() universalProperty: Universal;
 
   private _activeTab: number = null;
@@ -89,6 +91,7 @@ export class UniversalEditor {
   }
 
   public onImageFileLoad($event) {
+    console.log($event)
     resizeImage($event.binaryFileData, 'hotspotImage')
       .then((resizedImageData) => {
         this._originImage = null;
@@ -100,8 +103,8 @@ export class UniversalEditor {
   }
 
   public onRotateImage() {
-    const image = document.createElement('img');
-    const canvas = document.createElement('canvas');
+    const image = (document.createElement('img') as unknown) as HTMLImageElement;
+    const canvas = (document.createElement('canvas') as unknown) as HTMLCanvasElement;;
     const context = canvas.getContext('2d');
 
     if (this._originImage === null) {
@@ -144,7 +147,7 @@ export class UniversalEditor {
         this._onChange();
       })
       .catch((error) => this.eventBus.onModalMessage('Error', error))
-    
+
   }
 
   public onVolumeChange($event) {
@@ -183,7 +186,18 @@ export class UniversalEditor {
   public showAudioRecorder(): boolean {
     return browserCanRecordAudio();
   }
+  public onUploadSuccess($event){
+    console.log($event)
+    resizeImage($event[0].dataURL, 'hotspotImage')
+      .then((resizedImageData) => {
+        this._originImage = null;
+        this.title = $event[0].name;
+        this.universalProperty.setImageContent(resizedImageData);
+        this._onChange();
+      })
+      .catch(error => this.eventBus.onModalMessage('Image loading error', error));
 
+  }
   public onDeleteTabData(): void {
     switch (this.activeTab) {
       case this.TABS.IMAGE: {

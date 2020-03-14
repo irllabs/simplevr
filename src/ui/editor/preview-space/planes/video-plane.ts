@@ -21,7 +21,7 @@ export default class VideoPlane extends BasePlane {
     if (videoProperty.hasValidUrl) {
       const videoUrl = videoProperty.exportUrl;
       const video = this.getVideoElement(videoUrl);
-      const image = document.createElement('canvas');
+      const image = (document.createElement('canvas') as unknown) as HTMLCanvasElement;;
 
       image.width = 480;
       image.height = 360;
@@ -68,7 +68,7 @@ export default class VideoPlane extends BasePlane {
   }
 
   private getVideoElement(videoUrl: string): HTMLVideoElement {
-    const video: HTMLVideoElement = document.createElement('video');
+    const video: HTMLVideoElement = (document.createElement('video') as unknown) as HTMLVideoElement;
 
     video.crossOrigin = 'anonymous';
     video.setAttribute('playsinline', 'playsinline');

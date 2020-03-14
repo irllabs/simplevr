@@ -27,7 +27,7 @@ export class Video3D {
   }
 
   private initTexture(): THREE.Texture {
-    const canvasElement = document.createElement('canvas');
+    const canvasElement = (document.createElement('canvas') as unknown) as HTMLCanvasElement;
     canvasElement.width = this.videoElement.videoWidth;
     canvasElement.height = this.videoElement.videoHeight;
 

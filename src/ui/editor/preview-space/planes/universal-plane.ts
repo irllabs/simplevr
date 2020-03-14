@@ -66,7 +66,7 @@ export default class UniversalPlane extends BasePlane {
     }
 
     // Building material
-    const canvas = document.createElement('canvas');
+    const canvas = (document.createElement('canvas') as unknown) as HTMLCanvasElement;;
     const canvasContext = canvas.getContext('2d');
 
     canvas.width = width;
@@ -89,7 +89,7 @@ export default class UniversalPlane extends BasePlane {
     }
 
     if (textSize !== null) {
-      const textCanvas = document.createElement('canvas');
+      const textCanvas = (document.createElement('canvas') as unknown) as HTMLCanvasElement;;
       const textCanvasContext = textCanvas.getContext('2d');
 
       textCanvas.width = textSize.width;

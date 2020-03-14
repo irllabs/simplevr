@@ -40,7 +40,7 @@ function printWrappedText(context, text, x, y, maxWidth, lineHeight): TextLine[]
 
 export function getTextureSizeFromText(textContext: string) {
   const width = 2 * 600;
-  const drawCanvas = document.createElement('canvas');
+  const drawCanvas = (document.createElement('canvas') as unknown) as HTMLCanvasElement;;
   const g2d = drawCanvas.getContext('2d');
   const fixedFontSize = fontSize * 2;
 
@@ -62,7 +62,7 @@ export function getTextureSizeFromText(textContext: string) {
 
 export function buildMaterialFromText(textContext: string) {
   const { width, height, drawCanvas } = getTextureSizeFromText(textContext);
-  const resizedCanvas = document.createElement('canvas');
+  const resizedCanvas = (document.createElement('canvas') as unknown) as HTMLCanvasElement;;
   const resizedG2d = resizedCanvas.getContext('2d');
 
   resizedCanvas.width = width;
