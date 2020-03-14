@@ -29,7 +29,7 @@ app.get("/:token", (req, res) => {
       const mailer = mailTransport(settings.email)
       mailer.sendMail(
         {
-          from: "Social VR",
+          from: "SimpleVR",
           to: user.email,
           subject: "Your account is activated",
           html: `Congratulations, you account is successfully activated. You can login now.`
