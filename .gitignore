@@ -78,7 +78,13 @@ _site/
 /npm-debug.log
 /editorconfig
 
-# firebase functions 
+# firebase functions
 /functions/node_modules
 
-/.firebase
+/.
+
+# Firebase debug logs
+functions/firebase-debug.log
+
+# Firebase cache
+.firebase

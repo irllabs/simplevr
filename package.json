@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "Simple VR Editor Application",
   "scripts": {
-    "build:copy": "cp src/favicon.ico dist/favicon.ico; cp src/manifest.json dist/manifest.json; cp src/socialVr.png dist/socialVR.png; cp -r src/assets dist/assets; cp -r src/__stubs__ dist/__stubs__",
+    "build:copy": "cp src/favicon.ico dist/favicon.ico; cp src/manifest.json dist/manifest.json; cp src/socialVR.png dist/socialVR.png; cp -r src/assets dist/assets; cp -r src/__stubs__ dist/__stubs__",
     "build:webpack": "webpack --colors --progress",
     "build:webpack-prod": "webpack --colors --progress -p",
     "build": "npm run clean && npm run build:webpack && npm run build:copy",
