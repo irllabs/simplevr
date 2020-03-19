@@ -67,7 +67,6 @@ export class EditSpaceSphere {
   ngAfterViewInit() {
     this.render = this.render.bind(this);
     this.resetRoomIconsPosition = this.resetRoomIconsPosition.bind(this);
-    this.renderer = this.globeScene.nativeElement.renderer;
 
     const cameraElement = this.cameraElement.nativeElement;
     const runContext = this.ngZone.runOutsideAngular.bind(this.ngZone);
@@ -78,19 +77,18 @@ export class EditSpaceSphere {
       cameraElement.addEventListener('onUpdate', this.render)
       cameraElement.addEventListener('afterResize', this.resetRoomIconsPosition)
     })
-    
+
     this.subscribeToEvents();
     this.loadTextures()
       .then(this.initRoom.bind(this))
       .catch(error => console.log('load textures / init room error', error, console.trace()));
-
   }
 
   ngOnDestroy() {
     //Manualy turn off aframe render cycle
-    this.renderer.dispose(); 
+    this.globeScene.nativeElement.renderer.dispose();
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
-    
+
     if (!!this.video3D) {
       this.video3D.destroy();
     }
@@ -102,7 +100,7 @@ export class EditSpaceSphere {
     const sphereTexture = this.assetInteractor.getTextureById(roomId);
 
     this.sky = sphereTexture.image.currentSrc;
-    
+
     setTimeout(() => {
       this.cameraElement.nativeElement.emit('onResize')
     })
