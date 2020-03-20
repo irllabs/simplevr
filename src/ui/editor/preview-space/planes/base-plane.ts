@@ -43,7 +43,7 @@ export default class BasePlane {
   public type: string;
   public planeMesh: THREE.Mesh;
   public iconMesh: THREE.Mesh;
-  public previewIconMesh: THREE.Group;
+  public previewIconMesh: THREE.Mesh;
   public labelMesh: THREE.Mesh;
   public cancelAnimation: Function;
 

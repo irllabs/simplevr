@@ -96,9 +96,9 @@ export class ProjectInteractor {
   public openPublicProject(projectId: string) {
     const collectionRef = this.afStore.collection<Project>('projects');
 
-    return collectionRef.doc<Project>(projectId).valueChanges().first().toPromise()
+    return collectionRef.doc<Project>(projectId).ref.get()
       .then((response) => {
-        const project = new Project(response);
+        const project = new Project(response.data());
 
         return this._openProject(project, false);
       });

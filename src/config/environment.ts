@@ -8,15 +8,15 @@ const firebase = build === 'PROD' ? {
   storageBucket: 'social-vr-161302.appspot.com',
   messagingSenderId: '613942124685',
   dynamicLinkDomain: 'simplevr.page.link'
-  
+
 } : {
-  apiKey: 'AIzaSyAYEF9C8sje4GzAYoKJVO9dhXNSp_k31mw',
-  authDomain: 'social-vr-staging-52b75.firebaseapp.com',
-  databaseURL: 'https://social-vr-staging-52b75.firebaseio.com',
-  projectId: 'social-vr-staging-52b75',
-  storageBucket: 'social-vr-staging-52b75.appspot.com',
-  messagingSenderId: '415514108134',
-  dynamicLinkDomain: 'svrst.page.link'
+  apiKey: 'AIzaSyB6v7PJhqFaoC4fHQZ4ZpZtDCfo-CCl8qA',
+  authDomain: 'social-vr-161302.firebaseapp.com',
+  databaseURL: 'https://social-vr-161302.firebaseio.com',
+  projectId: 'social-vr-161302',
+  storageBucket: 'social-vr-161302.appspot.com',
+  messagingSenderId: '613942124685',
+  dynamicLinkDomain: 'simplevr.page.link'
 };
 
 export const ENV = {

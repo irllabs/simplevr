@@ -126,7 +126,6 @@ const defaultConfig = {
   },
 
   devServer: {
-    https: true,
     historyApiFallback: true,
     watchOptions: { aggregateTimeout: 300, poll: 1000 },
     headers: {
