@@ -78,8 +78,8 @@ export class ProjectInteractor {
     return this._projectsCollection.doc(projectId).update({ isPublic });
   }
 
-  public getProjectData(projectId: string): Observable<Project> {
-    return this._projectsCollection.doc<Project>(projectId).valueChanges();
+  public getProjectData(projectId: string) {
+    return this._projectsCollection.doc<Project>(projectId).ref.get();
   }
 
   public openProject(project: Project) {

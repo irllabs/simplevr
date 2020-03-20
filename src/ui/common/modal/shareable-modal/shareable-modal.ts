@@ -7,6 +7,7 @@ import * as QRCode from 'qrcode';
 import { Observable } from 'rxjs/Observable';
 import { copyToClipboard } from 'ui/editor/util/clipboard';
 import { getShareableLink } from 'ui/editor/util/publicLinkHelper';
+import { Project } from 'data/project/projectModel';
 
 @Component({
   selector: 'shareable-modal',
@@ -34,28 +35,26 @@ export class ShareableModal {
   ngOnInit() {
     const projectId = this.shareableData.projectId;
 
-    this.projectInteractor.getProjectData(projectId)
-      .map(
-        (response) => {
-          const publicLink = getShareableLink(projectId);
+    this.projectInteractor.getProjectData(projectId).then((response) => {
+      const projectData = response.data() as Project;
 
-          this.isPublic = response.isPublic;
-          this.projectName = response.name;
+      const publicLink = getShareableLink(projectId);
 
-          return this.isPublic ? publicLink : null;
-        },
-      )
-      // Pipe to Google API to shorten
-      .flatMap(
-        publicLink => publicLink ? this.apiService.getShortenedUrl(publicLink) : Observable.empty(),
-      )
-      .subscribe(
+      this.isPublic = projectData.isPublic;
+      this.projectName = projectData.name;
+
+      return this.isPublic ? publicLink : null;
+    }).then((link) => {
+      return link ? this.apiService.getShortenedUrl(link) : Observable.empty()
+    }).then((response) => {
+      response.subscribe(
         (shortenedUrl) => {
           this.publicLink = shortenedUrl;
           this.setQRCode(this.publicLink);
         },
         error => console.error('getShortUrl error', error),
       );
+    });
   }
 
   public closeModal($event, isAccepted: boolean) {
