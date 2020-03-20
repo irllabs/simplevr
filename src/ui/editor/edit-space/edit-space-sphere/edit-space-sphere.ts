@@ -5,6 +5,7 @@ import { CameraInteractor } from 'core/scene/cameraInteractor';
 import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
 import { SceneInteractor } from 'core/scene/sceneInteractor';
 import { Vector2 } from 'data/scene/entities/vector2';
+import { Room } from 'data/scene/entities/room';
 import { RoomProperty } from 'data/scene/interfaces/roomProperty';
 import { Subscription } from 'rxjs/Subscription';
 import * as THREE from 'three';
@@ -43,6 +44,10 @@ export class EditSpaceSphere {
   private video3D: Video3D;
   private animationRequest: number;
 
+  public room: Room;
+  private backgroundAudio: any;
+  private narrationAudio: any;
+
   private sky: any;
 
   constructor(
@@ -78,6 +83,10 @@ export class EditSpaceSphere {
       cameraElement.addEventListener('afterResize', this.resetRoomIconsPosition)
     })
 
+    setTimeout(() => {
+      this.render();
+    }, 500);
+
     this.subscribeToEvents();
     this.loadTextures()
       .then(this.initRoom.bind(this))
@@ -100,6 +109,14 @@ export class EditSpaceSphere {
     const sphereTexture = this.assetInteractor.getTextureById(roomId);
 
     this.sky = sphereTexture.image.currentSrc;
+
+    this.room = room;
+    this.backgroundAudio = room.getBackgroundAudioBinaryFileData(true);
+    this.narrationAudio = room.getNarrationIntroBinaryFileData(true);
+
+    /*setTimeout(() => {
+      this.render();
+    }, 1000);*/
 
     setTimeout(() => {
       this.cameraElement.nativeElement.emit('onResize')
@@ -187,7 +204,9 @@ export class EditSpaceSphere {
   }
 
   resetRoomIconsPosition() {
-    this.roomIconComponentList.forEach(roomIcon => roomIcon.setPixelLocation(99999, 99999));
+    this.roomIconComponentList.forEach((roomIcon) => {
+      roomIcon.setPixelLocation(99999, 99999);
+    });
     this.render();
     // .catch(error => console.log('edit-sphere resize error', error));
   }
@@ -199,9 +218,12 @@ export class EditSpaceSphere {
     const positionCameraDotProd: number = coordinatePosition.dot(this.camera.getWorldDirection(new THREE.Vector3()));
 
     // exit function if the camera is pointed in the opposite direction as the icon
-    if (positionCameraDotProd < 0) return;
+    if (positionCameraDotProd < 0) {
+      roomIcon.setPixelLocation(99999, 99999);
+      return;
+    }
 
-    const screenPosition = getScreenProjection(coordinatePosition, this.camera, this.renderer.context);
+    const screenPosition = getScreenProjection(coordinatePosition, this.camera, this.globeScene.nativeElement.renderer.context);
     roomIcon.setPixelLocationWithBuffer(screenPosition.x, screenPosition.y);
   }
 
@@ -217,7 +239,7 @@ export class EditSpaceSphere {
 
   transformScreenPositionTo3dNormal(x: number, y: number) {
     const normalPosition: Vector2 = getNormalizedPositionFromScreenPosition(
-      x, y, this.camera, this.renderer.context);
+      x, y, this.camera, this.globeScene.nativeElement.renderer.context);
     return normalPosition;
   }
 

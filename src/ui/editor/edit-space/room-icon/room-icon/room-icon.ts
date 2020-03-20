@@ -126,15 +126,15 @@ export class RoomIcon implements Hotspot {
     rect = document.querySelectorAll("#icon-element");
     //const numBoxes = dragMe.length;
     console.log(el);
-    
-    
+
+
 
     for(var i = 0; i < dragMe.length; ++i) {
       for(var j = i+1; j< dragMe.length; ++j){
       //result = el[i];
       console.log("//////////////////////////////////////////" + j)
-      
-  
+
+
       var object_1 = dragMe[i].getBoundingClientRect();
       console.log(object_1);
       console.log(object_1.left, object_1.top)
@@ -145,26 +145,26 @@ export class RoomIcon implements Hotspot {
       console.log(dragMe.length)
       console.log(dragMe)
       console.log(rect)
-      
-      
-      
-      
-      
+
+
+
+
+
       if((dragMe.length>=i+1 )){
         console.log("primer if")
           if((object_1.left + object_1.height > object_2.left &&
-              object_1.left < object_2.left + object_2.width) 
+              object_1.left < object_2.left + object_2.width)
             &&
             ( object_1.top + object_1.height > object_2.top &&
-              object_1.top < object_2.top + object_2.height ) )         
+              object_1.top < object_2.top + object_2.height ) )
             {
               console.log("overlaping");
               this.iconElement.nativeElement.style.top = `${y}px`;
               this.iconElement.nativeElement.style.left = `${x}px`;
-              
+
           }else{
             console.log("isn't overlpaing or the array is smaller than the iterator" )
-            
+
           }
         }else{console.log("isn't working")}
       }
@@ -184,8 +184,8 @@ export class RoomIcon implements Hotspot {
     // }else{
 
     // }
-  }  
-    
+  }
+
 
   ngOnInit() {
 
@@ -260,16 +260,16 @@ export class RoomIcon implements Hotspot {
      this.YPosition=$event.y;
      console.log(this.Xposition);
      console.log(this.YPosition);
-    
+
       event.stopPropagation();
   }
 
   onMove($event) {
- 
+
     event.stopPropagation();
     const x: number = $event.x + ROOM_ICON_BUFFER_WIDTH;
     const y: number = $event.y + ROOM_ICON_BUFFER_HEIGHT;
-  
+
     var dragHotspot = document.querySelectorAll("#icon-element");
     var objectHotspot = dragHotspot[0].getBoundingClientRect();
 
