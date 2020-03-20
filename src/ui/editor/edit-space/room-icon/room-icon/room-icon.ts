@@ -105,7 +105,9 @@ export class RoomIcon implements Hotspot {
   private onDocumentClick($event) {
     const isClicked: boolean = this.element.nativeElement.contains($event.target);
 
-    if (!isClicked) {
+    const inputClicked = $event.target.className === 'dz-hidden-input';
+
+    if (!isClicked && !inputClicked) {
       this.setPropertyEditorVisibility(false);
     }
   }
