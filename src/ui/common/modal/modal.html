@@ -3,7 +3,8 @@
   class="modal">
 
   <loading-modal
-    *ngIf="isLoaderModal()">
+    *ngIf="isLoaderModal()"
+    [message]="messageData.bodyText">
   </loading-modal>
 
   <message-modal

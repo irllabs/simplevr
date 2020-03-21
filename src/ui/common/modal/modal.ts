@@ -35,6 +35,7 @@ export class Modal {
   private subscriptions: Set<Subscription> = new Set<Subscription>();
 
   constructor(private eventBus: EventBus) {
+    this.onStartLoading = this.onStartLoading.bind(this);
   }
 
   ngOnInit() {
@@ -74,10 +75,7 @@ export class Modal {
 
     const onStartLoading: Subscription = this.eventBus.getObservable(EventType.START_LOADING)
       .subscribe(
-        event => {
-          this.isOpen = true;
-          this.activeModalType = MODAL_TYPE.LOADER;
-        },
+        this.onStartLoading,
         error => {
           console.log('error', error);
           this.isOpen = false;
@@ -137,6 +135,12 @@ export class Modal {
     this.subscriptions.add(onStopLoading);
     this.subscriptions.add(onMessage);
     this.subscriptions.add(onExploreModal);
+  }
+
+  private onStartLoading(modalText: string) {
+    this.messageData.bodyText = modalText;
+    this.isOpen = true;
+    this.activeModalType = MODAL_TYPE.LOADER;
   }
 
   private clearValues() {

@@ -92,7 +92,7 @@ export class AuthUserTab implements OnInit, OnDestroy {
   }
 
   public downloadProject(project: Project) {
-    this.eventBus.onStartLoading();
+    this.eventBus.onStartLoading('Saving your project, just a moment...');
 
     this.projectInteractor.getProjectAsBlob(project)
       .then(

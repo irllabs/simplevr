@@ -48,7 +48,7 @@ export class ShareableModal {
       return link ? this.apiService.getShortenedUrl(link) : Observable.empty()
     }).then((response) => {
       response.subscribe(
-        (shortenedUrl) => {
+        (shortenedUrl: string) => {
           this.publicLink = shortenedUrl;
           this.setQRCode(this.publicLink);
         },

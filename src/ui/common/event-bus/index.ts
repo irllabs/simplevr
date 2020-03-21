@@ -35,8 +35,8 @@ export class EventBus {
     EventBus.subject.next(event);
   }
 
-  onStartLoading() {
-    EventBus.subject.next(new Event(EventType.START_LOADING, null));
+  onStartLoading(modalText?: string) {
+    EventBus.subject.next(new Event(EventType.START_LOADING, modalText));
   }
 
   onStopLoading() {
