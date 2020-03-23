@@ -285,25 +285,28 @@ export class ProjectInteractor {
 	}
 
 	private async _deleteMediaFiles(mediaFiles) {
+		const deletePromises = [];
 		for (let i = 0; i < mediaFiles.length; i++) {
 			const mediaFile = mediaFiles[i];
 
-			await this.afStorage.ref(mediaFile.storedRemoteFile)
+			deletePromises.push(this.afStorage.ref(mediaFile.storedRemoteFile)
 				.delete().toPromise()
 				.then(() => mediaFile.setStoredRemoteFile(null))
 				.catch((error) => {
 					console.log('Can\'t delete file from Storage:', mediaFile);
 					console.log(error);
-				});
+				}));
 		}
+		await Promise.all(deletePromises);
 	}
 
 	private async _uploadMediaFiles(mediaFiles) {
+		const uploadPromises = [];
 		for (let i = 0; i < mediaFiles.length; i++) {
 			const mediaFile: MediaFile = mediaFiles[i];
 			const task = this.afStorage.upload(mediaFile.getRemoteFile(), mediaFile.getBlob());
 
-			await task.downloadURL().toPromise()
+			uploadPromises.push(task.downloadURL().toPromise()
 				.then(() => {
 					mediaFile.setStoredRemoteFile(mediaFile.getRemoteFile());
 
@@ -312,7 +315,8 @@ export class ProjectInteractor {
 				.catch((error) => {
 					console.log('Can\'t upload file to Storage:', mediaFile);
 					console.log(error);
-				});
+				}));
 		}
+		await Promise.all(uploadPromises);
 	}
 }
