@@ -79,6 +79,8 @@ export class EditSpaceSphere {
 		cameraElement.runContext = runContext
 
 		runContext(()=>{
+			window.addEventListener('orientationchange', this.render);
+
 			cameraElement.addEventListener('onUpdate', this.render)
 			cameraElement.addEventListener('afterResize', this.resetRoomIconsPosition)
 		})
