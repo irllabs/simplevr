@@ -66,9 +66,9 @@ export class DeserializationService {
 	}
 
 	public unzipStoryFile(zipFile) {
-		return Observable.fromPromise(
-			this.zip.loadAsync(zipFile).then(file => this._deserializeProjectFromZipFile(file)),
-		);
+		return this.zip.loadAsync(zipFile).then((file) => {
+			return this._deserializeProjectFromZipFile(file);
+		});
 	}
 
 	public extractAllRemoteFiles(story) {

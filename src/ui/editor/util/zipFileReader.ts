@@ -16,22 +16,19 @@ export class ZipFileReader {
   ) {
   }
 
-  loadFile(zipFile: any) {
-    this.eventBus.onStartLoading();
-    return this.storageInteractor.deserializeProject(zipFile)
-      .subscribe(
-        val => {
-          this.sceneInteractor.setActiveRoomId(null);
-          this.projectInteractor.setProject(null);
-          this.eventBus.onSelectRoom(null, false);
-          this.eventBus.onStopLoading();
-        },
-        error => {
-          const errorMessage: string = `The zip file does not seem to be a properly formatted story file. \n Error received: ${error}`;
-          this.eventBus.onModalMessage('File Upload Error', errorMessage);
-          this.eventBus.onStopLoading();
-        },
-      );
-  }
-
+	loadFile(zipFile: any) {
+		this.eventBus.onStartLoading();
+		return this.storageInteractor.deserializeProject(zipFile)
+		.then((response) => {
+			this.sceneInteractor.setActiveRoomId(null);
+			this.projectInteractor.setProject(null);
+			this.eventBus.onSelectRoom(null, false);
+			this.eventBus.onStopLoading();
+		})
+		.catch((error) => {
+			const errorMessage: string = `The zip file does not seem to be a properly formatted story file. \n Error received: ${error}`;
+			this.eventBus.onModalMessage('File Upload Error', errorMessage);
+			this.eventBus.onStopLoading();
+		})
+	}
 }

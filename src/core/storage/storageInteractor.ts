@@ -8,20 +8,21 @@ import { Observable } from 'rxjs/Observable';
 @Injectable()
 export class StorageInteractor {
 
-  constructor(
-    private deserializationService: DeserializationService,
-    private serializationService: SerializationService,
-    private assetManager: AssetManager,
-  ) {
-  }
+	constructor(
+		private deserializationService: DeserializationService,
+		private serializationService: SerializationService,
+		private assetManager: AssetManager,
+	) {}
 
-  serializeProject(): Observable<any> {
-    return this.serializationService.zipStoryFile();
-  }
+	serializeProject(): Observable<any> {
+		return this.serializationService.zipStoryFile();
+	}
 
-  deserializeProject(file: any): Observable<any> {
-    return this.deserializationService
-      .unzipStoryFile(file)
-      .do(() => this.assetManager.clearAssets());
-  }
+	deserializeProject(file: any): Promise<any> {
+		return this.deserializationService
+		.unzipStoryFile(file)
+		.then(() => {
+			this.assetManager.clearAssets();
+		});
+	}
 }
