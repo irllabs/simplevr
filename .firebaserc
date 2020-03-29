@@ -1,15 +1,18 @@
 {
-  "projects": {
-    "default": "social-vr-staging-52b75",
-    "production": "social-vr-161302"
-  },
-  "targets": {
-    "social-vr-161302": {
-      "hosting": {
-        "simplevr-stage": [
-          "simple-vr-stage"
-        ]
-      }
-    }
-  }
+	"projects": {
+		"default": "social-vr-staging-52b75",
+		"production": "social-vr-161302"
+	},
+	"targets": {
+		"social-vr-161302": {
+			"hosting": {
+				"simplevr-stage": [
+					"simple-vr-stage"
+				],
+				"simplevr-production": [
+					"social-vr-161302"
+				]
+			}
+		}
+	}
 }
