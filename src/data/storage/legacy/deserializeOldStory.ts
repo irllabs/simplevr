@@ -252,7 +252,7 @@ function deserializeRooms(ds, storyJson, binaryFileMap, baseFilePath) {
 
         return universalFromJson(universalJson, imageBinaryFileData, audioBinaryFileData);
       })
-      .forEach(universal => room.addUniversal(universal));
+      .forEach(universal => room.addUniversal(universal, true));
 
     allDoors
       .map(doorJson => ds.propertyBuilder.doorFromJson(doorJson))

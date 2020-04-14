@@ -216,7 +216,7 @@ export class DeserializationService {
 						universal.setAudioMediaFile(audioMediaFile);
 					}
 
-					room.addUniversal(universal);
+					room.addUniversal(universal, true);
 				});
 
 

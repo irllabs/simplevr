@@ -68,13 +68,13 @@ export class Room implements RoomProperty {
     return this.universalSet;
   }
 
-  addUniversal(universal: Universal) {      
-    let Xpos :number;
-    let Ypos :number;
+  addUniversal(universal: Universal, fromSavedProject: boolean) {
+    let Xpos: number = universal.location.getX();
+    let Ypos: number = universal.location.getY();
     let Accumulator:number=-1;
     let validator=true;
-  
-    while(validator){
+
+    while(validator && !fromSavedProject) {
       Xpos=Math.random() *(350-30)+30;
       Ypos=Math.random() *(72);
       Ypos*=Math.floor(Math.random()*2) == 1 ? 1 : -1;
@@ -83,7 +83,7 @@ export class Room implements RoomProperty {
       this.universalSet.forEach(function(value){
         //console.log("second loop");
           if( (Xpos>=value.location.getX()+38 || Xpos<=value.location.getX()-38)
-               ||  
+               ||
                (Ypos>=value.location.getY()+38 || Ypos<=value.location.getY()-38))
           {
             Accumulator+=1;

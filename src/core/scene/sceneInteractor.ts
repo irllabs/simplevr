@@ -69,7 +69,7 @@ export class SceneInteractor {
         throw new Error('You have reached maximum amount of rooms');
       }
     }
-   
+
     const roomName: string = `Room ${numberOfRooms+1}`;
     const room: Room = this.propertyBuilder.room(roomName);
 
@@ -159,11 +159,11 @@ export class SceneInteractor {
     }
 
     const hotSpotName: string = `Hotspot ${numberOfUniversals+1}`;
-    
+
     const universal: Universal = this.propertyBuilder.universal(hotSpotName, '');
     console.log(universal);
 
-    this.getRoomById(roomId).addUniversal(universal);
+    this.getRoomById(roomId).addUniversal(universal, false);
 
     this.projectMetaDataInteractor.onProjectChanged();
 
