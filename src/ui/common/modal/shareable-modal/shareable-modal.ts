@@ -10,97 +10,98 @@ import { getShareableLink } from 'ui/editor/util/publicLinkHelper';
 import { Project } from 'data/project/projectModel';
 
 @Component({
-  selector: 'shareable-modal',
-  styleUrls: ['./shareable-modal.scss'],
-  templateUrl: './shareable-modal.html',
+	selector: 'shareable-modal',
+	styleUrls: ['./shareable-modal.scss'],
+	templateUrl: './shareable-modal.html',
 })
 export class ShareableModal {
 
-  @Output() onClose = new EventEmitter();
-  @Input() shareableData;
-  @ViewChild('qrCodeElem') qrCodeElem;
-  private isPublic = false;
-  private publicLink = '';
-  private projectName = '';
-  private notificationIsVisible = false;
+	@Output() onClose = new EventEmitter();
+	@Input() shareableData;
+	@ViewChild('qrCodeElem') qrCodeElem;
+	private isPublic = false;
+	private publicLink = '';
+	private projectName = '';
+	private notificationIsVisible = false;
 
-  constructor(
-    private projectInteractor: ProjectInteractor,
-    private userInteractor: UserInteractor,
-    private apiService: ApiService,
-  ) {
-  }
+	constructor(
+		private projectInteractor: ProjectInteractor,
+		private userInteractor: UserInteractor,
+		private apiService: ApiService,
+	) {
+	}
 
 
-  ngOnInit() {
-    const projectId = this.shareableData.projectId;
+	async ngOnInit() {
+		const projectId = this.shareableData.projectId;
 
-    this.projectInteractor.getProjectData(projectId).then((response) => {
-      const projectData = response.data() as Project;
+		const response = await this.projectInteractor.getProjectData(projectId)
+		const projectData = response.data() as Project;
 
-      const publicLink = getShareableLink(projectId);
+		const publicLink = getShareableLink(projectId);
 
-      this.isPublic = projectData.isPublic;
-      this.projectName = projectData.name;
+		this.isPublic = projectData.isPublic;
+		this.projectName = projectData.name;
 
-      return this.isPublic ? publicLink : null;
-    }).then((link) => {
-      return link ? this.apiService.getShortenedUrl(link) : Observable.empty()
-    }).then((response) => {
-      response.subscribe(
-        (shortenedUrl: string) => {
-          this.publicLink = shortenedUrl;
-          this.setQRCode(this.publicLink);
-        },
-        error => console.error('getShortUrl error', error),
-      );
-    });
-  }
+		const link = this.isPublic ? publicLink : null;
 
-  public closeModal($event, isAccepted: boolean) {
-    this.onClose.emit({ isAccepted });
-  }
+		let shortenedUrl: string;
+		if (link) {
+			shortenedUrl = await this.apiService.getShortenedUrl(link).toPromise();
+		}
 
-  public projectIsPublic(): boolean {
-    return this.isPublic;
-  }
+		this.publicLink = shortenedUrl;
+		if (this.publicLink) {
+			this.setQRCode(this.publicLink);
+		}
+	}
 
-  public onCheckboxChange() {
-    const projectId = this.shareableData.projectId;
+	public closeModal($event, isAccepted: boolean) {
+		this.onClose.emit({ isAccepted });
+	}
 
-    this.isPublic = !this.isPublic;
+	public projectIsPublic(): boolean {
+		return this.isPublic;
+	}
 
-    this.projectInteractor.updateSharableStatus(projectId, this.isPublic)
-      .then(() => {
-        const publicLink = getShareableLink(projectId);
+	public onCheckboxChange() {
+		const projectId = this.shareableData.projectId;
 
-        return this.isPublic ? publicLink : null;
-      })
-      .then(publicLink => publicLink ? this.apiService.getShortenedUrl(publicLink).toPromise() : null)
-      .then(
-        (shortenedUrl) => {
-          this.publicLink = shortenedUrl;
-          // this.setQRCode(this.publicLink);
-        },
-        error => console.error('getShortUrl error', error),
-      );
-  }
+		this.isPublic = !this.isPublic;
 
-  setQRCode(link: string) {
-    QRCode.toCanvas(
-      this.qrCodeElem.nativeElement,
-      link,
-      (error) => error ? console.error(error) : console.log('generated QR'),
-    );
-  }
+		this.projectInteractor.updateSharableStatus(projectId, this.isPublic)
+			.then(() => {
+				const publicLink = getShareableLink(projectId);
 
-  onPublicLinkClick() {
-    copyToClipboard(this.publicLink)
-      .then(() => {
-        this.notificationIsVisible = true;
-        setTimeout(() => this.notificationIsVisible = false, 2000);
-      })
-      .catch(error => console.log('copyToClipboard error', error));
-  }
+				return this.isPublic ? publicLink : null;
+			})
+			.then(publicLink => publicLink ? this.apiService.getShortenedUrl(publicLink).toPromise() : null)
+			.then(
+				(shortenedUrl) => {
+					this.publicLink = shortenedUrl;
+					if (this.publicLink) {
+						this.setQRCode(this.publicLink);
+					}
+				},
+				error => console.error('getShortUrl error', error),
+			);
+	}
+
+	setQRCode(link: string) {
+		QRCode.toCanvas(
+			this.qrCodeElem.nativeElement,
+			link,
+			(error) => error ? console.error(error) : console.log('generated QR'),
+		);
+	}
+
+	onPublicLinkClick() {
+		copyToClipboard(this.publicLink)
+			.then(() => {
+				this.notificationIsVisible = true;
+				setTimeout(() => this.notificationIsVisible = false, 2000);
+			})
+			.catch(error => console.log('copyToClipboard error', error));
+	}
 
 }
