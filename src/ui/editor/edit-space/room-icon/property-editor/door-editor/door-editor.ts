@@ -1,10 +1,10 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 
 import { Door } from 'data/scene/entities/door';
 import { Room } from 'data/scene/entities/room';
 import { DEFAULT_DOOR_NAME } from 'ui/common/constants';
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 
 @Component({
   selector: 'door-editor',
@@ -22,12 +22,6 @@ export class DoorEditor {
   // TODO: remove this value when slider is implemented
   private autoTimeViewModel: number = 0;
 
-  constructor(
-    private sceneInteractor: SceneInteractor,
-    private eventBus: EventBus,
-  ) {
-  }
-
   ngOnInit() {
     this.lastAutogoValue = this.doorProperty.getAutoTime() || 20;
     this.autoTimeViewModel = this.lastAutogoValue;
@@ -44,10 +38,10 @@ export class DoorEditor {
   }
 
   private createRoomList(): any[] {
-    const roomList = this.sceneInteractor.getRoomIds()
-      .filter(roomId => roomId !== this.sceneInteractor.getActiveRoomId())
+    const roomList = sceneInteractor.getRoomIds()
+      .filter(roomId => roomId !== sceneInteractor.getActiveRoomId())
       .map(roomId => {
-        const room: Room = this.sceneInteractor.getRoomById(roomId);
+        const room: Room = sceneInteractor.getRoomById(roomId);
         return { id: room.getId(), name: room.getName(), disabled: false };
       });
     roomList.unshift({ id: '', name: DEFAULT_DOOR_NAME, disabled: true });
@@ -64,7 +58,7 @@ export class DoorEditor {
   }
 
   private setDefaultRoomName() {
-    const defaultRoomName: string = this.sceneInteractor
+    const defaultRoomName: string = sceneInteractor
       .getRoomById(this.selectedRoom.id)
       .getName();
 
@@ -80,8 +74,8 @@ export class DoorEditor {
 
   private onTransportClick() {
     const outgoingRoomId = this.doorProperty.getRoomId();
-    this.sceneInteractor.setActiveRoomId(outgoingRoomId);
-    this.eventBus.onSelectRoom(outgoingRoomId, false);
+    sceneInteractor.setActiveRoomId(outgoingRoomId);
+    eventBus.onSelectRoom(outgoingRoomId, false);
   }
 
   private getDoorAutotime(): number {

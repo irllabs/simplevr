@@ -1,9 +1,9 @@
 import { Injectable, NgZone } from '@angular/core';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { Vector2 } from 'data/scene/entities/vector2';
 import { RoomProperty } from 'data/scene/interfaces/roomProperty';
 
-import { EventBus, EventType } from 'ui/common/event-bus';
+import eventBus, { EventType } from 'ui/common/event-bus';
 import { RoomIcon } from 'ui/editor/edit-space/room-icon/room-icon/room-icon';
 
 const HOTSPOT_DISTANCE_THESH = 80;
@@ -15,12 +15,10 @@ export class CombinedHotspotUtil {
   private roomIconList: RoomIcon[];
 
   constructor(
-    private sceneInteractor: SceneInteractor,
     private ngZone: NgZone,
-    private eventBus: EventBus,
   ) {
 
-    this.eventBus.getObservable(EventType.SELECT_PROPERTY)
+    eventBus.getObservable(EventType.SELECT_PROPERTY)
       .subscribe(
         event => {
           this.activeNeighborId = '';
@@ -35,7 +33,7 @@ export class CombinedHotspotUtil {
 
   public onIconMove(roomProperty: RoomProperty, x: number, y: number) {
     const previousActiveNeighborId: string = this.activeNeighborId;
-    const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
+    const activeRoomId: string = sceneInteractor.getActiveRoomId();
 
     const nearestNeighbor = this.roomIconList
       .map(roomIcon => {
@@ -58,7 +56,7 @@ export class CombinedHotspotUtil {
     //if there was a change in state, set properties and trigger digest cycle
     if (this.activeNeighborId !== previousActiveNeighborId) {
       this.ngZone.run(() => {
-        this.sceneInteractor.getRoomProperties(activeRoomId)
+        sceneInteractor.getRoomProperties(activeRoomId)
           .forEach(roomIcon => {
             const isPossibleHotspot: boolean = roomIcon.getId() === this.activeNeighborId;
             roomIcon.setPossibleCombinedHotspot(isPossibleHotspot);

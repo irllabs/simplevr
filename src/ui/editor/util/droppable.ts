@@ -1,6 +1,6 @@
 import { Directive, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 import { FileLoaderUtil } from 'ui/editor/util/fileLoaderUtil';
 
 @Directive({
@@ -19,7 +19,6 @@ export class Droppable {
   })();
 
   constructor(
-    private eventBus: EventBus,
     private fileLoaderUtil: FileLoaderUtil,
   ) {
   }
@@ -44,7 +43,7 @@ export class Droppable {
 
     const file = event.dataTransfer.files && event.dataTransfer.files[0];
     if (!file) {
-      this.eventBus.onModalMessage('Error', 'No valid file selected');
+      eventBus.onModalMessage('Error', 'No valid file selected');
       return;
     }
     if (!this.acceptedFileType) {
@@ -60,7 +59,7 @@ export class Droppable {
           file: file,
         });
       })
-      .catch(error => this.eventBus.onModalMessage('Error', error));
+      .catch(error => eventBus.onModalMessage('Error', error));
   }
 
 }

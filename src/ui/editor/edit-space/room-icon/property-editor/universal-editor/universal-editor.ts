@@ -2,11 +2,11 @@ import { Component, Input } from '@angular/core';
 import { Universal } from 'data/scene/entities/universal';
 import { resizeImage } from 'data/util/imageResizeService';
 import { DEFAULT_VOLUME } from 'ui/common/constants';
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 import { browserCanRecordAudio } from 'ui/editor/util/audioRecorderService';
-import { MetaDataInteractor } from '../../../../../../core/scene/projectMetaDataInteractor';
+import metaDataInteractor from '../../../../../../core/scene/projectMetaDataInteractor';
 import { audioDuration } from 'ui/editor/util/audioDuration';
-import { SettingsInteractor } from 'core/settings/settingsInteractor';
+import settingsInteractor from 'core/settings/settingsInteractor';
 
 @Component({
   selector: 'universal-editor',
@@ -68,15 +68,8 @@ export class UniversalEditor {
     this._onChange();
   }
 
-  constructor(
-    private eventBus: EventBus,
-    private projectMetaDataInteractor: MetaDataInteractor,
-    private settingsInteractor: SettingsInteractor
-    ) {
-  }
-
   private _onChange() {
-    this.projectMetaDataInteractor.onProjectChanged();
+    metaDataInteractor.onProjectChanged();
   }
 
   public onNameChange($event) {
@@ -99,7 +92,7 @@ export class UniversalEditor {
         this.universalProperty.setImageContent(resizedImageData);
         this._onChange();
       })
-      .catch(error => this.eventBus.onModalMessage('Image loading error', error));
+      .catch(error => eventBus.onModalMessage('Image loading error', error));
   }
 
   public onRotateImage() {
@@ -132,9 +125,9 @@ export class UniversalEditor {
   }
 
   public onAudioFileLoad($event) {
-    const { maxHotspotAudioDuration, maxHotspotAudioFilesize } = this.settingsInteractor.settings;
+    const { maxHotspotAudioDuration, maxHotspotAudioFilesize } = settingsInteractor.settings;
     if ($event.file.size/1024/1024 >= maxHotspotAudioFilesize) {
-      this.eventBus.onModalMessage('Error', `File is too big. File should be less than ${maxHotspotAudioFilesize} megabytes `)
+      eventBus.onModalMessage('Error', `File is too big. File should be less than ${maxHotspotAudioFilesize} megabytes `)
       return;
     }
 
@@ -146,7 +139,7 @@ export class UniversalEditor {
         this.universalProperty.setAudioContent($event.binaryFileData, DEFAULT_VOLUME);
         this._onChange();
       })
-      .catch((error) => this.eventBus.onModalMessage('Error', error))
+      .catch((error) => eventBus.onModalMessage('Error', error))
 
   }
 
@@ -195,7 +188,7 @@ export class UniversalEditor {
         this.universalProperty.setImageContent(resizedImageData);
         this._onChange();
       })
-      .catch(error => this.eventBus.onModalMessage('Image loading error', error));
+      .catch(error => eventBus.onModalMessage('Image loading error', error));
 
   }
   public onDeleteTabData(): void {

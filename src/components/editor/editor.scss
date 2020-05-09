@@ -1,0 +1,11 @@
+@import './../../styles/backdrop.scss';
+
+.editor-container {
+	@include backdrop();
+}
+
+.editor-add-container {
+	position: absolute;
+	left: 120px;
+	bottom: 24px;
+}

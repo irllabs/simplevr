@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core"
 import { Router } from "@angular/router"
 import { AssetInteractor } from "core/asset/assetInteractor"
 import { UserInteractor } from "core/user/userInteractor"
-import { EventBus } from "ui/common/event-bus"
+import eventBus from "ui/common/event-bus"
 
 @Component({
   selector: "unauth-user-tab",
@@ -16,7 +16,6 @@ export class UnauthUserTab implements OnInit, OnDestroy {
     private router: Router,
     private assetInteractor: AssetInteractor,
     private userInteractor: UserInteractor,
-    private eventBus: EventBus
   ) {}
 
   ngOnInit() {
@@ -35,7 +34,7 @@ export class UnauthUserTab implements OnInit, OnDestroy {
     const errorBody: string =
       message || "It looks like the email and password don't match."
 
-    this.eventBus.onModalMessage(errorHeader, errorBody)
+    eventBus.onModalMessage(errorHeader, errorBody)
   }
 
   public onLogin() {
@@ -44,34 +43,27 @@ export class UnauthUserTab implements OnInit, OnDestroy {
       const errorBody: string =
         "Make sure to fill out both email and password fields!"
 
-      this.eventBus.onModalMessage(errorHeader, errorBody)
+      eventBus.onModalMessage(errorHeader, errorBody)
       return
     }
 
-    this.userInteractor
-      .login(this.user.email, this.user.password)
-      .catch(this._onError.bind(this))
+    this.userInteractor.login(this.user.email, this.user.password);
   }
 
   public onLoginWithGoogle() {
-    this.userInteractor.loginWithGoogle().catch(({ code, message }) => {
-      if (code === "auth/user-disabled") {
-        message = "Your account is pending for validation."
-      }
-      this._onError(message)
-    })
+    this.userInteractor.loginWithGoogle();
   }
 
   public onOpenClick() {
     if (!this.userInteractor.isLoggedIn()) {
-      this.eventBus.onModalMessage(
+      eventBus.onModalMessage(
         "Error",
         "You must be logged in to download as .zip"
       )
       return
     }
 
-    this.eventBus.onOpenFileLoader("zip")
+    eventBus.onOpenFileLoader("zip")
     this.router.navigate([
       "/editor",
       { outlets: { view: "flat", modal: null } }

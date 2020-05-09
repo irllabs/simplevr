@@ -1,8 +1,5 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
-
-import { EventBus } from 'ui/common/event-bus';
 
 @Component({
   selector: 'fullscreen',
@@ -17,8 +14,6 @@ export class Fullscreen {
 
 
   constructor(
-    private sceneInteractor: SceneInteractor,
-    private eventBus: EventBus,
     private router: Router,
   ) {
   }

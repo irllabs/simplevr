@@ -4,18 +4,18 @@ import { AngularFireStorage } from 'angularfire2/storage';
 import { Observable } from 'rxjs/Observable';
 import * as JSZip from 'jszip';
 
-import { AssetManager } from 'data/asset/assetManager';
+import assetManager from 'data/asset/assetManager';
 import { Project, PROJECT_STATES } from 'data/project/projectModel';
 import { ProjectService } from 'data/project/projectService';
 import { DeserializationService } from 'data/storage/deserializationService';
 import { SerializationService } from 'data/storage/serializationService';
 import { UserService } from 'data/user/userService';
-import { RoomManager } from 'data/scene/roomManager';
+import roomManager from 'data/scene/roomManager';
 import { Audio } from 'data/scene/entities/audio';
 import { MediaFile } from 'data/scene/entities/mediaFile';
 import { Room } from 'data/scene/entities/room';
 
-import { MetaDataInteractor } from '../scene/projectMetaDataInteractor';
+import metaDataInteractor from '../scene/projectMetaDataInteractor';
 
 const AUTOSAVE_PERIOD = 60 * 1000;
 
@@ -41,13 +41,10 @@ export class ProjectInteractor {
 	constructor(
 		private deserializationService: DeserializationService,
 		private serializationService: SerializationService,
-		private roomManager: RoomManager,
 		private projectService: ProjectService,
-		private assetManager: AssetManager,
 		private userService: UserService,
 		private afStore: AngularFirestore,
 		private afStorage: AngularFireStorage,
-		private projectMetaDataInteractor: MetaDataInteractor,
 	) {
 	}
 
@@ -62,7 +59,7 @@ export class ProjectInteractor {
 	}
 
 	private _autoSave(): void {
-		if (!this._saving && this.projectMetaDataInteractor.hasUnsavedChanges && this.projectService.isWorkingOnSavedProject()) {
+		if (!this._saving && metaDataInteractor.hasUnsavedChanges && this.projectService.isWorkingOnSavedProject()) {
 			this.updateProject(this.getProject());
 		}
 	}
@@ -222,7 +219,7 @@ export class ProjectInteractor {
 		return this.deserializationService
 			.deserializeProject(project, quick)
 			.then((downloadRestAssets) => {
-				this.assetManager.clearAssets();
+				assetManager.clearAssets();
 				this.projectService.setProject(project);
 
 				downloadRestAssets().then(() => {
@@ -234,12 +231,12 @@ export class ProjectInteractor {
 	}
 
 	private _saveProject(project: Project) {
-		const projectName: string = this.roomManager.getProjectName();
-		const projectTags: string = this.roomManager.getProjectTags();
+		const projectName: string = roomManager.getProjectName();
+		const projectTags: string = roomManager.getProjectTags();
 		const userName = this.userService.getUserName();
 		const userId = this.userService.getUserId();
-		const homeRoomId = this.roomManager.getHomeRoomId();
-		const homeRoom = this.roomManager.getRoomById(homeRoomId);
+		const homeRoomId = roomManager.getHomeRoomId();
+		const homeRoom = roomManager.getRoomById(homeRoomId);
 		const thumbnailMediaFile: MediaFile = homeRoom.getThumbnail().getMediaFile();
 		const allMediaFiles = this.serializationService.extractAllMediaFiles();
 		const deleteMediaFiles = allMediaFiles.filter((mediaFile: MediaFile) => mediaFile.hasRemoteFileToDelete());
@@ -277,7 +274,7 @@ export class ProjectInteractor {
 				});
 			})
 			.then(() => {
-				this.projectMetaDataInteractor.onProjectSaved();
+				metaDataInteractor.onProjectSaved();
 				this._saving = false;
 				this._restartAutosaver();
 				return project;

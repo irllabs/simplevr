@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, NgZone, Output } from '@angular/core';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 
 import { Room } from 'data/scene/entities/room';
 
@@ -27,7 +27,6 @@ export class StorymapItem {
 
   constructor(
     private propertyRemovalService: PropertyRemovalService,
-    private sceneInteractor: SceneInteractor,
     protected ngZone: NgZone,
   ) {
   }
@@ -39,7 +38,7 @@ export class StorymapItem {
 
   onDeleteClick() {
     if (this.isHomeRoom()) {
-      this.sceneInteractor.setHomeRoomId(null);
+      sceneInteractor.setHomeRoomId(null);
     }
     this.propertyRemovalService.removeProperty(this.roomProperty);
   }
@@ -60,7 +59,7 @@ export class StorymapItem {
 
   onLabelChange($event) {
     if (this.propertyIsRoom) {
-      this.sceneInteractor.setRoomName(this.roomProperty.getId(), $event.text);
+      sceneInteractor.setRoomName(this.roomProperty.getId(), $event.text);
     }
     else {
       this.roomProperty.setName($event.text);
@@ -69,29 +68,29 @@ export class StorymapItem {
 
   isHomeRoom(): boolean {
     const roomId: string = this.roomProperty.getId();
-    return this.sceneInteractor.isHomeRoom(roomId);
+    return sceneInteractor.isHomeRoom(roomId);
   }
 
   setAsHomeRoom() {
     const roomId: string = this.roomProperty.getId();
-    this.sceneInteractor.setHomeRoomId(roomId);
+    sceneInteractor.setHomeRoomId(roomId);
   }
 
   getBackgroundThumbnail(): string {
     const roomId: string = this.roomProperty.getId();
-    const room: Room = this.sceneInteractor.getRoomById(roomId);
+    const room: Room = sceneInteractor.getRoomById(roomId);
     return room.getThumbnailImage();
   }
 
   private getRoomName(): string {
-    const roomId = this.sceneInteractor.getActiveRoomId();
-    const room = this.sceneInteractor.getRoomById(roomId);
+    const roomId = sceneInteractor.getActiveRoomId();
+    const room = sceneInteractor.getRoomById(roomId);
     return room.getName();
   }
 
   private setRoomName($event) {
-    const roomId = this.sceneInteractor.getActiveRoomId();
-    const room = this.sceneInteractor.getRoomById(roomId);
+    const roomId = sceneInteractor.getActiveRoomId();
+    const room = sceneInteractor.getRoomById(roomId);
     room.setName($event.text);
   }
 

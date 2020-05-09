@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { Room } from 'data/scene/entities/room';
 import { resizeImage } from 'data/util/imageResizeService';
 
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 
 @Component({
   selector: 'edit-space-toggle',
@@ -19,8 +19,6 @@ export class EditSpaceToggle {
 
 
   constructor(
-    private sceneInteractor: SceneInteractor,
-    private eventBus: EventBus,
     private router: Router,
   ) {
   }
@@ -41,18 +39,18 @@ export class EditSpaceToggle {
   private onFileLoad($event) {
     const fileName: string = $event.file.name;
     const binaryFileData: any = $event.binaryFileData;
-    const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
-    this.eventBus.onStartLoading();
+    const activeRoomId: string = sceneInteractor.getActiveRoomId();
+    eventBus.onStartLoading();
     resizeImage(binaryFileData, 'backgroundImage')
       .then(resized => {
-        const room: Room = this.sceneInteractor.getRoomById(activeRoomId);
+        const room: Room = sceneInteractor.getRoomById(activeRoomId);
 
         room.setBackgroundImageBinaryData(resized.backgroundImage);
         room.setThumbnail(resized.thumbnail);
-        this.eventBus.onSelectRoom(null, false);
-        this.eventBus.onStopLoading();
+        eventBus.onSelectRoom(null, false);
+        eventBus.onStopLoading();
       })
-      .catch(error => this.eventBus.onModalMessage('Image loading error', error));
+      .catch(error => eventBus.onModalMessage('Image loading error', error));
   }
 
   private onEditPlayChange($event) {

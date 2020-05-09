@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AssetManager } from 'data/asset/assetManager';
+import assetManager from 'data/asset/assetManager';
 
 import { DeserializationService } from 'data/storage/deserializationService';
 import { SerializationService } from 'data/storage/serializationService';
@@ -11,7 +11,6 @@ export class StorageInteractor {
 	constructor(
 		private deserializationService: DeserializationService,
 		private serializationService: SerializationService,
-		private assetManager: AssetManager,
 	) {}
 
 	serializeProject(): Observable<any> {
@@ -22,7 +21,7 @@ export class StorageInteractor {
 		return this.deserializationService
 		.unzipStoryFile(file)
 		.then(() => {
-			this.assetManager.clearAssets();
+			assetManager.clearAssets();
 		});
 	}
 }

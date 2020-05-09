@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { ChatInteractor } from 'core/chat/chatInteractor';
 
 import { ProjectInteractor } from 'core/project/projectInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { Observable } from 'rxjs/Observable';
 import * as THREE from 'three';
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 
 @Injectable()
 export class MultiViewService {
@@ -16,10 +16,8 @@ export class MultiViewService {
   private lastCameraPosition: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
 
   constructor(
-    private eventBus: EventBus,
     private projectInteractor: ProjectInteractor,
     private chatInteractor: ChatInteractor,
-    private sceneInteractor: SceneInteractor,
   ) {
   }
 
@@ -104,18 +102,18 @@ export class MultiViewService {
   // TODO: refactor into different service
   private openProject(projectId: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.eventBus.onStartLoading();
+      eventBus.onStartLoading();
       this.projectInteractor.openProjectById(projectId)
         .subscribe(
           () => {
             //reset the current scene
-            this.sceneInteractor.setActiveRoomId(null);
-            this.eventBus.onSelectRoom(null, false);
+            sceneInteractor.setActiveRoomId(null);
+            eventBus.onSelectRoom(null, false);
             // this.metaDataInteractor.setIsReadOnly(false);
             resolve();
           },
           error => reject(error),
-          () => this.eventBus.onStopLoading(),
+          () => eventBus.onStopLoading(),
         );
     });
   }

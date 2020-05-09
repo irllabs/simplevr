@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RoomManager } from 'data/scene/roomManager';
+import roomManager from 'data/scene/roomManager';
 import { resizeImage } from 'data/util/imageResizeService';
 
 
@@ -23,27 +23,22 @@ const JsYaml = require('js-yaml');
 @Injectable()
 export class SerializationService {
 
-  constructor(
-    private roomManager: RoomManager
-  ) {
-  }
-
   public zipStoryFile(): Observable<any> {
     return this._buildProjectZip();
   }
 
   public buildProjectJson() {
-    const roomList = Array.from(this.roomManager.getRooms()).map(room => room.toJson());
-    const name = this.roomManager.getProjectName();
+    const roomList = Array.from(roomManager.getRooms()).map(room => room.toJson());
+    const name = roomManager.getProjectName();
 
     return {
       version: STORY_VERSION,
       name: name,
-      tags: this.roomManager.getProjectTags(),
-      soundtrack: this.roomManager.getSoundtrack().toJson(),
-      soundtrackVolume: this.roomManager.getSoundtrackVolume(),
-      description: this.roomManager.getProjectDescription(),
-      homeRoomId: this.roomManager.getHomeRoomId(),
+      tags: roomManager.getProjectTags(),
+      soundtrack: roomManager.getSoundtrack().toJson(),
+      soundtrackVolume: roomManager.getSoundtrackVolume(),
+      description: roomManager.getProjectDescription(),
+      homeRoomId: roomManager.getHomeRoomId(),
       rooms: roomList,
     };
   }
@@ -51,9 +46,9 @@ export class SerializationService {
   public extractAllMediaFiles() {
     const mediaFiles = [];
 
-    mediaFiles.push(this.roomManager.getSoundtrack().getMediaFile());
+    mediaFiles.push(roomManager.getSoundtrack().getMediaFile());
 
-    Array.from(this.roomManager.getRooms()).forEach((room: Room) => {
+    Array.from(roomManager.getRooms()).forEach((room: Room) => {
       mediaFiles.push(room.getBackgroundImage().getMediaFile());
       mediaFiles.push(room.getBackgroundAudio().getMediaFile());
       mediaFiles.push(room.getThumbnail().getMediaFile());
@@ -203,16 +198,16 @@ export class SerializationService {
   }
 
   private _zipHomeRoomImage(zip): Promise<any> {
-    const homeRoomId = this.roomManager.getHomeRoomId();
-    const homeRoom = this.roomManager.getRoomById(homeRoomId);
+    const homeRoomId = roomManager.getHomeRoomId();
+    const homeRoom = roomManager.getRoomById(homeRoomId);
 
     return this.zipHomeRoomImage(zip, homeRoom);
   }
 
   private _zipProjectSoundtrack(zip): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (this.roomManager.getSoundtrack().hasAsset()) {
-        resolve(this.roomManager.getSoundtrack());
+      if (roomManager.getSoundtrack().hasAsset()) {
+        resolve(roomManager.getSoundtrack());
       } else {
         reject('no Soundtrack');
       }
@@ -227,7 +222,7 @@ export class SerializationService {
     // Promises to be completed before ZIP file is created
     const promises = [
       // Prepare assets, then build story files
-      this.buildAssetDirectories(zip, Array.from(this.roomManager.getRooms()))
+      this.buildAssetDirectories(zip, Array.from(roomManager.getRooms()))
         .then(() => {
           const projectJson = this.buildProjectJson();
 

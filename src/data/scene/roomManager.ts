@@ -1,12 +1,10 @@
-import { Injectable } from '@angular/core';
 
 import { Audio } from 'data/scene/entities/audio';
 import { Room } from 'data/scene/entities/room';
 
 import { DEFAULT_PROJECT_DESCRIPTION, DEFAULT_PROJECT_NAME, DEFAULT_VOLUME } from 'ui/common/constants';
 
-@Injectable()
-export class RoomManager {
+class RoomManager {
   private projectName: string;
   private projectTags: string;
   private projectDescription: string;
@@ -136,3 +134,4 @@ export class RoomManager {
     return this.soundtrack.getVolume();
   }
 }
+export default new RoomManager();

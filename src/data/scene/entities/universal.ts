@@ -93,7 +93,7 @@ export class Universal extends BaseElement {
       parts.push('audio');
     }
 
-    return `icon-${parts.length > 0 ? parts.join('-') : 'add'}.png`;
+    return `icon-${parts.length > 0 ? parts.join('-') : 'add'}.svg`;
   }
 
   toJson() {

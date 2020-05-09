@@ -5,7 +5,7 @@ import { RoomProperty } from 'data/scene/interfaces/roomProperty';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ICON_PATH, ROOM_ICON_BUFFER_HEIGHT, ROOM_ICON_BUFFER_WIDTH } from 'ui/common/constants';
-import { EventBus, EventType } from 'ui/common/event-bus';
+import eventBus, { EventType } from 'ui/common/event-bus';
 
 import { Hotspot } from 'ui/editor/interfaces/hotspot';
 import { CombinedHotspotUtil } from 'ui/editor/util/combinedHotspotUtil';
@@ -13,7 +13,7 @@ import { CombinedHotspotUtil } from 'ui/editor/util/combinedHotspotUtil';
 import { denormalizePosition, normalizeAbsolutePosition } from 'ui/editor/util/iconPositionUtil';
 import { PropertyRemovalService } from 'ui/editor/util/propertyRemovalService';
 import { RoomPropertyTypeService } from 'ui/editor/util/roomPropertyTypeService';
-import { MetaDataInteractor } from '../../../../../core/scene/projectMetaDataInteractor';
+import metaDataInteractor from '../../../../../core/scene/projectMetaDataInteractor';
 import { debug } from 'util';
 const el: HTMLElement = document.getElementById('draggableIcon');
 
@@ -92,12 +92,10 @@ export class RoomIcon implements Hotspot {
   private YPosition: number;
 
   constructor(
-    protected eventBus: EventBus,
     private propertyRemovalService: PropertyRemovalService,
     private combinedHotspotUtil: CombinedHotspotUtil,
     protected ngZone: NgZone,
     private element: ElementRef,
-    private metaDataInteractor: MetaDataInteractor
   ) {
   }
 
@@ -195,7 +193,7 @@ export class RoomIcon implements Hotspot {
 
 
     this.subscriptions.add(
-      this.eventBus.getObservable(EventType.SELECT_PROPERTY)
+      eventBus.getObservable(EventType.SELECT_PROPERTY)
         .subscribe(
           event => {
             // if a door is added and there are more than 2 rooms, then open the property editor
@@ -369,7 +367,7 @@ export class RoomIcon implements Hotspot {
     }
     this.ngZone.run(() => {
       this.propertyEditorIsVisible = isVisible;
-      this.eventBus.onHotspotVisibility(isVisible);
+      eventBus.onHotspotVisibility(isVisible);
     });
   }
 
@@ -405,7 +403,7 @@ export class RoomIcon implements Hotspot {
       (this.roomProperty as Door).setNameIsCustom(true);
     }
 
-    this.metaDataInteractor.onProjectChanged();
+    metaDataInteractor.onProjectChanged();
   }
 
   propertyIs(propertyType: string): boolean {
@@ -413,12 +411,12 @@ export class RoomIcon implements Hotspot {
   }
 
   onSelect($event) {
-    this.eventBus.onSelectProperty(this.roomProperty.getId(), false);
+    eventBus.onSelectProperty(this.roomProperty.getId(), false);
   }
 
   onDeselect($event) {
     this.propertyEditorIsVisible = false;
-    this.eventBus.onHotspotVisibility(this.propertyEditorIsVisible);
+    eventBus.onHotspotVisibility(this.propertyEditorIsVisible);
   }
 
   onDeleteClick($event) {
@@ -443,7 +441,7 @@ export class RoomIcon implements Hotspot {
 
   setLocation(location: Vector2) {
     this.roomProperty.setLocation(location);
-    this.metaDataInteractor.onProjectChanged();
+    metaDataInteractor.onProjectChanged();
   }
 
 }

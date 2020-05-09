@@ -6,14 +6,11 @@ import { ChatInteractor } from 'core/chat/chatInteractor';
 import { GroupInteractor } from 'core/group/groupInteractor';
 import { ProjectInteractor } from 'core/project/projectInteractor';
 import { CameraInteractor } from 'core/scene/cameraInteractor';
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
 // internal module imports
-import { SceneInteractor } from 'core/scene/sceneInteractor';
 import { SearchInteractor } from 'core/search/searchInteractor';
 import { StorageInteractor } from 'core/storage/storageInteractor';
 import { UserInteractor } from 'core/user/userInteractor';
 import { VideoInteractor } from 'core/video/videoInteractor';
-import { SettingsInteractor } from 'core/settings/settingsInteractor'
 // project module imports
 import { DataModule } from 'data/_module/data.module';
 
@@ -23,8 +20,6 @@ import { DataModule } from 'data/_module/data.module';
     DataModule,
   ],
   providers: [
-    SceneInteractor,
-    MetaDataInteractor,
     CameraInteractor,
     StorageInteractor,
     UserInteractor,
@@ -35,7 +30,6 @@ import { DataModule } from 'data/_module/data.module';
     AdminInteractor,
     GroupInteractor,
     ChatInteractor,
-    SettingsInteractor
   ],
 })
 export class CoreModule {

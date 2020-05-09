@@ -1,0 +1,41 @@
+@import './../../styles/backdrop.scss';
+@import './../../styles/colors.scss';
+
+$welcome-message-max-width: 600px;
+$welcome-message-min-height: 420px;
+
+.welcome-message-container {
+	@include backdrop();
+}
+
+.welcome-message-input {
+	display: none;
+}
+
+.welcome-message {
+	display: flex;
+	padding: 32px 64px;
+	border-radius: 60px;
+	flex-direction: column;
+	max-width: $welcome-message-max-width;
+	min-height: $welcome-message-min-height;
+	background-color: $primary;
+	color: $text-dark-1;
+	align-items: center;
+	justify-content: space-between;
+	box-sizing: border-box;
+	cursor: pointer;
+}
+
+.welcome-message-heading {
+	display: flex;
+	flex-direction: column;
+}
+
+.welcome-message-action {
+	display: flex;
+	flex-direction: column;
+	padding: 24px 48px;
+	border: 2px dashed #F3F5FA;
+	border-radius: 60px;
+}

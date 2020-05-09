@@ -3,13 +3,13 @@ import { Router } from '@angular/router';
 import { AdminInteractor } from 'core/admin/adminInteractor';
 import { ProjectInteractor } from 'core/project/projectInteractor';
 
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { StorageInteractor } from 'core/storage/storageInteractor';
 import { UserInteractor } from 'core/user/userInteractor';
 import { Project } from 'data/project/projectModel';
 import { MIME_TYPE_ZIP } from 'ui/common/constants';
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 
 const FileSaver = require('file-saver');
 
@@ -25,10 +25,7 @@ export class AuthUserTab implements OnInit, OnDestroy {
   constructor(
     private userInteractor: UserInteractor,
     private projectInteractor: ProjectInteractor,
-    private sceneInteractor: SceneInteractor,
-    private eventBus: EventBus,
     private storageInteractor: StorageInteractor,
-    private metaDataInteractor: MetaDataInteractor,
     private adminInteractor: AdminInteractor,
     private router: Router,
   ) {
@@ -55,44 +52,44 @@ export class AuthUserTab implements OnInit, OnDestroy {
   }
 
   public onLogOutClick() {
-    this.metaDataInteractor.checkAndConfirmResetChanges().then(() => {
+    metaDataInteractor.checkAndConfirmResetChanges().then(() => {
       this.userInteractor.logOut();
-      this.metaDataInteractor.loadingProject(true);
+      metaDataInteractor.loadingProject(true);
       this.router.navigate(['/editor']);
-      this.sceneInteractor.setActiveRoomId(null);
-      this.sceneInteractor.resetRoomManager();
+      sceneInteractor.setActiveRoomId(null);
+      sceneInteractor.resetRoomManager();
       this.projectInteractor.setProject(null);
-      this.eventBus.onSelectRoom(null, false);
-      this.metaDataInteractor.setIsReadOnly(false);
-      this.metaDataInteractor.loadingProject(false);
+      eventBus.onSelectRoom(null, false);
+      metaDataInteractor.setIsReadOnly(false);
+      metaDataInteractor.loadingProject(false);
     }, () => {});
   }
 
   public openProject(project: Project) {
-    this.metaDataInteractor.checkAndConfirmResetChanges().then(() => {
-      this.eventBus.onStartLoading();
+    metaDataInteractor.checkAndConfirmResetChanges().then(() => {
+      eventBus.onStartLoading();
 
       this.projectInteractor.openProject(project)
         .then(
           () => {
             //reset the current scene
-            this.metaDataInteractor.setIsReadOnly(false);
-            this.sceneInteractor.setActiveRoomId(project.story.homeRoomId);
-            this.eventBus.onSelectRoom(this.sceneInteractor.getActiveRoomId(), false);
-            this.eventBus.onStopLoading();
-            this.metaDataInteractor.loadingProject(false);
+            metaDataInteractor.setIsReadOnly(false);
+            sceneInteractor.setActiveRoomId(project.story.homeRoomId);
+            eventBus.onSelectRoom(sceneInteractor.getActiveRoomId(), false);
+            eventBus.onStopLoading();
+            metaDataInteractor.loadingProject(false);
             this.router.navigateByUrl('/editor');
           },
           (error) => {
             console.error('error', error);
-            this.eventBus.onStopLoading();
+            eventBus.onStopLoading();
           },
         );
     }, () => {});
   }
 
   public downloadProject(project: Project) {
-    this.eventBus.onStartLoading('Saving your project, just a moment...');
+    eventBus.onStartLoading('Saving your project, just a moment...');
 
     this.projectInteractor.getProjectAsBlob(project)
       .then(
@@ -101,22 +98,22 @@ export class AuthUserTab implements OnInit, OnDestroy {
 
           FileSaver.saveAs(blob, `${project.name}.zip`);
 
-          this.eventBus.onStopLoading();
+          eventBus.onStopLoading();
         },
         (error) => {
-          this.eventBus.onStopLoading();
-          this.eventBus.onModalMessage('error', error.message);
+          eventBus.onStopLoading();
+          eventBus.onModalMessage('error', error.message);
         },
       );
   }
 
   public shareProject(projectId: number) {
     const userId: string = this.userInteractor.getUserId();
-    this.eventBus.onShareableModal(userId, projectId + '');
+    eventBus.onShareableModal(userId, projectId + '');
   }
 
   public openMultiView(projectId: number) {
-    this.metaDataInteractor.checkAndConfirmResetChanges().then(() => {
+    metaDataInteractor.checkAndConfirmResetChanges().then(() => {
       console.log('onOpenMultiView');
       const userId = this.userInteractor.getUserId();
       const queryParams = {

@@ -1,7 +1,7 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
-import { EventBus, EventType } from 'ui/common/event-bus';
+import eventBus, { EventType } from 'ui/common/event-bus';
 
 const MODAL_TYPE = {
   MESSAGE: 'MESSAGE',
@@ -34,7 +34,7 @@ export class Modal {
   private onAccept: Function;
   private subscriptions: Set<Subscription> = new Set<Subscription>();
 
-  constructor(private eventBus: EventBus) {
+  constructor() {
     this.onStartLoading = this.onStartLoading.bind(this);
   }
 
@@ -59,7 +59,7 @@ export class Modal {
   }
 
   private subscribeToEvents() {
-    const onMessage: Subscription = this.eventBus.getObservable(EventType.MODAL_MESSAGE)
+    const onMessage: Subscription = eventBus.getObservable(EventType.MODAL_MESSAGE)
       .subscribe(
         event => {
           this.activeModalType = MODAL_TYPE.MESSAGE;
@@ -73,7 +73,7 @@ export class Modal {
         error => console.log('error', error),
       );
 
-    const onStartLoading: Subscription = this.eventBus.getObservable(EventType.START_LOADING)
+    const onStartLoading: Subscription = eventBus.getObservable(EventType.START_LOADING)
       .subscribe(
         this.onStartLoading,
         error => {
@@ -82,7 +82,7 @@ export class Modal {
         },
       );
 
-    const onStopLoading: Subscription = this.eventBus.getObservable(EventType.STOP_LOADING)
+    const onStopLoading: Subscription = eventBus.getObservable(EventType.STOP_LOADING)
       .subscribe(
         event => this.isOpen = false,
         error => {
@@ -91,7 +91,7 @@ export class Modal {
         },
       );
 
-    const onSharable: Subscription = this.eventBus.getObservable(EventType.SHAREABLE_MODAL)
+    const onSharable: Subscription = eventBus.getObservable(EventType.SHAREABLE_MODAL)
       .subscribe(
         event => {
           this.isOpen = true;
@@ -104,7 +104,7 @@ export class Modal {
         },
       );
 
-    const onPlayStory: Subscription = this.eventBus.getObservable(EventType.PLAY_STORY_MODAL)
+    const onPlayStory: Subscription = eventBus.getObservable(EventType.PLAY_STORY_MODAL)
       .subscribe(
         event => {
           this.isOpen = true;
@@ -117,7 +117,7 @@ export class Modal {
         }
       );
 
-    const onExploreModal: Subscription = this.eventBus.getObservable(EventType.OPEN_EXPLORE_MODAL)
+    const onExploreModal: Subscription = eventBus.getObservable(EventType.OPEN_EXPLORE_MODAL)
       .subscribe(
         event => {
           this.isOpen = true;

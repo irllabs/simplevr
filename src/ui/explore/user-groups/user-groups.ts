@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { GroupInteractor } from 'core/group/groupInteractor';
 import { ProjectInteractor } from 'core/project/projectInteractor';
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { UserInteractor } from 'core/user/userInteractor';
 import { ERROR_OPENING_PROJECT, SERVER_ERROR } from 'ui/common/constants';
 
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 
 @Component({
   selector: 'user-groups',
@@ -22,10 +22,7 @@ export class UserGroups {
     private userInteractor: UserInteractor,
     private groupInteractor: GroupInteractor,
     private projectInteractor: ProjectInteractor,
-    private sceneInteractor: SceneInteractor,
-    private metaDataInteractor: MetaDataInteractor,
     private router: Router,
-    private eventBus: EventBus,
   ) {
   }
 
@@ -53,19 +50,19 @@ export class UserGroups {
 
   public openProject(project) {
 
-    this.eventBus.onStartLoading();
+    eventBus.onStartLoading();
     this.projectInteractor.openProject(project)
       .then(
         () => {
-          this.sceneInteractor.setActiveRoomId(null);
-          this.eventBus.onSelectRoom(null, false);
-          this.eventBus.onStopLoading();
-          this.metaDataInteractor.setIsReadOnly(true);
+          sceneInteractor.setActiveRoomId(null);
+          eventBus.onSelectRoom(null, false);
+          eventBus.onStopLoading();
+          metaDataInteractor.setIsReadOnly(true);
           this.router.navigateByUrl('/editor');
         },
         () => {
-          this.eventBus.onStopLoading();
-          this.eventBus.onModalMessage(ERROR_OPENING_PROJECT, SERVER_ERROR);
+          eventBus.onStopLoading();
+          eventBus.onModalMessage(ERROR_OPENING_PROJECT, SERVER_ERROR);
         },
       );
   }

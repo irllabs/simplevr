@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AssetInteractor } from 'core/asset/assetInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import * as THREE from 'three';
 import { AudioPlayService } from 'ui/editor/preview-space/modules/audioPlayService';
 
@@ -16,7 +16,6 @@ export class HotspotManager {
   private onRoomChange: Function;
 
   constructor(
-    private sceneInteractor: SceneInteractor,
     private assetInteractor: AssetInteractor,
     private audioPlayService: AudioPlayService,
   ) {
@@ -27,9 +26,9 @@ export class HotspotManager {
     this.cleanMaps(scene);
 
     // Hotspot Icons - add preview and graphic icons to the scene, create map
-    const roomId: string = this.sceneInteractor.getActiveRoomId();
+    const roomId: string = sceneInteractor.getActiveRoomId();
 
-    this.sceneInteractor.getRoomProperties(roomId).forEach((roomProperty) => {
+    sceneInteractor.getRoomProperties(roomId).forEach((roomProperty) => {
       //add to hotspotEntity map
       const plane = PlaneResolver.resolve(roomProperty, camera, this.assetInteractor, {
         audioPlayService: this.audioPlayService,

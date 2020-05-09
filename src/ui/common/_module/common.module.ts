@@ -5,7 +5,6 @@ import { BrowserModule } from '@angular/platform-browser';
 // UI components
 import { Checkbox } from 'ui/common/checkbox/checkbox';
 // Services
-import { EventBus } from 'ui/common/event-bus';
 import { LoadingModal } from 'ui/common/modal/loading-modal/loading-modal';
 import { MessageModal } from 'ui/common/modal/message-modal/message-modal';
 // Modal
@@ -42,7 +41,6 @@ import { PlayStoryModal } from 'ui/common/modal/play-story-modal/play-story-moda
     PlayStoryModal,
   ],
   providers: [
-    EventBus,
     ShareableLoader,
   ],
 })

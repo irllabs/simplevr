@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, NgZone, Output, ViewChild } from '@angu
 import { generateUniqueId } from 'data/util/uuid';
 
 import { AudioRecorderService } from 'ui/editor/util/audioRecorderService';
-import { SettingsInteractor } from 'core/settings/settingsInteractor';
+import settingsInteractor from 'core/settings/settingsInteractor';
 
 //this should really refer to colors inn our variables.scss file
 const backgroundColorOff = new Uint8Array([173, 0, 52]);   //i.e. $color-red-dark
@@ -32,7 +32,6 @@ export class AudioRecorder {
   constructor(
     private audioRecorderService: AudioRecorderService,
     private ngZone: NgZone,
-    private settingsInteractor: SettingsInteractor
   ) {
   }
 
@@ -95,7 +94,7 @@ export class AudioRecorder {
   private startRecording() {
     console.log('recording')
     this.isRecording = true;
-    this.timerCounter = this.settingsInteractor.settings.maxClipDuration;
+    this.timerCounter = settingsInteractor.settings.maxClipDuration;
     this.audioRecorderService.startRecording()
       .then(resolve => {
         //this.isAnimating = true;

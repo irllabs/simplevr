@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProjectInteractor } from 'core/project/projectInteractor';
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { UserInteractor } from 'core/user/userInteractor';
 import { ERROR_OPENING_PROJECT, FORMAT_ERROR, SERVER_ERROR } from 'ui/common/constants';
 
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 import { decodeParam } from 'ui/editor/util/publicLinkHelper';
 
 
@@ -15,30 +15,27 @@ export class ShareableLoader {
 
   constructor(
     private userInteractor: UserInteractor,
-    private eventBus: EventBus,
     private projectInteractor: ProjectInteractor,
-    private metaDataInteractor: MetaDataInteractor,
-    private sceneInteractor: SceneInteractor,
     private router: Router,
   ) {
   }
 
   openDecodedProject(projectId) {
-    this.eventBus.onStartLoading();
+    eventBus.onStartLoading();
     this.projectInteractor.openPublicProject(projectId)
       .then(
         () => {
-          const homeRoomID = this.sceneInteractor.getHomeRoomId();
-          this.sceneInteractor.setActiveRoomId(homeRoomID);
-          this.eventBus.onSelectRoom(null, false);
-          this.eventBus.onStopLoading();
-          this.metaDataInteractor.setIsReadOnly(true);
+          const homeRoomID = sceneInteractor.getHomeRoomId();
+          sceneInteractor.setActiveRoomId(homeRoomID);
+          eventBus.onSelectRoom(null, false);
+          eventBus.onStopLoading();
+          metaDataInteractor.setIsReadOnly(true);
           //this.router.navigateByUrl('/editor');
           this.router.navigate(['editor', { outlets: { 'view': 'preview' } }], {queryParams: { share: 1 }});
         },
         error => {
-          this.eventBus.onStopLoading();
-          this.eventBus.onModalMessage(ERROR_OPENING_PROJECT, SERVER_ERROR);
+          eventBus.onStopLoading();
+          eventBus.onModalMessage(ERROR_OPENING_PROJECT, SERVER_ERROR);
         },
       );
   }
@@ -47,7 +44,7 @@ export class ShareableLoader {
     const params = decodeParam(shareableValue);
 
     if (params.message === 'ERROR') {
-      this.eventBus.onModalMessage(ERROR_OPENING_PROJECT, FORMAT_ERROR);
+      eventBus.onModalMessage(ERROR_OPENING_PROJECT, FORMAT_ERROR);
       return;
     }
 

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AssetInteractor, AssetModel } from 'core/asset/assetInteractor';
 
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { AudioPlayService } from 'ui/editor/preview-space/modules/audioPlayService';
 
 @Injectable()
@@ -12,8 +12,6 @@ export class AudioManager {
   private roomNarrationMap: Map<String, Boolean> = new Map();
 
   constructor(
-    private metaDataInteractor: MetaDataInteractor,
-    private sceneInteractor: SceneInteractor,
     private assetInteractor: AssetInteractor,
     private audioPlayService: AudioPlayService,
   ) {
@@ -28,8 +26,8 @@ export class AudioManager {
   }
 
   public hasAutoplayAudio(roomId) {
-    const room = this.sceneInteractor.getRoomById(roomId);
-    const soundtrack = this.metaDataInteractor.getSoundtrack();
+    const room = sceneInteractor.getRoomById(roomId);
+    const soundtrack = metaDataInteractor.getSoundtrack();
 
     if(soundtrack.hasAsset()) {
       return true;
@@ -48,15 +46,15 @@ export class AudioManager {
 
   loadBuffers(): Promise<any> {
     const soundtrackAudio = [];
-    const soundtrack = this.metaDataInteractor.getSoundtrack();
+    const soundtrack = metaDataInteractor.getSoundtrack();
     if (soundtrack.getBinaryFileData()) {
       const soundtrackPath = soundtrack.getBinaryFileData().changingThisBreaksApplicationSecurity ?
         soundtrack.getBinaryFileData().changingThisBreaksApplicationSecurity : soundtrack.getBinaryFileData();
       soundtrackAudio.push(new AssetModel('soundtrack', soundtrack.getFileName(), soundtrackPath));
     }
 
-    const backgroundAudios = this.sceneInteractor.getRoomIds()
-      .map(roomId => this.sceneInteractor.getRoomById(roomId))
+    const backgroundAudios = sceneInteractor.getRoomIds()
+      .map(roomId => sceneInteractor.getRoomById(roomId))
       .filter(room => {
         if (room.getBackgroundAudioBinaryFileData()) {
           this.roomBgAudioMap.set(room.getId(), true);
@@ -75,8 +73,8 @@ export class AudioManager {
 
       });
 
-    const narrationAudios = this.sceneInteractor.getRoomIds()
-      .map(roomId => this.sceneInteractor.getRoomById(roomId))
+    const narrationAudios = sceneInteractor.getRoomIds()
+      .map(roomId => sceneInteractor.getRoomById(roomId))
       .filter(room => {
         if (room.getNarrationIntroBinaryFileData()) {
           this.roomNarrationMap.set(room.getId(), true);
@@ -95,8 +93,8 @@ export class AudioManager {
         return new AssetModel(room.getId() + 'n', room.getNarrationIntroFileName(), nAudioPath);
       });
 
-    const hotspotAudios = this.sceneInteractor.getRoomIds()
-      .map(roomId => this.sceneInteractor.getRoomById(roomId))
+    const hotspotAudios = sceneInteractor.getRoomIds()
+      .map(roomId => sceneInteractor.getRoomById(roomId))
       .reduce((accumulator, room) => {
         const audioUniversalPropertyList = Array.from(room.getUniversal())
           .filter(universal => universal.audioContent.hasAsset())
@@ -131,7 +129,7 @@ export class AudioManager {
   }
 
   playSoundtrack() {
-    const soundtrack = this.metaDataInteractor.getSoundtrack();
+    const soundtrack = metaDataInteractor.getSoundtrack();
 
     if (soundtrack.hasAsset()) {
       this.audioPlayService.playSoundtrack('soundtrack', soundtrack.getVolume());
@@ -139,15 +137,15 @@ export class AudioManager {
   }
 
   playBackgroundAudio() {
-    if (this.roomBgAudioMap.get(this.sceneInteractor.getActiveRoomId())) {
-      const BackgroundAudioId: string = this.sceneInteractor.getActiveRoomId() + 'b';
+    if (this.roomBgAudioMap.get(sceneInteractor.getActiveRoomId())) {
+      const BackgroundAudioId: string = sceneInteractor.getActiveRoomId() + 'b';
       this.audioPlayService.playBgAudio(BackgroundAudioId);
     }
   }
 
   playNarration() {
-    if (this.roomNarrationMap.get(this.sceneInteractor.getActiveRoomId())) {
-      const narrationId: string = this.sceneInteractor.getActiveRoomId() + 'n';
+    if (this.roomNarrationMap.get(sceneInteractor.getActiveRoomId())) {
+      const narrationId: string = sceneInteractor.getActiveRoomId() + 'n';
 
       this.audioPlayService.playNarrationAudio(narrationId);
     }

@@ -4,8 +4,8 @@ import { AngularFireStorage } from 'angularfire2/storage';
 import { ApiService } from 'data/api/apiService';
 import { Room } from 'data/scene/entities/room';
 
-import { RoomManager } from 'data/scene/roomManager';
-import { PropertyBuilder } from 'data/scene/roomPropertyBuilder';
+import roomManager from 'data/scene/roomManager';
+import propertyBuilder from 'data/scene/roomPropertyBuilder';
 
 import { Observable } from 'rxjs/Observable';
 
@@ -20,7 +20,7 @@ import {
 	STORY_VERSION,
 } from 'ui/common/constants';
 import { FileLoaderUtil } from 'ui/editor/util/fileLoaderUtil';
-import { MetaDataInteractor } from '../../core/scene/projectMetaDataInteractor';
+import metaDataInteractor from '../../core/scene/projectMetaDataInteractor';
 import { DEFAULT_IMAGE_PATH, STORY_FILE_YAML, UINT8ARRAY } from '../../ui/common/constants';
 import { Project } from '../project/projectModel';
 import { MediaFile } from '../scene/entities/mediaFile';
@@ -39,12 +39,9 @@ export class DeserializationService {
 	private _cachedStoryFile: any;
 
 	constructor(
-		private roomManager: RoomManager,
-		private propertyBuilder: PropertyBuilder,
 		private fileLoaderUtil: FileLoaderUtil,
 		private apiService: ApiService,
 		private afStorage: AngularFireStorage,
-		private metaDataInteractor: MetaDataInteractor,
 	) {
 		this._cachedStoryFile = {};
 	}
@@ -54,7 +51,7 @@ export class DeserializationService {
 		const rootRemoteFiles = this._extractRootRemoteFiles(story);
 		const roomsRemoteFiles = quick ?  this._extractHomeRoomRemoteFiles(story) : this._extractRoomsRemoteFiles(story.rooms);
 
-		this.metaDataInteractor.loadingProject(true);
+		metaDataInteractor.loadingProject(true);
 
 		return Promise.all([
 			this.loadRemoteFiles(rootRemoteFiles),
@@ -116,7 +113,7 @@ export class DeserializationService {
 		roomsData.forEach((roomData) => {
 			const roomId = roomData.uuid;
 			const isLoadedAssets = !quick || roomId === homeRoomId; //homeRoom.uuid;
-			const room: Room = <Room> this.propertyBuilder.setBaseProperties(roomData, new Room());
+			const room: Room = <Room> propertyBuilder.setBaseProperties(roomData, new Room());
 
 			room.setAssetsLoadedState(isLoadedAssets);
 			room.setReverb(roomData.reverb || reverbList[0]);
@@ -194,13 +191,13 @@ export class DeserializationService {
 
 			// doors
 			(roomData.doors || []).concat(roomData.autoDoors || [])
-				.map(doorJson => this.propertyBuilder.doorFromJson(doorJson))
+				.map(doorJson => propertyBuilder.doorFromJson(doorJson))
 				.forEach(door => room.addDoor(door));
 
 			// hotspots
 			(roomData.universal || [])
 				.forEach((universalJson) => {
-					const universal: Universal = <Universal> this.propertyBuilder.setBaseProperties(universalJson, new Universal());
+					const universal: Universal = <Universal> propertyBuilder.setBaseProperties(universalJson, new Universal());
 					const imageMediaFile = universalJson.imageFile && mediaFiles.find(mediaFile => mediaFile.getFileName() === universalJson.imageFile);
 					const audioMediaFile = universalJson.audioFile && mediaFiles.find(mediaFile => mediaFile.getFileName() === universalJson.audioFile);
 
@@ -438,29 +435,29 @@ export class DeserializationService {
 
 		const allMediaFiles = mediaFiles.concat(restRoomsMediaFiles.mediaFiles);
 
-		this.roomManager.clearRooms();
-		this.roomManager.setProjectName(story.name);
-		this.roomManager.setProjectTags(story.tags || '');
-		this.roomManager.setProjectDescription(story.description);
+		roomManager.clearRooms();
+		roomManager.setProjectName(story.name);
+		roomManager.setProjectTags(story.tags || '');
+		roomManager.setProjectDescription(story.description);
 
 		if (story.homeRoomId) {
-			this.roomManager.setHomeRoomId(story.homeRoomId);
+			roomManager.setHomeRoomId(story.homeRoomId);
 		}
 
 		if (story.soundtrack) {
 			const soundtrack = allMediaFiles.find(mediaFile => mediaFile.getFileName() === story.soundtrack.file);
 
 			if (soundtrack) {
-				this.roomManager.setSoundtrackMediaFile(soundtrack, story.soundtrackVolume);
+				roomManager.setSoundtrackMediaFile(soundtrack, story.soundtrackVolume);
 			} else {
-				this.roomManager.removeSoundtrack();
+				roomManager.removeSoundtrack();
 			}
 		} else {
-			this.roomManager.removeSoundtrack();
+			roomManager.removeSoundtrack();
 		}
 
 		this.deserializeRooms(story.rooms, homeRoom.uuid, allMediaFiles, quick)
-			.forEach(room => this.roomManager.addRoom(room));
+			.forEach(room => roomManager.addRoom(room));
 
 		return this._callbackLoadRestMediaFiles.bind(this, restRoomsMediaFiles.mediaFilesByRoom);
 	}
@@ -468,7 +465,7 @@ export class DeserializationService {
 	private async _callbackLoadRestMediaFiles(remoteMediaFilesByRoom) {
 		for (let i = 0; i < remoteMediaFilesByRoom.length; i++) {
 			const { roomId, roomMediaFiles } = remoteMediaFilesByRoom[i];
-			const room: Room = this.roomManager.getRoomById(roomId);
+			const room: Room = roomManager.getRoomById(roomId);
 			const filesCount = roomMediaFiles.length;
 			let filesLoaded = 0;
 

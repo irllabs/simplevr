@@ -1,19 +1,19 @@
 import { Component, ElementRef, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProjectInteractor } from 'core/project/projectInteractor';
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
+import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
 
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { StorageInteractor } from 'core/storage/storageInteractor';
 import { UserInteractor } from 'core/user/userInteractor';
 
 import { Audio } from 'data/scene/entities/audio';
 
 import { DEFAULT_PROJECT_NAME, DEFAULT_VOLUME } from 'ui/common/constants';
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 import { SlideshowBuilder } from 'ui/editor/util/slideshowBuilder';
 import { Project } from '../../../../data/project/projectModel';
-import { SettingsInteractor } from 'core/settings/settingsInteractor';
+import settingsInteractor from 'core/settings/settingsInteractor';
 import { audioDuration } from 'ui/editor/util/audioDuration';
 
 const FileSaver = require('file-saver');
@@ -30,15 +30,11 @@ export class Story {
   private subscription: any;
   constructor(
     private router: Router,
-    private sceneInteractor: SceneInteractor,
     private storageInteractor: StorageInteractor,
-    private metaDataInteractor: MetaDataInteractor,
     private userInteractor: UserInteractor,
     private projectInteractor: ProjectInteractor,
-    private eventBus: EventBus,
     private slideshowBuilder: SlideshowBuilder,
     private element: ElementRef,
-    private settingsInteractor: SettingsInteractor
   ) {
   }
 
@@ -72,98 +68,98 @@ export class Story {
   }
 
   public getProjectName(): string {
-    const projectName: string = this.metaDataInteractor.getProjectName();
+    const projectName: string = metaDataInteractor.getProjectName();
 
     return projectName === DEFAULT_PROJECT_NAME ? undefined : projectName;
   }
 
   public setProjectName($event) {
-    this.metaDataInteractor.setProjectName($event.text);
+    metaDataInteractor.setProjectName($event.text);
   }
 
   public getProjectTags(): string {
-    return this.metaDataInteractor.getProjectTags();
+    return metaDataInteractor.getProjectTags();
   }
 
   public setProjectTags($event) {
-    this.metaDataInteractor.setProjectTags($event.text);
+    metaDataInteractor.setProjectTags($event.text);
   }
 
   public getSoundtrack(): Audio {
-    return this.metaDataInteractor.getSoundtrack();
+    return metaDataInteractor.getSoundtrack();
   }
 
   private removeSoundtrack() {
-    this.metaDataInteractor.removeSoundtrack();
+    metaDataInteractor.removeSoundtrack();
   }
 
   public getSoundtrackVolume(): number {
-    return this.metaDataInteractor.getSoundtrackVolume();
+    return metaDataInteractor.getSoundtrackVolume();
   }
 
   public onSoundtrackLoad($event) {
-    const { maxSoundtrackAudioDuration, maxSoundtrackAudioFilesize } = this.settingsInteractor.settings;
+    const { maxSoundtrackAudioDuration, maxSoundtrackAudioFilesize } = settingsInteractor.settings;
     if ($event.file.size/1024/1024 >= maxSoundtrackAudioFilesize) {
-      this.eventBus.onModalMessage('Error', `File is too big. File should be less than ${maxSoundtrackAudioFilesize} megabytes `)
+      eventBus.onModalMessage('Error', `File is too big. File should be less than ${maxSoundtrackAudioFilesize} megabytes `)
       return;
     }
     audioDuration($event.file)
       .then(duration => {
         if(duration >= maxSoundtrackAudioDuration){
-          this.eventBus.onModalMessage('Error', `Duration of soundtrack is too long. It should be less that ${maxSoundtrackAudioDuration} seconds`)
+          eventBus.onModalMessage('Error', `Duration of soundtrack is too long. It should be less that ${maxSoundtrackAudioDuration} seconds`)
           return 
         }
 
-        this.metaDataInteractor.setSoundtrack($event.file.name, DEFAULT_VOLUME, $event.binaryFileData);
+        metaDataInteractor.setSoundtrack($event.file.name, DEFAULT_VOLUME, $event.binaryFileData);
       })
   }
 
   public onVolumeChange($event) {
     const volume = $event.currentTarget.volume;
-    this.metaDataInteractor.setSoundtrackVolume(volume);
+    metaDataInteractor.setSoundtrackVolume(volume);
   }
 
   public onNewStoryClick($event) {
-    this.metaDataInteractor.checkAndConfirmResetChanges().then(() => {
-      this.metaDataInteractor.loadingProject(true);
+    metaDataInteractor.checkAndConfirmResetChanges().then(() => {
+      metaDataInteractor.loadingProject(true);
       this.router.navigate(['/editor', { outlets: { 'modal': 'upload' } }]);
         if ($event.shiftKey) {
-          this.eventBus.onOpenFileLoader('zip');
+          eventBus.onOpenFileLoader('zip');
           return;
         }
         this.removeSoundtrack();
-        this.sceneInteractor.setActiveRoomId(null);
-        this.sceneInteractor.resetRoomManager();
+        sceneInteractor.setActiveRoomId(null);
+        sceneInteractor.resetRoomManager();
         this.projectInteractor.setProject(null);
-        this.eventBus.onSelectRoom(null, false);
-        this.metaDataInteractor.setIsReadOnly(false);
-        this.metaDataInteractor.loadingProject(false);
+        eventBus.onSelectRoom(null, false);
+        metaDataInteractor.setIsReadOnly(false);
+        metaDataInteractor.loadingProject(false);
     }, () => {});
   }
 
   public onOpenStoryLocallyClick(event) {
-    this.metaDataInteractor.checkAndConfirmResetChanges().then(() => {
+    metaDataInteractor.checkAndConfirmResetChanges().then(() => {
       // if (!this.userInteractor.isLoggedIn()) {
       //   this.eventBus.onModalMessage('Error', 'You must be logged in to upload from .zip');
       //   return;
       // }
 
-      this.eventBus.onOpenFileLoader('zip');
+      eventBus.onOpenFileLoader('zip');
       this.router.navigate(['/editor', { outlets: { 'modal': null } }]);
     }, () => {});
   }
 
   public onSaveStoryClick(event) {
-    if (this.metaDataInteractor.projectIsEmpty()) {
-      this.eventBus.onModalMessage('Error', 'Cannot save an empty project');
+    if (metaDataInteractor.projectIsEmpty()) {
+      eventBus.onModalMessage('Error', 'Cannot save an empty project');
       return;
     }
     if (!this.userInteractor.isLoggedIn()) {
-      this.eventBus.onModalMessage('Error', 'You must be logged in to save to the server');
+      eventBus.onModalMessage('Error', 'You must be logged in to save to the server');
       return;
     }
-    if (this.metaDataInteractor.getIsReadOnly()) {
-      this.eventBus.onModalMessage('Permissions Error', 'It looks like you are working on a different user\'s project. You cannot save this to your account but you can save it locally by shift-clicking the save button.');
+    if (metaDataInteractor.getIsReadOnly()) {
+      eventBus.onModalMessage('Permissions Error', 'It looks like you are working on a different user\'s project. You cannot save this to your account but you can save it locally by shift-clicking the save button.');
       return;
     }
 
@@ -171,34 +167,34 @@ export class Story {
   }
 
   public onSaveStoryLocallyClick(event) {
-    if (this.metaDataInteractor.projectIsEmpty()) {
-      this.eventBus.onModalMessage('Error', 'Cannot save an empty project');
+    if (metaDataInteractor.projectIsEmpty()) {
+      eventBus.onModalMessage('Error', 'Cannot save an empty project');
       return;
     }
 
-    if (this.metaDataInteractor.getIsReadOnly()) {
-      this.eventBus.onModalMessage('Permissions Error', 'It looks like you are working on a different user\'s project. You cannot save this to your account but you can save it locally by shift-clicking the save button.');
+    if (metaDataInteractor.getIsReadOnly()) {
+      eventBus.onModalMessage('Permissions Error', 'It looks like you are working on a different user\'s project. You cannot save this to your account but you can save it locally by shift-clicking the save button.');
       return;
     }
     if (!this.userInteractor.isLoggedIn()) {
-      this.eventBus.onModalMessage('Error', 'You must be logged in to download as .zip');
+      eventBus.onModalMessage('Error', 'You must be logged in to download as .zip');
       return;
     }
 
-    const projectName = this.metaDataInteractor.getProjectName() || 'StoryFile';
+    const projectName = metaDataInteractor.getProjectName() || 'StoryFile';
     const zipFileName = `${projectName}.zip`;
 
-    this.eventBus.onStartLoading();
+    eventBus.onStartLoading();
 
     this.storageInteractor.serializeProject()
       .subscribe(
         (zipFile) => {
-          this.eventBus.onStopLoading();
+          eventBus.onStopLoading();
           FileSaver.saveAs(zipFile, zipFileName);
         },
         (error) => {
-          this.eventBus.onStopLoading();
-          this.eventBus.onModalMessage('File Download Error', error);
+          eventBus.onStopLoading();
+          eventBus.onModalMessage('File Download Error', error);
         },
       );
   }
@@ -208,22 +204,22 @@ export class Story {
     const isWorkingOnSavedProject: boolean = this.projectInteractor.isWorkingOnSavedProject();
 
     const onSuccess = () => {
-      this.eventBus.onStopLoading();
-      this.eventBus.onModalMessage('', 'Your project has been saved.');
+      eventBus.onStopLoading();
+      eventBus.onModalMessage('', 'Your project has been saved.');
     };
 
     const onError = (error) => {
-      this.eventBus.onStopLoading();
-      this.eventBus.onModalMessage('Save error', error);
+      eventBus.onStopLoading();
+      eventBus.onModalMessage('Save error', error);
     };
 
-    this.eventBus.onStartLoading();
+    eventBus.onStartLoading();
 
     if (isWorkingOnSavedProject) {
       this.projectInteractor.updateProject(project).then(onSuccess, onError);
     } else {
       // console.log(this.projectList)
-      if (this.projectList.length >= this.settingsInteractor.settings.maxProjects) {
+      if (this.projectList.length >= settingsInteractor.settings.maxProjects) {
         return onError("You have reached maximum number of projects");
       }
       this.projectInteractor.createProject().then(onSuccess, onError);

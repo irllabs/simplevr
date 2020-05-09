@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AdminInteractor } from 'core/admin/adminInteractor';
 import { ProjectInteractor } from 'core/project/projectInteractor';
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { UserInteractor } from 'core/user/userInteractor';
 import { ERROR_OPENING_PROJECT, GROUP_TYPE, SERVER_ERROR } from 'ui/common/constants';
 
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 
 @Component({
   selector: 'admin-user-groups',
@@ -22,10 +22,7 @@ export class AdminUserGroups {
     private userInteractor: UserInteractor,
     private adminInteractor: AdminInteractor,
     private projectInteractor: ProjectInteractor,
-    private sceneInteractor: SceneInteractor,
-    private metaDataInteractor: MetaDataInteractor,
     private router: Router,
-    private eventBus: EventBus,
   ) {
   }
 
@@ -47,19 +44,19 @@ export class AdminUserGroups {
   }
 
   private openProject(project) {
-    this.eventBus.onStartLoading();
+    eventBus.onStartLoading();
     this.projectInteractor.openProject(project)
       .then(
         () => {
-          this.sceneInteractor.setActiveRoomId(null);
-          this.eventBus.onSelectRoom(null, false);
-          this.eventBus.onStopLoading();
-          this.metaDataInteractor.setIsReadOnly(true);
+          sceneInteractor.setActiveRoomId(null);
+          eventBus.onSelectRoom(null, false);
+          eventBus.onStopLoading();
+          metaDataInteractor.setIsReadOnly(true);
           this.router.navigateByUrl('/editor');
         },
         () => {
-          this.eventBus.onStopLoading();
-          this.eventBus.onModalMessage(ERROR_OPENING_PROJECT, SERVER_ERROR);
+          eventBus.onStopLoading();
+          eventBus.onModalMessage(ERROR_OPENING_PROJECT, SERVER_ERROR);
         },
       );
   }

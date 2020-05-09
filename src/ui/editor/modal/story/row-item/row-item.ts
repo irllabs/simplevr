@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 
 import { Room } from 'data/scene/entities/room';
 import { RoomProperty } from 'data/scene/interfaces/roomProperty';
@@ -23,7 +23,6 @@ export class RowItem {
 
   constructor(
     private propertyRemovalService: PropertyRemovalService,
-    private sceneInteractor: SceneInteractor,
   ) {
   }
 
@@ -33,7 +32,7 @@ export class RowItem {
 
   onDeleteClick() {
     if (this.isHomeRoom()) {
-      this.sceneInteractor.setHomeRoomId(null);
+      sceneInteractor.setHomeRoomId(null);
     }
     this.propertyRemovalService.removeProperty(this.roomProperty);
   }
@@ -44,7 +43,7 @@ export class RowItem {
 
   onLabelChange($event) {
     if (this.propertyIsRoom) {
-      this.sceneInteractor.setRoomName(this.roomProperty.getId(), $event.text);
+      sceneInteractor.setRoomName(this.roomProperty.getId(), $event.text);
     }
     else {
       this.roomProperty.setName($event.text);
@@ -53,17 +52,17 @@ export class RowItem {
 
   isHomeRoom(): boolean {
     const roomId: string = this.roomProperty.getId();
-    return this.sceneInteractor.isHomeRoom(roomId);
+    return sceneInteractor.isHomeRoom(roomId);
   }
 
   setAsHomeRoom() {
     const roomId: string = this.roomProperty.getId();
-    this.sceneInteractor.setHomeRoomId(roomId);
+    sceneInteractor.setHomeRoomId(roomId);
   }
 
   getBackgroundThumbnail(): string {
     const roomId: string = this.roomProperty.getId();
-    const room: Room = this.sceneInteractor.getRoomById(roomId);
+    const room: Room = sceneInteractor.getRoomById(roomId);
     return room.getThumbnailImage();
   }
 

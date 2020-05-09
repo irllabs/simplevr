@@ -1,21 +1,23 @@
-import { Injectable } from "@angular/core"
-import { AngularFirestore } from "angularfire2/firestore"
+import * as firebase from 'firebase';
 
-@Injectable()
-export class SettingsInteractor {
-  private _settings: any
+class SettingsInteractor {
+	private _settings: firebase.firestore.DocumentData
+	private _db: firebase.firestore.Firestore;
 
-  constructor(private afStore: AngularFirestore) {}
+	constructor() {
+		this._db = firebase.firestore();
+		this.setupSettings();
+	}
 
-  public get settings() {
-    return this._settings
-  }
+	public get settings() {
+		return this._settings
+	}
 
-  public setupSettings() {
-    const doc = this.afStore.collection("settings").doc("public").ref
-
-    doc.onSnapshot(result => {
-      this._settings = result.data()
-    })
-  }
+	public setupSettings() {
+		const doc = this._db.collection("settings").doc("public");
+		doc.onSnapshot(result => {
+			this._settings = result.data()
+		})
+	}
 }
+export default new SettingsInteractor();

@@ -1,10 +1,10 @@
 import { Component, ViewChildren } from '@angular/core';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { Room } from 'data/scene/entities/room';
 import { RoomProperty } from 'data/scene/interfaces/roomProperty';
 import { Subscription } from 'rxjs/Subscription';
 
-import { EventBus, EventType } from 'ui/common/event-bus';
+import eventBus, { EventType } from 'ui/common/event-bus';
 import { RoomIcon } from 'ui/editor/edit-space/room-icon/room-icon/room-icon';
 import { CombinedHotspotUtil } from 'ui/editor/util/combinedHotspotUtil';
 
@@ -22,14 +22,12 @@ export class EditSpaceFlat {
   @ViewChildren('roomIcon') roomIconComponentList: RoomIcon[];
 
   constructor(
-    private sceneInteractor: SceneInteractor,
     private combinedHotspotUtil: CombinedHotspotUtil,
-    private eventBus: EventBus,
   ) {
   }
 
   ngOnInit() {
-    const selectProperty: Subscription = this.eventBus.getObservable(EventType.SELECT_PROPERTY)
+    const selectProperty: Subscription = eventBus.getObservable(EventType.SELECT_PROPERTY)
       .subscribe(
         (event) => {
           const selectedPropertyId = event.propertyId;
@@ -40,7 +38,7 @@ export class EditSpaceFlat {
         error => console.log('EditSpaceFlat.ngOnInit', error),
       );
 
-    const roomChange: Subscription = this.eventBus.getObservable(EventType.SELECT_ROOM)
+    const roomChange: Subscription = eventBus.getObservable(EventType.SELECT_ROOM)
       .subscribe(roomId => this.onResize(null), error => console.log('EditSpaceFlat.onSelectRoom', error));
 
     this.subscriptions.add(selectProperty);
@@ -50,8 +48,8 @@ export class EditSpaceFlat {
   }
 
   isVideo() {
-    const roomId: string = this.sceneInteractor.getActiveRoomId();
-    const room: Room = this.sceneInteractor.getRoomById(roomId);
+    const roomId: string = sceneInteractor.getActiveRoomId();
+    const room: Room = sceneInteractor.getRoomById(roomId);
     return room.getBackgroundIsVideo();
   }
 
@@ -66,25 +64,25 @@ export class EditSpaceFlat {
   }
 
   getBackgroundImage(): string {
-    const roomId: string = this.sceneInteractor.getActiveRoomId();
-    const room: Room = this.sceneInteractor.getRoomById(roomId);
+    const roomId: string = sceneInteractor.getActiveRoomId();
+    const room: Room = sceneInteractor.getRoomById(roomId);
     return room.getBackgroundImageBinaryData();
   }
 
   getBackgroundVideo(): string {
-    const roomId: string = this.sceneInteractor.getActiveRoomId();
-    const room: Room = this.sceneInteractor.getRoomById(roomId);
+    const roomId: string = sceneInteractor.getActiveRoomId();
+    const room: Room = sceneInteractor.getRoomById(roomId);
     return room.getBackgroundVideo();
   }
 
   getItems(): RoomProperty[] {
-    const roomId: string = this.sceneInteractor.getActiveRoomId();
-    return this.sceneInteractor.getRoomProperties(roomId);
+    const roomId: string = sceneInteractor.getActiveRoomId();
+    return sceneInteractor.getRoomProperties(roomId);
   }
 
   roomHasBackgroundImage(): boolean {
-    const roomId: string = this.sceneInteractor.getActiveRoomId();
+    const roomId: string = sceneInteractor.getActiveRoomId();
 
-    return this.sceneInteractor.roomHasBackgroundImage(roomId);
+    return sceneInteractor.roomHasBackgroundImage(roomId);
   }
 }

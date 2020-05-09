@@ -1,5 +1,5 @@
 import { Directive, ElementRef, EventEmitter, HostListener, Output } from '@angular/core';
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 
 const instanceSet: Set<DraggableIcon> = new Set<DraggableIcon>();
 
@@ -34,7 +34,6 @@ export class DraggableIcon {
 
   constructor(
     private element: ElementRef,
-    private eventBus: EventBus,
   ) {
   }
 

@@ -1,7 +1,7 @@
 import { Component, NgZone } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { UserInteractor } from 'core/user/userInteractor';
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 
 @Component({
   selector: 'topbar',
@@ -21,7 +21,6 @@ export class Topbar {
 
   constructor(
     private ngZone: NgZone,
-    private eventBus: EventBus,
     private userInteractor: UserInteractor,
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -63,7 +62,7 @@ export class Topbar {
     if (this.menuState[key] === undefined) return;
 
     this.menuState[key] = !this.menuState[key];
-    this.eventBus.onHotspotVisibility(this.menuState[key]);
+    eventBus.onHotspotVisibility(this.menuState[key]);
   }
 
   private onOffMenuItemClick($event, key) {
@@ -71,7 +70,7 @@ export class Topbar {
 
     this.ngZone.run(() => {
       this.menuState[key] = false;
-      this.eventBus.onHotspotVisibility(this.menuState[key]);
+      eventBus.onHotspotVisibility(this.menuState[key]);
     });
   }
 

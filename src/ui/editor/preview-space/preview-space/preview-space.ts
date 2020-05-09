@@ -2,8 +2,8 @@ import { AfterViewInit, Component, NgZone, ViewChild, ChangeDetectionStrategy, C
 import { ActivatedRoute, Router } from '@angular/router';
 import { AssetInteractor } from 'core/asset/assetInteractor';
 
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { Room } from 'data/scene/entities/room';
 import * as THREE from 'three';
 
@@ -14,9 +14,9 @@ import { HotspotManager } from 'ui/editor/preview-space/modules/hotspotManager';
 import { TextureLoader } from 'ui/editor/preview-space/modules/textureLoader';
 
 import { DomSanitizer } from '@angular/platform-browser';
-import { RoomManager } from 'data/scene/roomManager';
+import roomManager from 'data/scene/roomManager';
 import { ICON_PATH } from 'ui/common/constants';
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 
 import './aframe/preview-space';
 import './aframe/preview-countdown'
@@ -46,8 +46,6 @@ export class PreviewSpace {
   private autoplaySounds:boolean = true;
   
   constructor(
-    private metaDataInteractor: MetaDataInteractor,
-    private sceneInteractor: SceneInteractor,
     private assetInteractor: AssetInteractor,
     private route: ActivatedRoute,
     private router: Router,
@@ -55,8 +53,6 @@ export class PreviewSpace {
     private textureLoader: TextureLoader,
     private ref: ChangeDetectorRef,
     private sanitizer: DomSanitizer,
-    private roomManager: RoomManager,
-    private eventBus: EventBus
   ) {
     this.ref.detach();
   }
@@ -75,7 +71,7 @@ export class PreviewSpace {
   //////////////////////////////////////////////
 
   ngOnInit() {
-    const projectIsEmpty = this.metaDataInteractor.projectIsEmpty();
+    const projectIsEmpty = metaDataInteractor.projectIsEmpty();
     const isMultiView = this.router.url.includes('multiview=');
     const sceneEl = this.worldElement.nativeElement;
     if (projectIsEmpty && !isMultiView) {
@@ -88,7 +84,7 @@ export class PreviewSpace {
 
       this.autoplaySounds = false;
       this.initWorld();
-      this.eventBus.onPlayStoryModal(({ isDualScreen }) => {
+      eventBus.onPlayStoryModal(({ isDualScreen }) => {
         // sceneEl.emit('show-countdown')
         
       
@@ -143,13 +139,13 @@ export class PreviewSpace {
   ///////////  INITIALIZATION     //////////////
   //////////////////////////////////////////////
   initSoundtrack(){
-    this.soundtrackVolume = this.metaDataInteractor.getSoundtrack().getVolume()
-    this.soundtrackAudio = this.metaDataInteractor.getSoundtrack().getBinaryFileData(true);
+    this.soundtrackVolume = metaDataInteractor.getSoundtrack().getVolume()
+    this.soundtrackAudio = metaDataInteractor.getSoundtrack().getBinaryFileData(true);
   }
   initRoom() {
 
-    const roomId = this.sceneInteractor.getActiveRoomId();
-    const room = this.sceneInteractor.getRoomById(roomId);
+    const roomId = sceneInteractor.getActiveRoomId();
+    const room = sceneInteractor.getRoomById(roomId);
     console.log(room)
     this.sky = room.getBackgroundImageBinaryData(true);
     this.room = room;
@@ -173,20 +169,20 @@ export class PreviewSpace {
     const lastRoom = this.roomHistory[this.roomHistory.length - 1];
 
     setTimeout(() => {
-      this.sceneInteractor.setActiveRoomId(lastRoom);
+      sceneInteractor.setActiveRoomId(lastRoom);
       this.initRoom();
     });
   }
 
   goToHomeRoom() {
-    const homeRoom = this.sceneInteractor.getHomeRoomId();
+    const homeRoom = sceneInteractor.getHomeRoomId();
 
-    this.sceneInteractor.setActiveRoomId(homeRoom);
+    sceneInteractor.setActiveRoomId(homeRoom);
     this.initRoom();
   }
 
   goToRoom(outgoingRoomId) {
-    this.sceneInteractor.setActiveRoomId(outgoingRoomId);
+    sceneInteractor.setActiveRoomId(outgoingRoomId);
     this.initRoom();
   }
 

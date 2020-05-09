@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, Output } from '@angular/core';
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { Audio } from 'data/scene/entities/audio';
 
 import { Narrator } from 'data/scene/entities/narrator';
@@ -9,10 +9,10 @@ import { reverbList } from 'data/scene/values/reverbList';
 import { resizeImage } from 'data/util/imageResizeService';
 
 import { DEFAULT_VOLUME } from 'ui/common/constants';
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 import { browserCanRecordAudio } from 'ui/editor/util/audioRecorderService';
 import { audioDuration } from 'ui/editor/util/audioDuration';
-import { SettingsInteractor } from 'core/settings/settingsInteractor';
+import settingsInteractor from 'core/settings/settingsInteractor';
 
 @Component({
 	selector: 'room-editor',
@@ -27,11 +27,7 @@ export class RoomEditor {
 	public largeIntroAudioFile: boolean = false;
 
 	constructor(
-		private sceneInteractor: SceneInteractor,
 		private element: ElementRef,
-		private eventBus: EventBus,
-		private metaDataInteractor: MetaDataInteractor,
-		private settingsInteractor: SettingsInteractor
 	) {
 	}
 
@@ -44,17 +40,17 @@ export class RoomEditor {
 	}
 
 	public onBackgroundImageLoad($event) {
-		const { maxBackgroundImageSize } = this.settingsInteractor.settings
+		const { maxBackgroundImageSize } = settingsInteractor.settings
 
 		if( $event.file.size/1024/1024 >= maxBackgroundImageSize){
-			this.eventBus.onModalMessage('Error', `File is too large. Max file size is ${maxBackgroundImageSize} mb`)
+			eventBus.onModalMessage('Error', `File is too large. Max file size is ${maxBackgroundImageSize} mb`)
 			return;
 		}
 
 		const fileName: string = $event.file.name;
 		const binaryFileData: any = $event.binaryFileData;
 
-		this.eventBus.onStartLoading();
+		eventBus.onStartLoading();
 
 		resizeImage(binaryFileData, 'backgroundImage')
 			.then(resized => {
@@ -63,24 +59,24 @@ export class RoomEditor {
 				room.setBackgroundImageBinaryData(resized.backgroundImage);
 				room.setThumbnail(resized.thumbnail);
 
-				this.eventBus.onSelectRoom(null, false);
-				this.eventBus.onStopLoading();
+				eventBus.onSelectRoom(null, false);
+				eventBus.onStopLoading();
 			})
-			.catch(error => this.eventBus.onModalMessage('Image loading error', error));
+			.catch(error => eventBus.onModalMessage('Image loading error', error));
 	}
 
 	public onBackgroundAudioLoad($event) {
-		const { maxBackgroundAudioDuration, maxBackgroundAudioFilesize } = this.settingsInteractor.settings
+		const { maxBackgroundAudioDuration, maxBackgroundAudioFilesize } = settingsInteractor.settings
 
 		if ($event.file.size/1024/1024 >= maxBackgroundAudioFilesize ) {
-			this.eventBus.onModalMessage('Error', `File is too big. File should be less than ${maxBackgroundAudioFilesize} megabytes `)
+			eventBus.onModalMessage('Error', `File is too big. File should be less than ${maxBackgroundAudioFilesize} megabytes `)
 			return;
 		}
 
 		audioDuration($event.file).then(duration => {
 
 			if (duration > maxBackgroundAudioDuration) {
-				this.eventBus.onModalMessage('Error', `Duration of background audio is too long. It should be less than ${maxBackgroundAudioDuration} seconds `)
+				eventBus.onModalMessage('Error', `Duration of background audio is too long. It should be less than ${maxBackgroundAudioDuration} seconds `)
 				return
 			}
 
@@ -90,9 +86,9 @@ export class RoomEditor {
 	}
 
 	public onIntroAudioLoad($event) {
-		const { maxNarrationAudioDuration, maxNarrationAudioFilesize } = this.settingsInteractor.settings
+		const { maxNarrationAudioDuration, maxNarrationAudioFilesize } = settingsInteractor.settings
 		if ($event.file.size/1024/1024 >= maxNarrationAudioFilesize) {
-			this.eventBus.onModalMessage('Error', `File is too big. File should be less than ${maxNarrationAudioFilesize} megabytes `)
+			eventBus.onModalMessage('Error', `File is too big. File should be less than ${maxNarrationAudioFilesize} megabytes `)
 			return;
 		}
 		this.largeIntroAudioFile = false;
@@ -100,7 +96,7 @@ export class RoomEditor {
 		audioDuration($event.file).then(duration => {
 			console.log(duration)
 			if (duration > maxNarrationAudioDuration) {
-				this.eventBus.onModalMessage('Error',`Duration of narration audio is too long. It should be less than ${maxNarrationAudioDuration} seconds `)
+				eventBus.onModalMessage('Error',`Duration of narration audio is too long. It should be less than ${maxNarrationAudioDuration} seconds `)
 				return
 			}
 			this.getNarratorIntroAudio().setIntroAudio(DEFAULT_VOLUME, $event.binaryFileData);
@@ -142,8 +138,8 @@ export class RoomEditor {
 	}
 
 	private getActiveRoom(): Room {
-		const activeRoomId = this.sceneInteractor.getActiveRoomId();
-		return this.sceneInteractor.getRoomById(activeRoomId);
+		const activeRoomId = sceneInteractor.getActiveRoomId();
+		return sceneInteractor.getRoomById(activeRoomId);
 	}
 
 	public onNarratorIntroRecorded($event) {
@@ -186,14 +182,14 @@ export class RoomEditor {
 	}
 
 	public getRoomName(): string {
-		const roomId = this.sceneInteractor.getActiveRoomId();
-		const room = this.sceneInteractor.getRoomById(roomId);
+		const roomId = sceneInteractor.getActiveRoomId();
+		const room = sceneInteractor.getRoomById(roomId);
 		return room.getName();
 	}
 
 	public setRoomName($event) {
-		const roomId = this.sceneInteractor.getActiveRoomId();
-		const room = this.sceneInteractor.getRoomById(roomId);
+		const roomId = sceneInteractor.getActiveRoomId();
+		const room = sceneInteractor.getRoomById(roomId);
 		room.setName($event.text);
 	}
 }

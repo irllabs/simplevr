@@ -2,14 +2,14 @@ import { Component, NgZone, ViewChild, ViewChildren, ChangeDetectionStrategy, Ch
 import { Router } from '@angular/router';
 import { AssetInteractor, AssetModel } from 'core/asset/assetInteractor';
 import { CameraInteractor } from 'core/scene/cameraInteractor';
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { Vector2 } from 'data/scene/entities/vector2';
 import { Room } from 'data/scene/entities/room';
 import { RoomProperty } from 'data/scene/interfaces/roomProperty';
 import { Subscription } from 'rxjs/Subscription';
 import * as THREE from 'three';
-import { EventBus, EventType } from 'ui/common/event-bus';
+import eventBus, { EventType } from 'ui/common/event-bus';
 import { RoomIcon } from 'ui/editor/edit-space/room-icon/room-icon/room-icon';
 import { Video3D } from 'ui/editor/edit-space/video3D';
 
@@ -51,20 +51,17 @@ export class EditSpaceSphere {
 	public sky: any;
 
 	constructor(
-		private sceneInteractor: SceneInteractor,
 		private cameraInteractor: CameraInteractor,
-		private eventBus: EventBus,
 		private ngZone: NgZone,
 		private combinedHotspotUtil: CombinedHotspotUtil,
 		private assetInteractor: AssetInteractor,
-		private metaDataInteractor: MetaDataInteractor,
 		private router: Router,
 	) {
 
 	}
 
 	ngOnInit() {
-		if (this.metaDataInteractor.projectIsEmpty()) {
+		if (metaDataInteractor.projectIsEmpty()) {
 			this.router.navigate(['/editor', { outlets: { 'view': 'flat' } }]);
 		}
 	}
@@ -106,8 +103,8 @@ export class EditSpaceSphere {
 	}
 
 	initRoom() {
-		const roomId = this.sceneInteractor.getActiveRoomId();
-		const room = this.sceneInteractor.getRoomById(roomId);
+		const roomId = sceneInteractor.getActiveRoomId();
+		const room = sceneInteractor.getRoomById(roomId);
 		const sphereTexture = this.assetInteractor.getTextureById(roomId);
 
 		this.sky = sphereTexture.image.currentSrc;
@@ -127,8 +124,8 @@ export class EditSpaceSphere {
 	}
 
 	loadTextures(): Promise<ImageData> {
-		const imageList = this.sceneInteractor.getRoomIds()
-			.map(roomId => this.sceneInteractor.getRoomById(roomId))
+		const imageList = sceneInteractor.getRoomIds()
+			.map(roomId => sceneInteractor.getRoomById(roomId))
 			.filter(room => room.hasBackgroundImage() && !room.getBackgroundIsVideo())
 			.map(room => {
 				let imagePath = room.getBackgroundImageBinaryData();
@@ -142,7 +139,7 @@ export class EditSpaceSphere {
 
 	protected subscribeToEvents() {
 
-		const onPropertySelect: Subscription = this.eventBus.getObservable(EventType.SELECT_PROPERTY)
+		const onPropertySelect: Subscription = eventBus.getObservable(EventType.SELECT_PROPERTY)
 			.subscribe(
 			observedData => {
 				const propertyId: string = observedData.propertyId;
@@ -157,7 +154,7 @@ export class EditSpaceSphere {
 			error => console.log('error', error),
 		);
 
-		const onRoomSelect: Subscription = this.eventBus.getObservable(EventType.SELECT_ROOM)
+		const onRoomSelect: Subscription = eventBus.getObservable(EventType.SELECT_ROOM)
 			.subscribe(
 			observedData => {
 				if (observedData.isNewProperty) {
@@ -179,9 +176,9 @@ export class EditSpaceSphere {
 		const newLocation: Vector2 = Vector2.build();
 		const denormalizedPosition: Vector2 = denormalizePosition(newLocation.getX(), newLocation.getY());
 		const normalPosition: Vector2 = this.transformScreenPositionTo3dNormal(denormalizedPosition.getX(), denormalizedPosition.getY());
-		const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
+		const activeRoomId: string = sceneInteractor.getActiveRoomId();
 
-		this.sceneInteractor
+		sceneInteractor
 			.getPropertyById(activeRoomId, propertyId)
 			.setLocation(normalPosition);
 
@@ -230,13 +227,13 @@ export class EditSpaceSphere {
 	}
 
 	getItems(): RoomProperty[] {
-		const roomId: string = this.sceneInteractor.getActiveRoomId();
-		return this.sceneInteractor.getRoomProperties(roomId);
+		const roomId: string = sceneInteractor.getActiveRoomId();
+		return sceneInteractor.getRoomProperties(roomId);
 	}
 
 	roomHasBackgroundImage(): boolean {
-		const roomId: string = this.sceneInteractor.getActiveRoomId();
-		return this.sceneInteractor.roomHasBackgroundImage(roomId);
+		const roomId: string = sceneInteractor.getActiveRoomId();
+		return sceneInteractor.roomHasBackgroundImage(roomId);
 	}
 
 	transformScreenPositionTo3dNormal(x: number, y: number) {

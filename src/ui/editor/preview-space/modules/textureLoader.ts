@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AssetInteractor, AssetModel } from 'core/asset/assetInteractor';
 
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { ICON_PATH, IMAGE_PATH } from 'ui/common/constants';
 
 const iconPaths: AssetModel[] = [
@@ -20,14 +20,13 @@ const iconPaths: AssetModel[] = [
 export class TextureLoader {
 
   constructor(
-    private sceneInteractor: SceneInteractor,
     private assetInteractor: AssetInteractor,
   ) {
   }
 
   load(): Promise<any> {
-    const backgroundImages = this.sceneInteractor.getRoomIds()
-      .map(roomId => this.sceneInteractor.getRoomById(roomId))
+    const backgroundImages = sceneInteractor.getRoomIds()
+      .map(roomId => sceneInteractor.getRoomById(roomId))
       .filter(room => room.hasBackgroundImage())
       .map((room) => {
         let imagePath = room.getBackgroundImageBinaryData();
@@ -39,8 +38,8 @@ export class TextureLoader {
         return new AssetModel(room.getId(), room.getFileName(), imagePath);
       });
     //TODO: should this be in the interactor? There is an identical pattern with audio
-    const hotspotImages = this.sceneInteractor.getRoomIds()
-      .map(roomId => this.sceneInteractor.getRoomById(roomId))
+    const hotspotImages = sceneInteractor.getRoomIds()
+      .map(roomId => sceneInteractor.getRoomById(roomId))
       .reduce((accumulator, room) => {
         const universalImagePropertyList = Array.from(room.getUniversal())
           .filter(universal => universal.imageContent.hasAsset())

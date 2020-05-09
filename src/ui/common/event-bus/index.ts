@@ -1,10 +1,8 @@
-import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { Subject } from 'rxjs/Subject';
 
-@Injectable()
-export class EventBus {
+class EventBus {
 
   private static subject: Subject<Event> = new Subject<Event>();
 
@@ -71,6 +69,7 @@ export class EventBus {
   }
 
 }
+export default new EventBus();
 
 export class Event {
 

@@ -1,0 +1,3 @@
+[submodule "src/irl-ui"]
+	path = src/irl-ui
+	url = git@ssh.dev.azure.com:v3/batchku/irlui/irlui

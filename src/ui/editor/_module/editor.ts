@@ -1,14 +1,14 @@
 import { Component, ElementRef, EventEmitter, HostListener, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MetaDataInteractor } from 'core/scene/projectMetaDataInteractor';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { VideoInteractor } from 'core/video/videoInteractor';
 import { Room } from 'data/scene/entities/room';
 import { Universal } from 'data/scene/entities/universal';
 import { Vector2 } from 'data/scene/entities/vector2';
 import { resizeImage } from 'data/util/imageResizeService';
 import { Subscription } from 'rxjs/Subscription';
-import { EventBus, EventType } from 'ui/common/event-bus';
+import eventBus, { EventType } from 'ui/common/event-bus';
 import { ShareableLoader } from 'ui/common/shareable-loader';
 
 import { EditSpaceSphere } from 'ui/editor/edit-space/edit-space-sphere/edit-space-sphere';
@@ -36,16 +36,13 @@ export class Editor {
   private editSpaceSphere: EditSpaceSphere;
 
   constructor(
-    private sceneInteractor: SceneInteractor,
     private fileLoaderUtil: FileLoaderUtil,
-    private eventBus: EventBus,
     private zipFileReader: ZipFileReader,
     private slideshowBuilder: SlideshowBuilder,
     private videoInteractor: VideoInteractor,
     private route: ActivatedRoute,
     private router: Router,
     private shareableLoader: ShareableLoader,
-    private metaDataInteractor: MetaDataInteractor,
     private element: ElementRef,
     private responsiveUtil: ResponsiveUtil,
   ) {
@@ -108,13 +105,13 @@ export class Editor {
   }
 
   public isLoadedAssets() {
-    const isLoaded = this.sceneInteractor.isLoadedAssets();
+    const isLoaded = sceneInteractor.isLoadedAssets();
 
     return isLoaded;
   }
 
   private subscribeToEvents() {
-    const subscription = this.eventBus.getObservable(EventType.HOTSPOT_EDITOR_VISIBILITY)
+    const subscription = eventBus.getObservable(EventType.HOTSPOT_EDITOR_VISIBILITY)
       .subscribe(
         event => this.hotspotEditorIsOpen = event.isVisible,
         error => console.log('error', error),
@@ -156,11 +153,11 @@ export class Editor {
   }
 
   private previewVisible(): boolean {
-    return !this.metaDataInteractor.getIsReadOnly();
+    return !metaDataInteractor.getIsReadOnly();
   }
 
   private isReadOnly(): boolean {
-    return this.metaDataInteractor.getIsReadOnly();
+    return metaDataInteractor.getIsReadOnly();
   }
 
   private viewToggleIsVisibleOLD(): boolean {
@@ -198,8 +195,8 @@ export class Editor {
   }
 
   private hasBackgroundImage(): boolean {
-    const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
-    return this.sceneInteractor.roomHasBackgroundImage(activeRoomId);
+    const activeRoomId: string = sceneInteractor.getActiveRoomId();
+    return sceneInteractor.roomHasBackgroundImage(activeRoomId);
   }
 
   //made by ali to handle multiple hotspot creation
@@ -239,7 +236,7 @@ export class Editor {
           this.getFileTypeStrategy(fileType)(file, binaryFileData, dropPosition);
           return Promise.resolve();
         })
-        .catch(error => this.eventBus.onModalMessage('Error', error));
+        .catch(error => eventBus.onModalMessage('Error', error));
     });
 
     Promise.all(filePromises)
@@ -248,8 +245,8 @@ export class Editor {
         //console.log('all hotspots are now loaded');
       })
       .catch(error => {
-        this.eventBus.onStopLoading();
-        this.eventBus.onModalMessage('error', error);
+        eventBus.onStopLoading();
+        eventBus.onModalMessage('error', error);
         console.log(error);
       });
   }
@@ -258,8 +255,8 @@ export class Editor {
     const fileTypeStrategy = {
 
       audio: (file, binaryFileData, position) => {
-        const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
-        const universal: Universal = this.sceneInteractor.addUniversal(activeRoomId);
+        const activeRoomId: string = sceneInteractor.getActiveRoomId();
+        const universal: Universal = sceneInteractor.addUniversal(activeRoomId);
 
         universal.setAudioContent(binaryFileData);
         universal.setLocation(position);
@@ -268,33 +265,33 @@ export class Editor {
       },
 
       image: (file, binaryFileData, position) => {
-        const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
+        const activeRoomId: string = sceneInteractor.getActiveRoomId();
         if (!this.hasBackgroundImage()) {
-          this.eventBus.onStartLoading();
+          eventBus.onStartLoading();
           resizeImage(binaryFileData, 'backgroundImage')
             .then(resized => {
-              const room: Room = this.sceneInteractor.getRoomById(activeRoomId);
+              const room: Room = sceneInteractor.getRoomById(activeRoomId);
 
               room.setBackgroundImageBinaryData(resized.backgroundImage);
               room.setThumbnail(resized.thumbnail);
 
               this.requestRender();
-              this.eventBus.onStopLoading();
+              eventBus.onStopLoading();
             })
-            .catch(error => this.eventBus.onModalMessage('Image loading error', error));
+            .catch(error => eventBus.onModalMessage('Image loading error', error));
           return;
         }
 
         resizeImage(binaryFileData, 'hotspotImage')
           .then(resizedImageData => {
-            const universal: Universal = this.sceneInteractor.addUniversal(activeRoomId);
+            const universal: Universal = sceneInteractor.addUniversal(activeRoomId);
 
             universal.setImageContent(resizedImageData);
             universal.setLocation(position);
 
             this.requestRender();
           })
-          .catch(error => this.eventBus.onModalMessage('Image loading error', error));
+          .catch(error => eventBus.onModalMessage('Image loading error', error));
 
       },
 
@@ -311,8 +308,8 @@ export class Editor {
         this.videoInteractor.uploadVideo(file)
           .subscribe(
             data => {
-              const activeRoomId: string = this.sceneInteractor.getActiveRoomId();
-              const room: Room = this.sceneInteractor.getRoomById(activeRoomId);
+              const activeRoomId: string = sceneInteractor.getActiveRoomId();
+              const room: Room = sceneInteractor.getRoomById(activeRoomId);
 
               room.setBackgroundVideo(data.downloadUrl);
             },

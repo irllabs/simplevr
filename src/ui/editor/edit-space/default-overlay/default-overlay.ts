@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { SceneInteractor } from 'core/scene/sceneInteractor';
+import sceneInteractor from 'core/scene/sceneInteractor';
 import { Room } from 'data/scene/entities/room';
 import { resizeImage } from 'data/util/imageResizeService';
-import { EventBus } from 'ui/common/event-bus';
+import eventBus from 'ui/common/event-bus';
 import { FileLoaderUtil, mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
 import { SlideshowBuilder } from 'ui/editor/util/slideshowBuilder';
 import { ZipFileReader } from 'ui/editor/util/zipFileReader';
-import { SettingsInteractor } from 'core/settings/settingsInteractor'
+import settingsInteractor from 'core/settings/settingsInteractor'
 
 
 @Component({
@@ -19,12 +19,9 @@ export class DefaultOverlay {
   @Output() onFileLoad = new EventEmitter();
 
   constructor(
-    private eventBus: EventBus,
     private fileLoaderUtil: FileLoaderUtil,
     private zipFileReader: ZipFileReader,
-    private sceneInteractor: SceneInteractor,
     private slideshowBuilder: SlideshowBuilder,
-    private settingsInteractor: SettingsInteractor
   ) {
   }
 
@@ -43,12 +40,12 @@ export class DefaultOverlay {
 
   public onFileDrop(event) {
     if (event.files && event.files.length > 1) {
-      this.eventBus.onStartLoading();
+      eventBus.onStartLoading();
       this.slideshowBuilder.build(event.files)
         .then(resolve => {
-          this.eventBus.onStopLoading();
+          eventBus.onStopLoading();
         })
-        .catch(error => this.eventBus.onModalMessage('error', error));
+        .catch(error => eventBus.onModalMessage('error', error));
       return;
     }
     const file = event.files[0];
@@ -64,7 +61,7 @@ export class DefaultOverlay {
     const files = $event.target.files;
 
     if (!file) {
-      this.eventBus.onModalMessage('Error', 'No valid file selected');
+      eventBus.onModalMessage('Error', 'No valid file selected');
       return;
     }
 
@@ -78,20 +75,20 @@ export class DefaultOverlay {
   }
 
   private loadImageFile(file) {
-    const { maxBackgroundImageSize } = this.settingsInteractor.settings
+    const { maxBackgroundImageSize } = settingsInteractor.settings
     
     if(file.size/1024/1024 >= maxBackgroundImageSize){
-      this.eventBus.onModalMessage('Error', `File is too large. Max file size is ${maxBackgroundImageSize} mb`)
+      eventBus.onModalMessage('Error', `File is too large. Max file size is ${maxBackgroundImageSize} mb`)
       return;
     }
 
-    this.eventBus.onStartLoading();
+    eventBus.onStartLoading();
     this.fileLoaderUtil.validateFileLoadEvent(file, 'image')
       .then(this.fileLoaderUtil.getBinaryFileData.bind(this.fileLoaderUtil))
       .then(fileData => resizeImage(fileData, 'backgroundImage'))
       .then((resized) => {
-        const roomId: string = this.sceneInteractor.getActiveRoomId();
-        const room: Room = this.sceneInteractor.getRoomById(roomId);
+        const roomId: string = sceneInteractor.getActiveRoomId();
+        const room: Room = sceneInteractor.getRoomById(roomId);
 
         room.setBackgroundImageBinaryData(resized.backgroundImage);
         room.setThumbnail(resized.thumbnail);
@@ -99,16 +96,16 @@ export class DefaultOverlay {
         if (this.onFileLoad) {
           this.onFileLoad.emit();
         }
-        this.eventBus.onStopLoading();
+        eventBus.onStopLoading();
       })
-      .catch(error => this.eventBus.onModalMessage('Error', error));
+      .catch(error => eventBus.onModalMessage('Error', error));
   }
 
   private addSlideshow(files) {
-    this.eventBus.onStartLoading();
+    eventBus.onStartLoading();
     this.slideshowBuilder.build(files)
-      .then(resolve => this.eventBus.onStopLoading())
-      .catch(error => this.eventBus.onModalMessage('error', error));
+      .then(resolve => eventBus.onStopLoading())
+      .catch(error => eventBus.onModalMessage('error', error));
   }
 
   private loadZipFile(file) {
