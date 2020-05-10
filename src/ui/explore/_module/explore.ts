@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { UserInteractor } from 'core/user/userInteractor';
+import userInteractor from 'core/user/userInteractor';
 
 @Component({
   selector: 'explore',
@@ -8,14 +8,8 @@ import { UserInteractor } from 'core/user/userInteractor';
   templateUrl: './explore.html',
 })
 export class Explore {
-
-  constructor(
-    private userInteractor: UserInteractor,
-  ) {
-  }
-
   private hasPermission(): boolean {
-    return this.userInteractor.isLoggedIn();
+    return userInteractor.isLoggedIn();
   }
 
 }

@@ -12,7 +12,7 @@ import eventBus, { EventType } from 'ui/common/event-bus';
 import { ShareableLoader } from 'ui/common/shareable-loader';
 
 import { EditSpaceSphere } from 'ui/editor/edit-space/edit-space-sphere/edit-space-sphere';
-import { FileLoaderUtil, mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
+import fileLoaderUtil, { mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
 import { normalizeAbsolutePosition } from 'ui/editor/util/iconPositionUtil';
 import { SHARED_KEY } from 'ui/editor/util/publicLinkHelper';
 import { ResponsiveUtil } from 'ui/editor/util/responsiveUtil';
@@ -36,7 +36,6 @@ export class Editor {
   private editSpaceSphere: EditSpaceSphere;
 
   constructor(
-    private fileLoaderUtil: FileLoaderUtil,
     private zipFileReader: ZipFileReader,
     private slideshowBuilder: SlideshowBuilder,
     private videoInteractor: VideoInteractor,
@@ -231,7 +230,7 @@ export class Editor {
         return;
       }
 
-      return this.fileLoaderUtil.getBinaryFileData(file)
+      return fileLoaderUtil.getBinaryFileData(file)
         .then(binaryFileData => {
           this.getFileTypeStrategy(fileType)(file, binaryFileData, dropPosition);
           return Promise.resolve();

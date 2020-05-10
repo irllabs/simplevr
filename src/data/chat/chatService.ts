@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 
-import { AuthService } from 'data/authentication/authService';
 import * as firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
@@ -9,11 +8,6 @@ import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class ChatService {
-
-  constructor(
-    private authService: AuthService, // remove
-  ) {
-  }
 
   // TODO: remove
   createRoom(roomName: string, userName: string, userId: string): Observable<any> {

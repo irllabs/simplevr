@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { getAudioContext } from 'ui/editor/util/audioContextProvider';
 
-import { FileLoaderUtil } from 'ui/editor/util/fileLoaderUtil';
+import fileLoaderUtil from 'ui/editor/util/fileLoaderUtil';
 
 const Recorder = require('recorderjs');
 
@@ -12,10 +12,6 @@ export class AudioRecorderService {
   private audioNodes;
   private frequencyDataArray: Uint8Array;
   private audioContext;
-
-  constructor(private fileLoaderUtil: FileLoaderUtil) {
-
-  }
 
   startRecording() {
     this.audioContext = getAudioContext();
@@ -37,7 +33,7 @@ export class AudioRecorderService {
         this.recorder.exportWAV(audioBlob => {
           const sampleRate = this.audioContext.sampleRate;
           resolve(
-            this.fileLoaderUtil.getBinaryFileData(audioBlob.slice(0, -.1 * sampleRate, audioBlob.type)),
+            fileLoaderUtil.getBinaryFileData(audioBlob.slice(0, -.1 * sampleRate, audioBlob.type)),
           );
         });
       }

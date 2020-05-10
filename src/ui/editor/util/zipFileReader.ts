@@ -1,25 +1,18 @@
 import { Injectable } from '@angular/core';
-import { ProjectInteractor } from 'core/project/projectInteractor';
+import projectInteractor from 'core/project/projectInteractor';
 import sceneInteractor from 'core/scene/sceneInteractor';
-import { StorageInteractor } from 'core/storage/storageInteractor';
+import storageInteractor from 'core/storage/storageInteractor';
 
 import eventBus from 'ui/common/event-bus';
 
 @Injectable()
 export class ZipFileReader {
-
-  constructor(
-    private storageInteractor: StorageInteractor,
-    private projectInteractor: ProjectInteractor,
-  ) {
-  }
-
 	loadFile(zipFile: any) {
 		eventBus.onStartLoading();
-		return this.storageInteractor.deserializeProject(zipFile)
+		return storageInteractor.deserializeProject(zipFile)
 		.then((response) => {
 			sceneInteractor.setActiveRoomId(null);
-			this.projectInteractor.setProject(null);
+			projectInteractor.setProject(null);
 			eventBus.onSelectRoom(null, false);
 			eventBus.onStopLoading();
 		})

@@ -1,51 +1,41 @@
-import { Injectable } from '@angular/core';
-
-import { ApiService } from 'data/api/apiService';
+import apiService from 'data/api/apiService';
 import { AuthenticationMethod } from 'data/authentication/authenticationMethod';
-import { AuthService } from 'data/authentication/authService';
-import { UserService } from 'data/user/userService';
+import authService from 'data/authentication/authService';
+import userService from 'data/user/userService';
 
-
-@Injectable()
-export class UserInteractor {
-
-  constructor(
-    private apiService: ApiService,
-    private userService: UserService,
-    private authService: AuthService,
-  ) {
-  }
+class UserInteractor {
 
   login(email: string, password: string) {
-    return this.authService.authenticate(AuthenticationMethod.FIREBASE, { email, password });
+    return authService.authenticate(AuthenticationMethod.FIREBASE, { email, password });
   }
 
   loginWithGoogle() {
-    return this.authService.authenticate(AuthenticationMethod.GOOGLE);
+    return authService.authenticate(AuthenticationMethod.GOOGLE);
   }
 
   isLoggedIn() {
-    return this.authService.isAuthenticated;
+    return authService.isAuthenticated;
   }
 
   logOut() {
-    return this.authService.invalidate();
+    return authService.invalidate();
   }
 
   getUser() {
-    return this.userService.getUser();
+    return userService.getUser();
   }
 
   getUserName(): string {
-    return this.userService.getUserName();
+    return userService.getUserName();
   }
 
   getUserId(): string {
-    return this.userService.getUserId();
+    return userService.getUserId();
   }
 
   // TODO: get rid
   getUserGroups(): string[] {
-    return this.userService.getUserGroups();
+    return userService.getUserGroups();
   }
 }
+export default new UserInteractor();

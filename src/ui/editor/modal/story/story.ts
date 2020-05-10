@@ -1,11 +1,11 @@
 import { Component, ElementRef, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
-import { ProjectInteractor } from 'core/project/projectInteractor';
+import projectInteractor from 'core/project/projectInteractor';
 import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
 
 import sceneInteractor from 'core/scene/sceneInteractor';
-import { StorageInteractor } from 'core/storage/storageInteractor';
-import { UserInteractor } from 'core/user/userInteractor';
+import storageInteractor from 'core/storage/storageInteractor';
+import userInteractor from 'core/user/userInteractor';
 
 import { Audio } from 'data/scene/entities/audio';
 
@@ -30,9 +30,6 @@ export class Story {
   private subscription: any;
   constructor(
     private router: Router,
-    private storageInteractor: StorageInteractor,
-    private userInteractor: UserInteractor,
-    private projectInteractor: ProjectInteractor,
     private slideshowBuilder: SlideshowBuilder,
     private element: ElementRef,
   ) {
@@ -50,13 +47,9 @@ export class Story {
     }
   }
 
-  private ngOnInit(){
-    this.subscription = this.projectInteractor.getProjects().subscribe(
-      (projects) => {
-        this.projectList = projects.map((p) => new Project(p));
-      },
-      error => console.error('GET /projects', error),
-    );
+  private async ngOnInit(){
+    const projects = await projectInteractor.getProjects();
+    this.projectList = projects.docs.map((p) => new Project(p.data()));
   }
 
   private ngOnDestroy() {
@@ -130,7 +123,7 @@ export class Story {
         this.removeSoundtrack();
         sceneInteractor.setActiveRoomId(null);
         sceneInteractor.resetRoomManager();
-        this.projectInteractor.setProject(null);
+        projectInteractor.setProject(null);
         eventBus.onSelectRoom(null, false);
         metaDataInteractor.setIsReadOnly(false);
         metaDataInteractor.loadingProject(false);
@@ -154,7 +147,7 @@ export class Story {
       eventBus.onModalMessage('Error', 'Cannot save an empty project');
       return;
     }
-    if (!this.userInteractor.isLoggedIn()) {
+    if (!userInteractor.isLoggedIn()) {
       eventBus.onModalMessage('Error', 'You must be logged in to save to the server');
       return;
     }
@@ -176,7 +169,7 @@ export class Story {
       eventBus.onModalMessage('Permissions Error', 'It looks like you are working on a different user\'s project. You cannot save this to your account but you can save it locally by shift-clicking the save button.');
       return;
     }
-    if (!this.userInteractor.isLoggedIn()) {
+    if (!userInteractor.isLoggedIn()) {
       eventBus.onModalMessage('Error', 'You must be logged in to download as .zip');
       return;
     }
@@ -186,8 +179,8 @@ export class Story {
 
     eventBus.onStartLoading();
 
-    this.storageInteractor.serializeProject()
-      .subscribe(
+    storageInteractor.serializeProject()
+      .then(
         (zipFile) => {
           eventBus.onStopLoading();
           FileSaver.saveAs(zipFile, zipFileName);
@@ -200,8 +193,8 @@ export class Story {
   }
 
   private saveStoryFileToServer() {
-    const project: Project = this.projectInteractor.getProject();
-    const isWorkingOnSavedProject: boolean = this.projectInteractor.isWorkingOnSavedProject();
+    const project: Project = projectInteractor.getProject();
+    const isWorkingOnSavedProject: boolean = projectInteractor.isWorkingOnSavedProject();
 
     const onSuccess = () => {
       eventBus.onStopLoading();
@@ -216,13 +209,13 @@ export class Story {
     eventBus.onStartLoading();
 
     if (isWorkingOnSavedProject) {
-      this.projectInteractor.updateProject(project).then(onSuccess, onError);
+      projectInteractor.updateProject(project).then(onSuccess, onError);
     } else {
       // console.log(this.projectList)
       if (this.projectList.length >= settingsInteractor.settings.maxProjects) {
         return onError("You have reached maximum number of projects");
       }
-      this.projectInteractor.createProject().then(onSuccess, onError);
+      projectInteractor.createProject().then(onSuccess, onError);
     }
   }
 }

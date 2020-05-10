@@ -1,8 +1,6 @@
-import { Injectable } from '@angular/core';
 import { Project } from './projectModel';
 
-@Injectable()
-export class ProjectService {
+class ProjectService {
   private _project: Project;
 
   constructor() {
@@ -23,3 +21,4 @@ export class ProjectService {
     return !!this.getProjectId();
   }
 }
+export default new ProjectService();

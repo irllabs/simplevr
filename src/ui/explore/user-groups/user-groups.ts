@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { GroupInteractor } from 'core/group/groupInteractor';
-import { ProjectInteractor } from 'core/project/projectInteractor';
+import projectInteractor from 'core/project/projectInteractor';
 import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
 import sceneInteractor from 'core/scene/sceneInteractor';
-import { UserInteractor } from 'core/user/userInteractor';
+import userInteractor from 'core/user/userInteractor';
 import { ERROR_OPENING_PROJECT, SERVER_ERROR } from 'ui/common/constants';
 
 import eventBus from 'ui/common/event-bus';
@@ -19,9 +19,7 @@ export class UserGroups {
   private projects = {};
 
   constructor(
-    private userInteractor: UserInteractor,
     private groupInteractor: GroupInteractor,
-    private projectInteractor: ProjectInteractor,
     private router: Router,
   ) {
   }
@@ -33,25 +31,22 @@ export class UserGroups {
   }
 
   private getUserGroups(): any[] {
-    return this.userInteractor.getUserGroups();
+    return userInteractor.getUserGroups();
   }
 
   public getProjectsByGroup(groupId: string) {
     return this.projects[groupId] || [];
   }
 
-  private fetchGroup(groupId: string) {
-    return this.groupInteractor.getGroup(groupId)
-      .subscribe(
-        userGroup => this.projects[groupId] = userGroup.projects,
-        error => console.log('error', error),
-      );
+  private async fetchGroup(groupId: string) {
+    const userGroup = await this.groupInteractor.getGroup(groupId);
+    this.projects[groupId] = userGroup.projects;
   }
 
   public openProject(project) {
 
     eventBus.onStartLoading();
-    this.projectInteractor.openProject(project)
+    projectInteractor.openProject(project)
       .then(
         () => {
           sceneInteractor.setActiveRoomId(null);

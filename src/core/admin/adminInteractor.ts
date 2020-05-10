@@ -1,32 +1,22 @@
-import { Injectable } from '@angular/core';
-import { ApiService } from 'data/api/apiService';
+import apiService from 'data/api/apiService';
 
-import { UserService } from 'data/user/userService';
+import userService from 'data/user/userService';
 
-
-@Injectable()
-export class AdminInteractor {
-
-  constructor(
-    private userService: UserService,
-    private apiService: ApiService,
-  ) {
-  }
-
+class AdminInteractor {
   isAdmin(): boolean {
-    return !!this.userService.getAdminGroups().length;
+    return !!userService.getAdminGroups().length;
   }
 
   getAdminGroups(): any[] {
-    return this.userService.getAdminGroups();
+    return userService.getAdminGroups();
   }
 
   getAllProjectsInGroup(groupId: string) {
-    return this.apiService.getAllProjectsInGroup(groupId);
+    return apiService.getAllProjectsInGroup(groupId);
   }
 
   setProjectInGroup(groupId: string, projectId: string, isIn: boolean, projectType: string) {
-    return this.apiService.setProjectInGroup(groupId, projectId, isIn, projectType);
+    return apiService.setProjectInGroup(groupId, projectId, isIn, projectType);
   }
-
 }
+export default new AdminInteractor();

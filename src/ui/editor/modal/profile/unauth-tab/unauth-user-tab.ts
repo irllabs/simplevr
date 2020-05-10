@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from "@angular/core"
 import { Router } from "@angular/router"
 import { AssetInteractor } from "core/asset/assetInteractor"
-import { UserInteractor } from "core/user/userInteractor"
+import userInteractor from "core/user/userInteractor"
 import eventBus from "ui/common/event-bus"
 
 @Component({
@@ -15,7 +15,6 @@ export class UnauthUserTab implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private assetInteractor: AssetInteractor,
-    private userInteractor: UserInteractor,
   ) {}
 
   ngOnInit() {
@@ -47,15 +46,15 @@ export class UnauthUserTab implements OnInit, OnDestroy {
       return
     }
 
-    this.userInteractor.login(this.user.email, this.user.password);
+    userInteractor.login(this.user.email, this.user.password);
   }
 
   public onLoginWithGoogle() {
-    this.userInteractor.loginWithGoogle();
+    userInteractor.loginWithGoogle();
   }
 
   public onOpenClick() {
-    if (!this.userInteractor.isLoggedIn()) {
+    if (!userInteractor.isLoggedIn()) {
       eventBus.onModalMessage(
         "Error",
         "You must be logged in to download as .zip"

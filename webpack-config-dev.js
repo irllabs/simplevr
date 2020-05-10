@@ -66,6 +66,20 @@ const webpackConfig = {
 				loader: "source-map-loader"
 			},
 			{
+				test: /\.svg/,
+				use: [
+					{
+						loader: 'url-loader'
+					},
+					{
+						loader: 'svg-url-loader'
+					},
+					{
+						loader: 'file-loader'
+					}
+				],
+			},
+			{
 				test: /\.scss$/,
 				exclude: /node_modules/,
 				use: [

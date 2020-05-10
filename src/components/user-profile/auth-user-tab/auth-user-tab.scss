@@ -1,0 +1,71 @@
+@import '../../../ui/_styles/variables';
+@import '../../../ui/_module/ui';
+
+.user-view__project-list-header {
+  font-weight: bold;
+  color: $color-grey-dark;
+}
+
+.user-view__project-list {
+  color: $color-grey-dark;
+  overflow-y: auto;
+  max-height: 120px;
+  font-size: $tiny-font-size;
+  margin-bottom: 16px;
+  box-shadow: inset 0px 8px 9px -6px #eee, inset 0px -8px 9px -6px #eee;
+}
+
+.user-view__project {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  color: $color-grey-medium;
+  margin-top: 8px;
+  border-bottom: 1px solid $color-grey-light;
+  padding-bottom: 8px;
+}
+
+.user-view__project-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  font-size: $med-font-size;
+}
+
+.user-view__project-title:hover {
+  cursor: pointer;
+  color: $color-grey-dark;
+}
+
+.user-view__project-title--selected {
+  color: $color-action;
+}
+
+.user-view__project-options {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-items: center;
+
+}
+
+.user-view__project-option {
+  font-size: $tiny-font-size;
+  margin-left: 10px;
+  cursor: pointer;
+  border-color: $color-grey-light;
+  border: 0px;
+  padding-left: 3px;
+  padding-right: 3px;
+  border-style: dashed;
+  border-radius: $window-border-radius;
+}
+
+.user-view__project-option:hover {
+  color: black;
+  border-color: $color-grey-dark;
+  border: 0px;
+  border-style: solid;
+}

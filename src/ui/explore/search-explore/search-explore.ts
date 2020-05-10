@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AngularFireStorage } from 'angularfire2/storage';
 
-import { ProjectInteractor } from 'core/project/projectInteractor';
+import projectInteractor from 'core/project/projectInteractor';
 import { SearchInteractor } from 'core/search/searchInteractor';
 import { ShareableLoader } from 'ui/common/shareable-loader';
 
@@ -17,7 +17,6 @@ export class SearchExplore {
   private searchLabel = '';
 
   constructor(
-    private projectInteractor: ProjectInteractor,
     private searchInteractor: SearchInteractor,
     private shareableLoader: ShareableLoader,
     public afStorage: AngularFireStorage,

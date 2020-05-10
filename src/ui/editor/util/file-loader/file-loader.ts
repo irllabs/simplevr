@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { generateUniqueId } from 'data/util/uuid';
 
 import eventBus from 'ui/common/event-bus';
-import { FileLoaderUtil } from 'ui/editor/util/fileLoaderUtil';
+import fileLoaderUtil from 'ui/editor/util/fileLoaderUtil';
 import { resolve } from 'path';
 
 @Component({
@@ -17,11 +17,6 @@ export class FileLoader {
   @Input() maxFileSize: number = null; // in Mb
 
   private inputId = generateUniqueId();
-
-  constructor(
-    private fileLoaderUtil: FileLoaderUtil,
-  ) {
-  }
 
   private onFileChange($event) {
     const file = $event.target.files && $event.target.files[0];
@@ -41,8 +36,8 @@ export class FileLoader {
       return;
     }
 
-    this.fileLoaderUtil.validateFileLoadEvent(file, this.acceptedFileType)
-    .then(this.fileLoaderUtil.getBinaryFileData.bind(this.fileLoaderUtil))
+    fileLoaderUtil.validateFileLoadEvent(file, this.acceptedFileType)
+    .then(fileLoaderUtil.getBinaryFileData.bind(fileLoaderUtil))
     .then(fileData => {
       this.onFileLoad.emit({
         binaryFileData: fileData,

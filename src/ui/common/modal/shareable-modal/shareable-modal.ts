@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { ProjectInteractor } from 'core/project/projectInteractor';
-import { UserInteractor } from 'core/user/userInteractor';
+import projectInteractor from 'core/project/projectInteractor';
+import userInteractor from 'core/user/userInteractor';
 
-import { ApiService } from 'data/api/apiService';
+import apiService from 'data/api/apiService';
 import * as QRCode from 'qrcode';
 import { Observable } from 'rxjs/Observable';
 import { copyToClipboard } from 'ui/editor/util/clipboard';
@@ -24,18 +24,10 @@ export class ShareableModal {
 	private projectName = '';
 	private notificationIsVisible = false;
 
-	constructor(
-		private projectInteractor: ProjectInteractor,
-		private userInteractor: UserInteractor,
-		private apiService: ApiService,
-	) {
-	}
-
-
 	async ngOnInit() {
 		const projectId = this.shareableData.projectId;
 
-		const response = await this.projectInteractor.getProjectData(projectId)
+		const response = await projectInteractor.getProjectData(projectId)
 		const projectData = response.data() as Project;
 
 		const publicLink = getShareableLink(projectId);
@@ -47,7 +39,7 @@ export class ShareableModal {
 
 		let shortenedUrl: string;
 		if (link) {
-			shortenedUrl = await this.apiService.getShortenedUrl(link).toPromise();
+			shortenedUrl = await apiService.getShortenedUrl(link);
 		}
 
 		this.publicLink = shortenedUrl;
@@ -69,13 +61,13 @@ export class ShareableModal {
 
 		this.isPublic = !this.isPublic;
 
-		this.projectInteractor.updateSharableStatus(projectId, this.isPublic)
+		projectInteractor.updateSharableStatus(projectId, this.isPublic)
 			.then(() => {
 				const publicLink = getShareableLink(projectId);
 
 				return this.isPublic ? publicLink : null;
 			})
-			.then(publicLink => publicLink ? this.apiService.getShortenedUrl(publicLink).toPromise() : null)
+			.then(publicLink => publicLink ? apiService.getShortenedUrl(publicLink) : null)
 			.then(
 				(shortenedUrl) => {
 					this.publicLink = shortenedUrl;

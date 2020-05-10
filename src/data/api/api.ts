@@ -1,12 +1,12 @@
 import { Observable } from 'rxjs/Observable';
 
 export default interface ApiService {
-  getShortenedUrl(url: string): Observable<any>;
+  getShortenedUrl(url: string);
 
-  getAllProjectsInGroup(groupId: string): Observable<any>;
+  getAllProjectsInGroup(groupId: string);
 
-  setProjectInGroup(groupId: string, projectId: string, isIn: boolean, projectType: string): Observable<any>;
+  setProjectInGroup(groupId: string, projectId: string, isIn: boolean, projectType: string);
 
-  getGroup(groupId: string): Observable<any>;
+  getGroup(groupId: string);
 
 }

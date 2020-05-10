@@ -9,6 +9,7 @@ import 'firebase/storage';
 import App from 'components/app/app';
 
 import './index.scss';
+import './ui/_module/ui.scss';
 
 ReactDOM.render(
 	<App />,

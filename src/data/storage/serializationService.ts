@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import roomManager from 'data/scene/roomManager';
 import { resizeImage } from 'data/util/imageResizeService';
 
@@ -20,10 +19,9 @@ import { Universal } from '../scene/entities/universal';
 const JSZip = require('jszip');
 const JsYaml = require('js-yaml');
 
-@Injectable()
-export class SerializationService {
+class SerializationService {
 
-  public zipStoryFile(): Observable<any> {
+  public zipStoryFile() {
     return this._buildProjectZip();
   }
 
@@ -239,12 +237,13 @@ export class SerializationService {
     // Build ZIP
     const zipBuilder = Promise.all(promises).then(() => zip.generateAsync({ type: 'blob' }));
 
-    return Observable.fromPromise(zipBuilder);
+    return zipBuilder;
   }
 
   private _getBase64FromDataUrl(dataUrlString): string {
     return dataUrlString.substring(dataUrlString.indexOf(',') + 1);
   }
 }
+export default new SerializationService();
 
 

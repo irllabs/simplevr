@@ -1,16 +1,11 @@
 import { Injectable } from '@angular/core';
 
-import { ApiService } from 'data/api/apiService';
+import apiService from 'data/api/apiService';
 import assetManager from 'data/asset/assetManager';
 import { Texture } from 'three';
 
 @Injectable()
 export class AssetInteractor {
-  constructor(
-    private apiService: ApiService,
-  ) {
-  }
-
   loadTextures(imageDataList: AssetModel[]): Promise<any> {
     return assetManager.loadTextures(imageDataList);
   }

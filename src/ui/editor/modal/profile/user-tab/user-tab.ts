@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserInteractor } from 'core/user/userInteractor';
+import userInteractor from 'core/user/userInteractor';
 
 @Component({
   selector: 'user-tab',
@@ -12,7 +12,6 @@ export class UserTab implements OnInit {
   private isBeingInstantiated: boolean = false;
 
   constructor(
-    private userInteractor: UserInteractor,
     private router: Router,
     private element: ElementRef,
   ) {
@@ -37,6 +36,6 @@ export class UserTab implements OnInit {
   }
 
   public userIsLoggedIn(): boolean {
-    return this.userInteractor.isLoggedIn();
+    return userInteractor.isLoggedIn();
   }
 }

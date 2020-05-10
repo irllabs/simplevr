@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
-import { AdminInteractor } from 'core/admin/adminInteractor';
 
-import { UserInteractor } from 'core/user/userInteractor';
+import userInteractor from 'core/user/userInteractor';
+import adminInteractor from 'core/admin/adminInteractor';
 
 @Component({
   selector: 'admin',
@@ -12,14 +12,8 @@ export class Admin {
 
   @ViewChild('adminUserGroups') adminUserGroupsElement;
 
-  constructor(
-    private userInteractor: UserInteractor,
-    private adminInteractor: AdminInteractor,
-  ) {
-  }
-
   private hasPermission(): boolean {
-    return this.userInteractor.isLoggedIn() && this.adminInteractor.isAdmin();
+    return userInteractor.isLoggedIn() && adminInteractor.isAdmin();
   }
 
   private onAddProject($event) {

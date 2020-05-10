@@ -2,15 +2,10 @@ import { Injectable } from '@angular/core';
 import sceneInteractor from 'core/scene/sceneInteractor';
 import { resizeImage } from 'data/util/imageResizeService';
 
-import { FileLoaderUtil, mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
+import fileLoaderUtil, { mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
 
 @Injectable()
 export class SlideshowBuilder {
-
-  constructor(
-    private fileLoaderUtil: FileLoaderUtil,
-  ) {
-  }
 
   build(files): Promise<any> {
     const fileList = Object.keys(files)
@@ -23,7 +18,7 @@ export class SlideshowBuilder {
   private processBackgroundFileList(fileList): Promise<any> {
     const backgroundFiles = fileList
       .filter(file => mimeTypeMap['image'].indexOf(file.type) > -1)
-      .map(file => this.fileLoaderUtil.getBinaryFileData(file).then(dataUrl => resizeImage(dataUrl, 'backgroundImage')));
+      .map(file => fileLoaderUtil.getBinaryFileData(file).then(dataUrl => resizeImage(dataUrl, 'backgroundImage')));
 
     return Promise.all(backgroundFiles)
       .then(resizedList => resizedList.map((resized: any) => {

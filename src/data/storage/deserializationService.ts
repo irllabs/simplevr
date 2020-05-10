@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
 import { AngularFireStorage } from 'angularfire2/storage';
 
-import { ApiService } from 'data/api/apiService';
+import * as firebase from 'firebase';
+
+import apiService from 'data/api/apiService';
 import { Room } from 'data/scene/entities/room';
 
 import roomManager from 'data/scene/roomManager';
@@ -19,7 +20,7 @@ import {
 	MIME_TYPE_XM4A,
 	STORY_VERSION,
 } from 'ui/common/constants';
-import { FileLoaderUtil } from 'ui/editor/util/fileLoaderUtil';
+import fileLoaderUtil from 'ui/editor/util/fileLoaderUtil';
 import metaDataInteractor from '../../core/scene/projectMetaDataInteractor';
 import { DEFAULT_IMAGE_PATH, STORY_FILE_YAML, UINT8ARRAY } from '../../ui/common/constants';
 import { Project } from '../project/projectModel';
@@ -33,17 +34,15 @@ import deserializeOldStory from './legacy/deserializeOldStory';
 const JSZip = require('jszip');
 const JsYaml = require('js-yaml');
 
-@Injectable()
-export class DeserializationService {
+class DeserializationService {
 	private zip = new JSZip();
 	private _cachedStoryFile: any;
+	private _storage: firebase.storage.Storage;
 
-	constructor(
-		private fileLoaderUtil: FileLoaderUtil,
-		private apiService: ApiService,
-		private afStorage: AngularFireStorage,
-	) {
+	constructor() {
 		this._cachedStoryFile = {};
+
+		this._storage = firebase.storage();
 	}
 
 	public deserializeProject(project: Project, quick: boolean = true) {
@@ -81,12 +80,12 @@ export class DeserializationService {
 			const fileName = remoteFile.file;
 			const mimeType = this.getFileMimeType(fileName);
 
-			downloadPromises.push(this.afStorage
+			downloadPromises.push(this._storage
 				.ref(remoteFile.remoteFile)
-				.getDownloadURL().toPromise()
-				.then((fileStoreUrl) => this.apiService.loadBinaryData(fileStoreUrl).toPromise())
+				.getDownloadURL()
+				.then((fileStoreUrl) => apiService.loadBinaryData(fileStoreUrl))
 				.then((data: ArrayBuffer) => new Blob([data], { type: mimeType }))
-				.then((blob) => this.fileLoaderUtil.getBinaryFileData(blob))
+				.then((blob) => fileLoaderUtil.getBinaryFileData(blob))
 				.then((binaryData) => {
 					return new MediaFile({
 						mimeType,
@@ -412,7 +411,7 @@ export class DeserializationService {
 				.then((fileData) => {
 					return new Blob([fileData], { type: mimeType });
 				})
-				.then((blob) => this.fileLoaderUtil.getBinaryFileData(blob))
+				.then((blob) => fileLoaderUtil.getBinaryFileData(blob))
 				.then((binaryData) => {
 					mediaFiles.push(new MediaFile({
 						mimeType,
@@ -472,12 +471,12 @@ export class DeserializationService {
 			for (let j = 0; j < filesCount; j++) {
 				const remoteFile: MediaFile = roomMediaFiles[j];
 
-				await this.afStorage
+				await this._storage
 					.ref(remoteFile.getRemoteFile())
-					.getDownloadURL().toPromise()
-					.then((fileStoreUrl) => this.apiService.loadBinaryData(fileStoreUrl).toPromise())
+					.getDownloadURL()
+					.then((fileStoreUrl) => apiService.loadBinaryData(fileStoreUrl))
 					.then((data: ArrayBuffer) => new Blob([data], { type: remoteFile.mimeType }))
-					.then((blob) => this.fileLoaderUtil.getBinaryFileData(blob))
+					.then((blob) => fileLoaderUtil.getBinaryFileData(blob))
 					.then((binaryData) => {
 						remoteFile.setUploadedBinaryFileData(binaryData);
 						filesLoaded += 1;
@@ -495,3 +494,4 @@ export class DeserializationService {
 		}
 	}
 }
+export default new DeserializationService();

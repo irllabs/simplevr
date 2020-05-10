@@ -1,6 +1,3 @@
-import { Injectable } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-
 import {
   MIME_TYPE_AAC,
   MIME_TYPE_JPEG,
@@ -25,12 +22,7 @@ export const mimeTypeMap = {
   zip: [MIME_TYPE_ZIP, MIME_TYPE_X_ZIP, MIME_TYPE_OCTET_STREAM, MIME_TYPE_X_ZIP_COMPRESSED],
 };
 
-@Injectable()
-export class FileLoaderUtil {
-
-  constructor(private sanitizer: DomSanitizer) {
-  }
-
+class FileLoaderUtil {
   validateFileLoadEvent(file, acceptedFileType) {
     return new Promise((resolve, reject) => {
       if (!mimeTypeMap[acceptedFileType]) {
@@ -66,6 +58,7 @@ export class FileLoaderUtil {
   }
 
   getFileData(base64Date) {
-    return this.sanitizer.bypassSecurityTrustUrl(base64Date);
+    return base64Date;
   }
 }
+export default new FileLoaderUtil();

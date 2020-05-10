@@ -3,7 +3,7 @@ import sceneInteractor from 'core/scene/sceneInteractor';
 import { Room } from 'data/scene/entities/room';
 import { resizeImage } from 'data/util/imageResizeService';
 import eventBus from 'ui/common/event-bus';
-import { FileLoaderUtil, mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
+import fileLoaderUtil, { mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
 import { SlideshowBuilder } from 'ui/editor/util/slideshowBuilder';
 import { ZipFileReader } from 'ui/editor/util/zipFileReader';
 import settingsInteractor from 'core/settings/settingsInteractor'
@@ -19,7 +19,6 @@ export class DefaultOverlay {
   @Output() onFileLoad = new EventEmitter();
 
   constructor(
-    private fileLoaderUtil: FileLoaderUtil,
     private zipFileReader: ZipFileReader,
     private slideshowBuilder: SlideshowBuilder,
   ) {
@@ -83,8 +82,8 @@ export class DefaultOverlay {
     }
 
     eventBus.onStartLoading();
-    this.fileLoaderUtil.validateFileLoadEvent(file, 'image')
-      .then(this.fileLoaderUtil.getBinaryFileData.bind(this.fileLoaderUtil))
+    fileLoaderUtil.validateFileLoadEvent(file, 'image')
+      .then(fileLoaderUtil.getBinaryFileData.bind(fileLoaderUtil))
       .then(fileData => resizeImage(fileData, 'backgroundImage'))
       .then((resized) => {
         const roomId: string = sceneInteractor.getActiveRoomId();

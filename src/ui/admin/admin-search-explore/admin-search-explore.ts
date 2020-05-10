@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { AdminInteractor } from 'core/admin/adminInteractor';
+import adminInteractor from 'core/admin/adminInteractor';
 
-import { ProjectInteractor } from 'core/project/projectInteractor';
+import projectInteractor from 'core/project/projectInteractor';
 import { SearchInteractor } from 'core/search/searchInteractor';
-import { UserInteractor } from 'core/user/userInteractor';
+import userInteractor from 'core/user/userInteractor';
 import { GROUP_TYPE } from 'ui/common/constants';
 import { ShareableLoader } from 'ui/common/shareable-loader';
 
@@ -21,11 +21,8 @@ export class AdminSearchExplore {
   private searchLabel = '';
 
   constructor(
-    private projectInteractor: ProjectInteractor,
     private searchInteractor: SearchInteractor,
     private shareableLoader: ShareableLoader,
-    private userInteractor: UserInteractor,
-    private adminInteractor: AdminInteractor,
   ) {
   }
 
@@ -36,11 +33,11 @@ export class AdminSearchExplore {
   }
 
   private hasPermission(): boolean {
-    return this.userInteractor.isLoggedIn() && this.adminInteractor.isAdmin();
+    return userInteractor.isLoggedIn() && adminInteractor.isAdmin();
   }
 
   private getUserGroups(): any[] {
-    return this.adminInteractor.getAdminGroups();
+    return adminInteractor.getAdminGroups();
   }
 
   getSearchModelProperty(): string {
@@ -85,14 +82,11 @@ export class AdminSearchExplore {
     return `${numResults} search result${pluralize} for`;
   }
 
-  toggleProjectInGroup(project, group) {
+  async toggleProjectInGroup(project, group) {
     const projectId = project.projectId;
     const groupId = group.id;
-    this.adminInteractor.setProjectInGroup(groupId, projectId, true, GROUP_TYPE.EXTERNAL)
-      .subscribe(
-        response => this.onAddProject.emit({ groupId, project }),
-        error => console.log('error', error),
-      );
+    const response = await adminInteractor.setProjectInGroup(groupId, projectId, true, GROUP_TYPE.EXTERNAL)
+    this.onAddProject.emit({ groupId, project });
   }
 
 }

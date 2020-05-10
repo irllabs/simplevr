@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserInteractor } from 'core/user/userInteractor';
+import userInteractor from 'core/user/userInteractor';
 import eventBus from 'ui/common/event-bus';
 
 @Component({
@@ -13,12 +13,11 @@ export class AddRoomButton {
 
   constructor(
     private router: Router,
-    private userInteractor: UserInteractor,
   ) {
   }
 
   addRoom() {
-    if (!this.userInteractor.isLoggedIn()) {
+    if (!userInteractor.isLoggedIn()) {
       eventBus.onModalMessage('Error', 'You must be logged in to create more rooms');
       return;
     }

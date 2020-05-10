@@ -1,7 +1,7 @@
 import { Directive, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
 import eventBus from 'ui/common/event-bus';
-import { FileLoaderUtil } from 'ui/editor/util/fileLoaderUtil';
+import fileLoaderUtil from 'ui/editor/util/fileLoaderUtil';
 
 @Directive({
   selector: '[droppable]',
@@ -17,11 +17,6 @@ export class Droppable {
     window.addEventListener('dragover', e => e.preventDefault());
     window.addEventListener('drop', e => e.preventDefault());
   })();
-
-  constructor(
-    private fileLoaderUtil: FileLoaderUtil,
-  ) {
-  }
 
   @HostListener('dragover', ['$event'])
   onDragOver(event) {
@@ -51,8 +46,8 @@ export class Droppable {
       return;
     }
 
-    this.fileLoaderUtil.validateFileLoadEvent(file, this.acceptedFileType)
-      .then(this.fileLoaderUtil.getBinaryFileData.bind(this.fileLoaderUtil))
+    fileLoaderUtil.validateFileLoadEvent(file, this.acceptedFileType)
+      .then(fileLoaderUtil.getBinaryFileData.bind(fileLoaderUtil))
       .then(fileData => {
         this.onFileLoad.emit({
           binaryFileData: fileData,

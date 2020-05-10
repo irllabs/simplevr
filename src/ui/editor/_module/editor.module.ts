@@ -64,7 +64,6 @@ import { DraggableIcon } from 'ui/editor/util/draggable';
 import { Droppable } from 'ui/editor/util/droppable';
 import { FileLoaderMulti } from 'ui/editor/util/file-loader-multi/file-loader-multi';
 import { FileLoader } from 'ui/editor/util/file-loader/file-loader';
-import { FileLoaderUtil } from 'ui/editor/util/fileLoaderUtil';
 import { HiddenFileLoader } from 'ui/editor/util/hidden-file-loader/hidden-file-loader';
 import { InfoButton } from 'ui/editor/util/info-button/info-button';
 import { PropertyRemovalService } from 'ui/editor/util/propertyRemovalService';
@@ -201,7 +200,6 @@ const route = RouterModule.forChild([
     DropzoneModule
   ],
   providers: [
-    FileLoaderUtil,
     PropertyRemovalService,
     ZipFileReader,
     AudioRecorderService,

@@ -1,51 +1,48 @@
-import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from 'angularfire2/firestore';
 import { AngularFireStorage } from 'angularfire2/storage';
 import { Observable } from 'rxjs/Observable';
-import * as JSZip from 'jszip';
+import JSZip from 'jszip';
+
+import * as firebase from 'firebase';
 
 import assetManager from 'data/asset/assetManager';
 import { Project, PROJECT_STATES } from 'data/project/projectModel';
-import { ProjectService } from 'data/project/projectService';
-import { DeserializationService } from 'data/storage/deserializationService';
-import { SerializationService } from 'data/storage/serializationService';
-import { UserService } from 'data/user/userService';
+import projectService from 'data/project/projectService';
+import deserializationService from 'data/storage/deserializationService';
+import serializationService from 'data/storage/serializationService';
+import userService from 'data/user/userService';
 import roomManager from 'data/scene/roomManager';
 import { Audio } from 'data/scene/entities/audio';
 import { MediaFile } from 'data/scene/entities/mediaFile';
 import { Room } from 'data/scene/entities/room';
 
 import metaDataInteractor from '../scene/projectMetaDataInteractor';
+import uuid from 'uuid/v1';
 
 const AUTOSAVE_PERIOD = 60 * 1000;
 
-@Injectable()
-export class ProjectInteractor {
+class ProjectInteractor {
 	private _autoSaveTimer: number;
 	private _saving: boolean = false;
+	private _firestore: firebase.firestore.Firestore;
+	private _storage: firebase.storage.Storage;
 
-	private get _projectsCollection(): AngularFirestoreCollection<Project> {
-		const userId = this.userService.getUserId();
+	private get _projectsCollection() {
+		return this._firestore.collection('projects');
+		//return this._firestore.collection('projects').where('userId', '==', userId).orderBy('nameLower').get();
+	};
 
-		if (userId) {
-			return this.afStore.collection<Project>('projects', ref => ref.where('userId', '==', userId).orderBy('nameLower'));
+	private get _projects() {
+		const userId = userService.getUserId();
+
+		if (this._projectsCollection && userId) {
+			return this._projectsCollection.where('userId', '==', userId).orderBy('nameLower').get();
 		}
 	};
 
-	private get _projects(): Observable<Project[]> {
-		if (this._projectsCollection) {
-			return this._projectsCollection.valueChanges();
-		}
-	};
-
-	constructor(
-		private deserializationService: DeserializationService,
-		private serializationService: SerializationService,
-		private projectService: ProjectService,
-		private userService: UserService,
-		private afStore: AngularFirestore,
-		private afStorage: AngularFireStorage,
-	) {
+	constructor() {
+		this._firestore = firebase.firestore();
+		this._storage = firebase.storage();
 	}
 
 	private _restartAutosaver() {
@@ -59,7 +56,7 @@ export class ProjectInteractor {
 	}
 
 	private _autoSave(): void {
-		if (!this._saving && metaDataInteractor.hasUnsavedChanges && this.projectService.isWorkingOnSavedProject()) {
+		if (!this._saving && metaDataInteractor.hasUnsavedChanges && projectService.isWorkingOnSavedProject()) {
 			this.updateProject(this.getProject());
 		}
 	}
@@ -68,29 +65,27 @@ export class ProjectInteractor {
 		return this._projects;
 	}
 
-	public updateSharableStatus(projectId: string, isPublic: boolean): Promise<any> {
+	public async updateSharableStatus(projectId: string, isPublic: boolean): Promise<any> {
 		return this._projectsCollection.doc(projectId).update({ isPublic });
 	}
 
 	public getProjectData(projectId: string) {
-		return this._projectsCollection.doc<Project>(projectId).ref.get();
+		return this._projectsCollection.doc(projectId).get();
 	}
 
 	public openProject(project: Project) {
 		return this._openProject(project);
 	}
 
-	public openProjectById(projectId: string) {
-		return this._projectsCollection
-			.doc(projectId).valueChanges()
-			.first()
-			.switchMap((obj: any) => this._openProject(new Project(obj)));
+	public async openProjectById(projectId: string) {
+		const project = await this._projectsCollection.doc(projectId).get();
+		return this._openProject(new Project(project))
 	}
 
 	public openPublicProject(projectId: string) {
-		const collectionRef = this.afStore.collection<Project>('projects');
+		const collectionRef = this._firestore.collection('projects');
 
-		return collectionRef.doc<Project>(projectId).ref.get()
+		return collectionRef.doc(projectId).get()
 			.then((response) => {
 				const project = new Project(response.data());
 
@@ -99,14 +94,14 @@ export class ProjectInteractor {
 	}
 
 	public createProject() {
-		const projectId = this.afStore.createId();
+		const projectId = uuid();
 		const project = new Project({
 			id: projectId,
 		});
 
 		return this._saveProject(project)
 			.then((project: Project) => {
-				this.projectService.setProject(project);
+				projectService.setProject(project);
 			});
 	}
 
@@ -118,19 +113,19 @@ export class ProjectInteractor {
 		return Observable.fromPromise(this._projectsCollection.doc(projectId).delete());
 	}
 
-	public getProjectAsBlob(project: Project): Promise<ArrayBuffer> {
+	public getProjectAsBlob(project: Project): Promise<ArrayBuffer | Blob> {
 		const story = project.story;
-		const remoteFiles = this.deserializationService.extractAllRemoteFiles(story);
+		const remoteFiles = deserializationService.extractAllRemoteFiles(story);
 		const homeRoomId = (story.rooms.find(room => room.uuid === story.homeRoomId) || story.rooms[0]).uuid;
 		const rooms: Room[] = [];
 		const zip = new JSZip();
 		const soundtrack: Audio = new Audio();
 
 		const promises = [
-			this.deserializationService
+			deserializationService
 				.loadRemoteFiles(remoteFiles)
 				.then((mediaFiles: MediaFile[]) => {
-					this.deserializationService
+					deserializationService
 						.deserializeRooms(story.rooms, homeRoomId, mediaFiles)
 						.forEach(room => rooms.push(room));
 
@@ -143,34 +138,34 @@ export class ProjectInteractor {
 						}
 					}
 
-					return this.serializationService.buildAssetDirectories(zip, rooms);
+					return serializationService.buildAssetDirectories(zip, rooms);
 				})
 				.then(() => {
 					const homeRoom = rooms.find(room => room.getId() === homeRoomId);
 
 					return Promise.all([
-						this.serializationService.zipHomeRoomImage(zip, homeRoom),
-						this.serializationService.zipProjectSoundtrack(zip, soundtrack),
+						serializationService.zipHomeRoomImage(zip, homeRoom),
+						serializationService.zipProjectSoundtrack(zip, soundtrack),
 					]);
 				}),
 
 
-			this.serializationService.zipStoryFiles(zip, story),
+			serializationService.zipStoryFiles(zip, story),
 		];
 
 		return Promise.all(promises).then(() => zip.generateAsync({ type: 'blob' }));
 	}
 
 	public getProject(): Project {
-		return this.projectService.getProject();
+		return projectService.getProject();
 	}
 
 	public setProject(project: Project) {
-		this.projectService.setProject(project);
+		projectService.setProject(project);
 	}
 
 	public isWorkingOnSavedProject(): boolean {
-		return this.projectService.isWorkingOnSavedProject();
+		return projectService.isWorkingOnSavedProject();
 	}
 
 	public searchPublicProjects(query: string) {
@@ -184,14 +179,10 @@ export class ProjectInteractor {
 		}
 
 		return Observable.forkJoin(tags.reduce((observers, tag) => {
-			const observer = this.afStore
-				.collection('projects', (ref) => {
-					return ref
-						.where('isPublic', '==', true)
-						.where(`tags.${tag}`, '==', true);
-				})
-				.valueChanges()
-				.first();
+			const observer = this._firestore
+			.collection('projects')
+			.where('isPublic', '==', true)
+			.where(`tags.${tag}`, '==', true);
 
 			return observers.concat(observer);
 		}, []))
@@ -216,11 +207,11 @@ export class ProjectInteractor {
 	}
 
 	private _openProject(project: Project, quick = true) {
-		return this.deserializationService
+		return deserializationService
 			.deserializeProject(project, quick)
 			.then((downloadRestAssets) => {
 				assetManager.clearAssets();
-				this.projectService.setProject(project);
+				projectService.setProject(project);
 
 				downloadRestAssets().then(() => {
 					this._restartAutosaver();
@@ -233,12 +224,12 @@ export class ProjectInteractor {
 	private _saveProject(project: Project) {
 		const projectName: string = roomManager.getProjectName();
 		const projectTags: string = roomManager.getProjectTags();
-		const userName = this.userService.getUserName();
-		const userId = this.userService.getUserId();
+		const userName = userService.getUserName();
+		const userId = userService.getUserId();
 		const homeRoomId = roomManager.getHomeRoomId();
 		const homeRoom = roomManager.getRoomById(homeRoomId);
 		const thumbnailMediaFile: MediaFile = homeRoom.getThumbnail().getMediaFile();
-		const allMediaFiles = this.serializationService.extractAllMediaFiles();
+		const allMediaFiles = serializationService.extractAllMediaFiles();
 		const deleteMediaFiles = allMediaFiles.filter((mediaFile: MediaFile) => mediaFile.hasRemoteFileToDelete());
 		const uploadMediaFiles = allMediaFiles
 			.filter((mediaFile: MediaFile) => mediaFile.needToUpload())
@@ -247,7 +238,7 @@ export class ProjectInteractor {
 
 				return mediaFile;
 			});
-		const story = this.serializationService.buildProjectJson();
+		const story = serializationService.buildProjectJson();
 
 		this._saving = true;
 
@@ -286,8 +277,8 @@ export class ProjectInteractor {
 		for (let i = 0; i < mediaFiles.length; i++) {
 			const mediaFile = mediaFiles[i];
 
-			deletePromises.push(this.afStorage.ref(mediaFile.storedRemoteFile)
-				.delete().toPromise()
+			deletePromises.push(this._storage.ref(mediaFile.storedRemoteFile)
+				.delete()
 				.then(() => mediaFile.setStoredRemoteFile(null))
 				.catch((error) => {
 					console.log('Can\'t delete file from Storage:', mediaFile);
@@ -301,12 +292,12 @@ export class ProjectInteractor {
 		const uploadPromises = [];
 		for (let i = 0; i < mediaFiles.length; i++) {
 			const mediaFile: MediaFile = mediaFiles[i];
-			const task = this.afStorage.upload(mediaFile.getRemoteFile(), mediaFile.getBlob());
 
-			uploadPromises.push(task.downloadURL().toPromise()
+			const task = this._storage.ref().put(mediaFile.getBlob());
+
+			uploadPromises.push(task
 				.then(() => {
 					mediaFile.setStoredRemoteFile(mediaFile.getRemoteFile());
-
 					return mediaFile;
 				})
 				.catch((error) => {
@@ -317,3 +308,4 @@ export class ProjectInteractor {
 		await Promise.all(uploadPromises);
 	}
 }
+export default new ProjectInteractor();

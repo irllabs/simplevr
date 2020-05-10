@@ -4,7 +4,7 @@ import sceneInteractor from 'core/scene/sceneInteractor';
 import { Room } from 'data/scene/entities/room';
 import { resizeImage } from 'data/util/imageResizeService';
 import eventBus from 'ui/common/event-bus';
-import { FileLoaderUtil } from 'ui/editor/util/fileLoaderUtil';
+import fileLoaderUtil from 'ui/editor/util/fileLoaderUtil';
 //added by ali for dragging images in
 import { SlideshowBuilder } from 'ui/editor/util/slideshowBuilder';
 import { ZipFileReader } from 'ui/editor/util/zipFileReader';
@@ -23,7 +23,6 @@ export class Upload {
 
   constructor(
     private router: Router,
-    private fileLoaderUtil: FileLoaderUtil,
     private slideshowBuilder: SlideshowBuilder,
     private zipFileReader: ZipFileReader,
     private element: ElementRef,
@@ -84,8 +83,8 @@ export class Upload {
 
     this.router.navigate(['/editor', { outlets: { 'modal': null } }]);
     eventBus.onStartLoading();
-    this.fileLoaderUtil.validateFileLoadEvent(file, 'image')
-      .then(this.fileLoaderUtil.getBinaryFileData.bind(this.fileLoaderUtil))
+    fileLoaderUtil.validateFileLoadEvent(file, 'image')
+      .then(fileLoaderUtil.getBinaryFileData.bind(fileLoaderUtil))
       .then(fileData => resizeImage(fileData, 'backgroundImage'))
       .then(resized => {
         const roomId: string = sceneInteractor.addRoom();

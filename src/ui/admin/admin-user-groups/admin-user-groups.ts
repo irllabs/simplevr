@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AdminInteractor } from 'core/admin/adminInteractor';
-import { ProjectInteractor } from 'core/project/projectInteractor';
+import adminInteractor from 'core/admin/adminInteractor';
+import projectInteractor from 'core/project/projectInteractor';
 import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
 import sceneInteractor from 'core/scene/sceneInteractor';
-import { UserInteractor } from 'core/user/userInteractor';
+import userInteractor from 'core/user/userInteractor';
 import { ERROR_OPENING_PROJECT, GROUP_TYPE, SERVER_ERROR } from 'ui/common/constants';
 
 import eventBus from 'ui/common/event-bus';
@@ -19,9 +19,6 @@ export class AdminUserGroups {
   private projects = {};
 
   constructor(
-    private userInteractor: UserInteractor,
-    private adminInteractor: AdminInteractor,
-    private projectInteractor: ProjectInteractor,
     private router: Router,
   ) {
   }
@@ -36,16 +33,16 @@ export class AdminUserGroups {
   }
 
   private hasPermission(): boolean {
-    return this.userInteractor.isLoggedIn() && this.adminInteractor.isAdmin();
+    return userInteractor.isLoggedIn() && adminInteractor.isAdmin();
   }
 
   private getUserGroups(): any[] {
-    return this.adminInteractor.getAdminGroups();
+    return adminInteractor.getAdminGroups();
   }
 
   private openProject(project) {
     eventBus.onStartLoading();
-    this.projectInteractor.openProject(project)
+    projectInteractor.openProject(project)
       .then(
         () => {
           sceneInteractor.setActiveRoomId(null);
@@ -61,12 +58,9 @@ export class AdminUserGroups {
       );
   }
 
-  private fetchProjectsByGroup(groupId: string) {
-    return this.adminInteractor.getAllProjectsInGroup(groupId)
-      .subscribe(
-        projectList => this.projects[groupId] = projectList.results,
-        error => console.log('error', error),
-      );
+  private async fetchProjectsByGroup(groupId: string) {
+    const projectList = await adminInteractor.getAllProjectsInGroup(groupId);
+    this.projects[groupId] = projectList.results;
   }
 
   private getGroupProjects(groupId: string) {
@@ -79,23 +73,17 @@ export class AdminUserGroups {
       this.projects[groupId].external_projects || [];
   }
 
-  private onCheckboxChange($event, groupId: string, projectId: string, project: any) {
-    this.adminInteractor.setProjectInGroup(groupId, projectId, $event.value, GROUP_TYPE.FEATURED)
-      .subscribe(
-        response => project.isFeatured = $event.value,
-        error => console.log('error', error),
-      );
+  private async onCheckboxChange($event, groupId: string, projectId: string, project: any) {
+    await adminInteractor.setProjectInGroup(groupId, projectId, $event.value, GROUP_TYPE.FEATURED);
+    project.isFeatured = $event.value;
   }
 
-  private removeExternalProject(groupId: string, projectId: string) {
-    this.adminInteractor.setProjectInGroup(groupId, projectId, false, GROUP_TYPE.EXTERNAL)
-      .subscribe(
-        response => {
-          this.projects[groupId].external_projects = this.projects[groupId].external_projects
-            .filter(project => project.projectId !== projectId);
-        },
-        error => console.log('error', error),
-      );
+  private async removeExternalProject(groupId: string, projectId: string) {
+    const response = await adminInteractor.setProjectInGroup(groupId, projectId, false, GROUP_TYPE.EXTERNAL)
+
+    this.projects[groupId].external_projects = this.projects[groupId].external_projects
+      .filter(project => project.projectId !== projectId);
+
   }
 
   onAddProject($event) {

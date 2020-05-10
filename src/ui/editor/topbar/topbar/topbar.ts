@@ -1,6 +1,6 @@
 import { Component, NgZone } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { UserInteractor } from 'core/user/userInteractor';
+import userInteractor from 'core/user/userInteractor';
 import eventBus from 'ui/common/event-bus';
 
 @Component({
@@ -21,7 +21,6 @@ export class Topbar {
 
   constructor(
     private ngZone: NgZone,
-    private userInteractor: UserInteractor,
     private router: Router,
     private activatedRoute: ActivatedRoute,
   ) {
@@ -75,7 +74,7 @@ export class Topbar {
   }
 
   private userIsLoggedIn(): boolean {
-    return this.userInteractor.isLoggedIn();
+    return userInteractor.isLoggedIn();
   }
 
   private setEditPlaySliderIsVisible(): boolean {

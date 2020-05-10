@@ -1,8 +1,4 @@
-import { Injectable } from '@angular/core';
-
-
-@Injectable()
-export class UserService {
+class UserService {
   private user: any = null;
 
   constructor() {
@@ -54,3 +50,4 @@ export class UserService {
     // return user.admin_groups;
   }
 }
+export default new UserService();

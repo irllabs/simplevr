@@ -1,0 +1,56 @@
+@import '../../ui/_styles/variables';
+@import '../../ui/_module/ui';
+
+.story-container {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	pointer-events: none;
+}
+
+.story-button {
+	position: absolute;
+	top: 16px;
+	left: 16px;
+	pointer-events: all;
+}
+
+.story-dialog {
+	pointer-events: all;
+}
+
+.story__soundtrack__upload-button {
+  width: 100%;
+  box-sizing: border-box;
+
+}
+
+.story__soundtrack__delete-button {
+  background-color: $delete-button-background-color;
+  color: $color-white;
+  text-align: center;
+  padding: 10px 0;
+  cursor: pointer;
+  width: 100%;
+}
+
+.story__soundtrack__audio-player {
+  width: 100%;
+  margin-top: 5px;
+}
+audio-element{
+  width:100%;
+}
+
+.story-dialog-close-surface {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}

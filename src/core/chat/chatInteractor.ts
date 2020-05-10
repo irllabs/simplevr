@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { ChatService } from 'data/chat/chatService';
-import { UserService } from 'data/user/userService';
+import userService from 'data/user/userService';
 import { Observable } from 'rxjs/Observable';
 
 @Injectable()
@@ -9,7 +9,6 @@ export class ChatInteractor {
 
   constructor(
     private chatService: ChatService,
-    private userService: UserService,
   ) {
   }
 
@@ -22,8 +21,8 @@ export class ChatInteractor {
   }
 
   joinRoom(chatRoomId: string): Observable<any> {
-    const userId = this.userService.getUserId();
-    const userName = this.userService.getUserName();
+    const userId = userService.getUserId();
+    const userName = userService.getUserName();
     return this.chatService.joinRoom(chatRoomId, userId, userName);
   }
 
@@ -32,7 +31,7 @@ export class ChatInteractor {
   }
 
   setLookAt(roomAddress: string, x: number, y: number, z: number): Observable<any> {
-    const userId = this.userService.getUserId();
+    const userId = userService.getUserId();
     return this.chatService.setLookAt(roomAddress, userId, x, y, z);
   }
 
