@@ -1,0 +1,21 @@
+@import '../../ui/_styles/variables';
+
+.audio-editor__record-button {
+  display: inline-block;;
+  position: relative;
+  margin-left: 5px;
+  margin-bottom: 10px;
+}
+
+.audio-editor__file-loader {
+  //width: 230px;
+  position: relative;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.audio-editor__audio-player {
+  width: 100%;
+  position: relative;
+  margin-top: 5px;
+}

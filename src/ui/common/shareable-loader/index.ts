@@ -8,19 +8,14 @@ import { ERROR_OPENING_PROJECT, FORMAT_ERROR, SERVER_ERROR } from 'ui/common/con
 
 import eventBus from 'ui/common/event-bus';
 import { decodeParam } from 'ui/editor/util/publicLinkHelper';
+import openStoryEvent from 'root/events/open-story-event';
+import openModalEvent from 'root/events/open-modal-event';
 
-
-@Injectable()
-export class ShareableLoader {
-
-  constructor(
-    private router: Router,
-  ) {
-  }
+class ShareableLoader {
 
   openDecodedProject(projectId) {
     eventBus.onStartLoading();
-    projectInteractor.openPublicProject(projectId)
+    const promise = projectInteractor.openPublicProject(projectId)
       .then(
         () => {
           const homeRoomID = sceneInteractor.getHomeRoomId();
@@ -28,14 +23,26 @@ export class ShareableLoader {
           eventBus.onSelectRoom(null, false);
           eventBus.onStopLoading();
           metaDataInteractor.setIsReadOnly(true);
+
+          openStoryEvent.emit({
+            preview: true,
+          });
           //this.router.navigateByUrl('/editor');
-          this.router.navigate(['editor', { outlets: { 'view': 'preview' } }], {queryParams: { share: 1 }});
+          // this.router.navigate(['editor', { outlets: { 'view': 'preview' } }], {queryParams: { share: 1 }});
         },
         error => {
           eventBus.onStopLoading();
           eventBus.onModalMessage(ERROR_OPENING_PROJECT, SERVER_ERROR);
         },
       );
+
+      openModalEvent.emit({
+        bodyText: '',
+        headerText: '',
+        isMessage: false,
+        modalType: 'loader',
+        promise: promise,
+      });
   }
 
   openProject(shareableValue: string) {
@@ -49,3 +56,4 @@ export class ShareableLoader {
     this.openDecodedProject(params.data);
   }
 }
+export default new ShareableLoader();

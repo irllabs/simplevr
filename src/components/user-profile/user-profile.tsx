@@ -41,8 +41,8 @@ export default class UserProfile extends React.Component<{}, UserProfileState> {
 				<div className='user-profile-dialog-close-surface' onClick={this.close}/>
 				<div className='user-profile-dialog-container'>
 					<div className='user-profile-dialog'>
-						{this.state.loggedIn && <AuthUserTab/>}
-						{!this.state.loggedIn && <UnauthUserTab/>}
+						{this.state.loggedIn && <AuthUserTab onClose={this.close}/>}
+						{!this.state.loggedIn && <UnauthUserTab />}
 					</div>
 				</div>
 			</div>
@@ -62,8 +62,8 @@ export default class UserProfile extends React.Component<{}, UserProfileState> {
 		});
 	}
 
-	private close(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-		event.stopPropagation();
+	private close(event?: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+		event?.stopPropagation();
 		this.setState({
 			profileOpen: false,
 		});

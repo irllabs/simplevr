@@ -15,6 +15,8 @@ import AudioElement from 'root/components/audio-element/audio-element';
 import { Audio } from 'data/scene/entities/audio';
 import { audioDuration } from 'ui/editor/util/audioDuration';
 import { DEFAULT_VOLUME } from 'ui/common/constants';
+import openModalEvent from 'root/events/open-modal-event';
+import zipFileReader from 'ui/editor/util/zipFileReader';
 
 interface StoryModalState {
 	projectList: Project[];
@@ -25,6 +27,8 @@ interface StoryModalProps {
 }
 
 export default class StoryModal extends React.Component<StoryModalProps, StoryModalState> {
+	private _hiddenLabelRef = React.createRef<HTMLInputElement>();
+
 	constructor(props: StoryModalProps) {
 		super(props);
 
@@ -40,6 +44,7 @@ export default class StoryModal extends React.Component<StoryModalProps, StoryMo
 		this.onOpenStoryLocallyClick = this.onOpenStoryLocallyClick.bind(this);
 		this.onSoundtrackLoad = this.onSoundtrackLoad.bind(this);
 		this.removeSoundtrack = this.removeSoundtrack.bind(this);
+		this.openProjectZip = this.openProjectZip.bind(this);
 	}
 
 	public async componentDidMount() {
@@ -68,6 +73,13 @@ export default class StoryModal extends React.Component<StoryModalProps, StoryMo
 					<div className="horiz-line-bottom"></div>
 
 					<div className="button_row">
+						<input
+							ref={this._hiddenLabelRef}
+							type="file"
+							id="hiddenInput"
+							style={{display: 'none'}}
+							onChange={this.openProjectZip}
+						/>
 						<div
 							className="button"
 							title="Click to create new story"
@@ -131,20 +143,20 @@ export default class StoryModal extends React.Component<StoryModalProps, StoryMo
 		projectMetaDataInteractor.setSoundtrackVolume(volume);
 	}
 
-	public onSoundtrackLoad(data, file) {
+	public onSoundtrackLoad(data) {
 		const { maxSoundtrackAudioDuration, maxSoundtrackAudioFilesize } = settingsInteractor.settings;
-		if (file.size/1024/1024 >= maxSoundtrackAudioFilesize) {
+		if (data.file.size/1024/1024 >= maxSoundtrackAudioFilesize) {
 			eventBus.onModalMessage('Error', `File is too big. File should be less than ${maxSoundtrackAudioFilesize} megabytes `)
 			return;
 		}
 
-		audioDuration(file)
+		audioDuration(data.file)
 		.then(duration => {
 			if(duration >= maxSoundtrackAudioDuration) {
 				eventBus.onModalMessage('Error', `Duration of soundtrack is too long. It should be less that ${maxSoundtrackAudioDuration} seconds`)
 				return;
 			}
-			projectMetaDataInteractor.setSoundtrack(file.name, DEFAULT_VOLUME, data);
+			projectMetaDataInteractor.setSoundtrack(data.file.name, DEFAULT_VOLUME, data);
 			this.forceUpdate();
 		});
 	}
@@ -161,12 +173,17 @@ export default class StoryModal extends React.Component<StoryModalProps, StoryMo
 		projectMetaDataInteractor.setProjectTags(text);
 	}
 
-	public onNewStoryClick($event) {
+	public onNewStoryClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+		event.persist();
+
+		if (event.shiftKey) {
+			this._hiddenLabelRef.current.click();
+			return;
+		}
+
 		projectMetaDataInteractor.checkAndConfirmResetChanges().then(() => {
 			projectMetaDataInteractor.loadingProject(true);
-			// this.router.navigate(['/editor', { outlets: { 'modal': 'upload' } }]);
-			if ($event.shiftKey) {
-				eventBus.onOpenFileLoader('zip');
+			if (event.shiftKey) {
 				return;
 			}
 			this.removeSoundtrack();
@@ -179,24 +196,16 @@ export default class StoryModal extends React.Component<StoryModalProps, StoryMo
 
 			this.props.onClose();
 		}, () => {});
+	}
 
-		/*
-		    metaDataInteractor.checkAndConfirmResetChanges().then(() => {
-			metaDataInteractor.loadingProject(true);
-			this.router.navigate(['/editor', { outlets: { 'modal': 'upload' } }]);
-			if ($event.shiftKey) {
-			eventBus.onOpenFileLoader('zip');
+	private openProjectZip(event) {
+		const file = event.target.files && event.target.files[0];
+		if (!file) {
+			eventBus.onModalMessage('Error', 'No valid file selected');
 			return;
-			}
-			this.removeSoundtrack();
-			sceneInteractor.setActiveRoomId(null);
-			sceneInteractor.resetRoomManager();
-			projectInteractor.setProject(null);
-			eventBus.onSelectRoom(null, false);
-			metaDataInteractor.setIsReadOnly(false);
-			metaDataInteractor.loadingProject(false);
-			}, () => {});
-		*/
+		}
+		zipFileReader.loadFile(file);
+		this.props.onClose();
 	}
 
 	private removeSoundtrack() {
@@ -206,15 +215,30 @@ export default class StoryModal extends React.Component<StoryModalProps, StoryMo
 
 	public onSaveStoryClick(event) {
 		if (projectMetaDataInteractor.projectIsEmpty()) {
-			eventBus.onModalMessage('Error', 'Cannot save an empty project');
+			openModalEvent.emit({
+				bodyText: 'Cannot save an empty project',
+				headerText: 'Error',
+				isMessage: false,
+				modalType: 'message'
+			});
 			return;
 		}
 		if (!userInteractor.isLoggedIn()) {
-			eventBus.onModalMessage('Error', 'You must be logged in to save to the server');
+			openModalEvent.emit({
+				bodyText: 'You must be logged in to save to the server',
+				headerText: 'Error',
+				isMessage: false,
+				modalType: 'message'
+			});
 			return;
 		}
 		if (projectMetaDataInteractor.getIsReadOnly()) {
-			eventBus.onModalMessage('Permissions Error', 'It looks like you are working on a different user\'s project. You cannot save this to your account but you can save it locally by shift-clicking the save button.');
+			openModalEvent.emit({
+				bodyText: 'It looks like you are working on a different user\'s project. You cannot save this to your account but you can save it locally by shift-clicking the save button.',
+				headerText: 'Permissions Error',
+				isMessage: false,
+				modalType: 'message'
+			});
 			return;
 		}
 
@@ -226,39 +250,69 @@ export default class StoryModal extends React.Component<StoryModalProps, StoryMo
 		const isWorkingOnSavedProject = projectInteractor.isWorkingOnSavedProject();
 	
 		const onSuccess = () => {
-			eventBus.onStopLoading();
-			eventBus.onModalMessage('', 'Your project has been saved.');
+			openModalEvent.emit({
+				bodyText: 'Your project has been saved.',
+				headerText: '',
+				isMessage: false,
+				modalType: 'message'
+			});
 		};
 	
 		const onError = (error) => {
-			eventBus.onStopLoading();
-			eventBus.onModalMessage('Save error', error);
+			openModalEvent.emit({
+				bodyText: 'Save error.',
+				headerText: '',
+				isMessage: false,
+				modalType: 'message'
+			});
 		};
-	
-		eventBus.onStartLoading();
-	
+
+		let promise;
 		if (isWorkingOnSavedProject) {
-			projectInteractor.updateProject(project).then(onSuccess, onError);
+			promise = projectInteractor.updateProject(project).then(onSuccess, onError);
 		} else {
 			if (this.state.projectList.length >= settingsInteractor.settings.maxProjects) {
 				return onError("You have reached maximum number of projects");
 			}
-			projectInteractor.createProject().then(onSuccess, onError);
+			promise = projectInteractor.createProject().then(onSuccess, onError);
 		}
+
+		openModalEvent.emit({
+			bodyText: '',
+			headerText: '',
+			isMessage: false,
+			modalType: 'loader',
+			promise: promise,
+		});
 	}
 
 	public onSaveStoryLocallyClick(event) {
 		if (projectMetaDataInteractor.projectIsEmpty()) {
-			eventBus.onModalMessage('Error', 'Cannot save an empty project');
+			openModalEvent.emit({
+				bodyText: 'Cannot save an empty project',
+				headerText: 'Error',
+				isMessage: false,
+				modalType: 'message'
+			});
 			return;
 		}
 	
 		if (projectMetaDataInteractor.getIsReadOnly()) {
-			eventBus.onModalMessage('Permissions Error', 'It looks like you are working on a different user\'s project. You cannot save this to your account but you can save it locally by shift-clicking the save button.');
+			openModalEvent.emit({
+				bodyText: 'It looks like you are working on a different user\'s project. You cannot save this to your account but you can save it locally by shift-clicking the save button.',
+				headerText: 'Permissions Error',
+				isMessage: false,
+				modalType: 'message'
+			});
 			return;
 		}
 		if (!userInteractor.isLoggedIn()) {
-			eventBus.onModalMessage('Error', 'You must be logged in to download as .zip');
+			openModalEvent.emit({
+				bodyText: 'You must be logged in to download as .zip',
+				headerText: 'Error',
+				isMessage: false,
+				modalType: 'message'
+			});
 			return;
 		}
 	
@@ -281,13 +335,8 @@ export default class StoryModal extends React.Component<StoryModalProps, StoryMo
 	}
 
 	public onOpenStoryLocallyClick(event) {
-		projectMetaDataInteractor.checkAndConfirmResetChanges().then(() => {
-			// if (!this.userInteractor.isLoggedIn()) {
-			//   this.eventBus.onModalMessage('Error', 'You must be logged in to upload from .zip');
-			//   return;
-			// }
-	
-			eventBus.onOpenFileLoader('zip');
-		}, () => {});
+		event.persist();
+		projectMetaDataInteractor.checkAndConfirmResetChanges();
+		this._hiddenLabelRef.current.click();
 	}
 }

@@ -1,4 +1,4 @@
-import { AssetInteractor } from 'core/asset/assetInteractor';
+import assetInteractor from 'core/asset/assetInteractor';
 import { BaseElement } from 'data/scene/entities/baseElement';
 import * as THREE from 'three';
 import { THREE_CONST } from '../../../common/constants';
@@ -29,14 +29,13 @@ export default class BasePlane {
 
   protected prop: BaseElement;
   protected camera: THREE.PerspectiveCamera;
-  protected assetInteractor: AssetInteractor;
 
   protected hoverIconGeometry(): any {
     return new THREE.CircleGeometry(THREE_CONST.HOTSPOT_DIM, THREE_CONST.DASHCIRCLE_SEG);
   }
 
   protected hoverIconTexture() {
-    return this.assetInteractor.getTextureById('hotspot-hover');
+    return assetInteractor.getTextureById('hotspot-hover');
   }
 
   public uuid: string;
@@ -51,11 +50,10 @@ export default class BasePlane {
     return this._hasPlaneMesh;
   }
 
-  constructor(roomProperty: any, camera: THREE.PerspectiveCamera, assetInteractor: AssetInteractor) {
+  constructor(roomProperty: any, camera: THREE.PerspectiveCamera) {
     this.prop = roomProperty;
     this.type = RoomPropertyTypeService.getTypeString(this.prop);
     this.camera = camera;
-    this.assetInteractor = assetInteractor;
     this.cancelAnimation = () => {};
 
     this._renderIconsAndLabel();
@@ -84,7 +82,7 @@ export default class BasePlane {
 
     // render previewIconMesh
     const previewIconGeometry = new THREE.CircleGeometry(2 * THREE_CONST.HOTSPOT_DIM, THREE_CONST.DASHCIRCLE_SEG);
-    const iconPreviewTexture = this.assetInteractor.getTextureById('hotspot-default');
+    const iconPreviewTexture = assetInteractor.getTextureById('hotspot-default');
     const iconPreviewMaterial = new THREE.MeshBasicMaterial({
       map: iconPreviewTexture,
       transparent: true,

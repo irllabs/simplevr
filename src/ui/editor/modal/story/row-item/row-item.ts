@@ -4,7 +4,7 @@ import sceneInteractor from 'core/scene/sceneInteractor';
 import { Room } from 'data/scene/entities/room';
 import { RoomProperty } from 'data/scene/interfaces/roomProperty';
 
-import { PropertyRemovalService } from 'ui/editor/util/propertyRemovalService';
+import propertyRemovalService from 'ui/editor/util/propertyRemovalService';
 import { RoomPropertyTypeService } from 'ui/editor/util/roomPropertyTypeService';
 
 
@@ -21,11 +21,6 @@ export class RowItem {
 
   private propertyIsRoom: boolean = false;
 
-  constructor(
-    private propertyRemovalService: PropertyRemovalService,
-  ) {
-  }
-
   ngOnInit() {
     this.propertyIsRoom = RoomPropertyTypeService.getTypeString(this.roomProperty) === 'room';
   }
@@ -34,7 +29,7 @@ export class RowItem {
     if (this.isHomeRoom()) {
       sceneInteractor.setHomeRoomId(null);
     }
-    this.propertyRemovalService.removeProperty(this.roomProperty);
+    propertyRemovalService.removeProperty(this.roomProperty);
   }
 
   getLabelText() {

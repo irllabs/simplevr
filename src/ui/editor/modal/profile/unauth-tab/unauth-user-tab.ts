@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core"
 import { Router } from "@angular/router"
-import { AssetInteractor } from "core/asset/assetInteractor"
+import assetInteractor from "core/asset/assetInteractor"
 import userInteractor from "core/user/userInteractor"
 import eventBus from "ui/common/event-bus"
 
@@ -14,7 +14,6 @@ export class UnauthUserTab implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private assetInteractor: AssetInteractor,
   ) {}
 
   ngOnInit() {

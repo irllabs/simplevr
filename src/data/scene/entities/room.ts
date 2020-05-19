@@ -20,11 +20,11 @@ export class Room implements RoomProperty {
   private reverb: string = reverbList[0];
   private backgroundImage: Image = new Image();
   private backgroundAudio: Audio = new Audio();
-  private bgAudioVolume: number = DEFAULT_VOLUME;
+  public bgAudioVolume: number = DEFAULT_VOLUME;
   private thumbnail: Image = new Image();
-  private universalSet: Set<Universal> = new Set<Universal>();
+  public universalSet: Set<Universal> = new Set<Universal>();
   private doorSet: Set<Door> = new Set<Door>();
-  private narrator = new Narrator();
+  public narrator = new Narrator();
   private backgroundVideo: MediaFile = new MediaFile();
   private backgroundIsVideo = false;
   private _isLoadedAssets: boolean = true;
@@ -44,6 +44,22 @@ export class Room implements RoomProperty {
 
   public setProgressLoading(percents: number): void {
     this._loadingPercents = percents.toFixed(0);
+  }
+
+  getUniversalSet() {
+    const universalSet: Universal[] = [];
+    this.universalSet.forEach((universal) => {
+      universalSet.push(universal);
+    });
+    return universalSet;
+  }
+
+  getDoorSet() {
+    const doorSet: Door[] = [];
+    this.doorSet.forEach((door) => {
+      doorSet.push(door);
+    });
+    return doorSet;
   }
 
   getId(): string {

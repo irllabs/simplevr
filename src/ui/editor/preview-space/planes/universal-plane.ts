@@ -3,13 +3,13 @@ import { Universal } from 'data/scene/entities/universal';
 import { fitToMax } from 'data/util/imageResizeService';
 import * as THREE from 'three';
 import { getCoordinatePosition } from '../../util/iconPositionUtil';
-import { AudioPlayService } from '../modules/audioPlayService';
+import audioPlayService from '../modules/audioPlayService';
 import { getTextureSizeFromText } from '../modules/textMaterialBuilder';
 import BasePlane from './base-plane';
+import assetInteractor from 'core/asset/assetInteractor';
 
 
 export default class UniversalPlane extends BasePlane {
-  private audioPlayService: AudioPlayService;
   private audioBufferSourceNode: AudioBufferSourceNode;
 
   public get hasPlaneMesh(): boolean {
@@ -39,7 +39,7 @@ export default class UniversalPlane extends BasePlane {
 
   protected hoverIconTexture() {
     if (this.isAudioOnly) {
-      return this.assetInteractor.getTextureById('audio');
+      return assetInteractor.getTextureById('audio');
     } else {
       return super.hoverIconTexture();
     }
@@ -73,7 +73,7 @@ export default class UniversalPlane extends BasePlane {
     canvas.height = height;
 
     if (hasImageContent) {
-      const imageTexture = this.assetInteractor.getTextureById(universalProperty.getId());
+      const imageTexture = assetInteractor.getTextureById(universalProperty.getId());
       const imgWidth = imageTexture.image.width;
       const imgHeight = imageTexture.image.height;
       const adjustedWidth = imgWidth >= imgHeight && width > 0 ? width : imgWidth;
@@ -119,8 +119,7 @@ export default class UniversalPlane extends BasePlane {
     return universalMesh;
   }
 
-  public init(audioPlayService: AudioPlayService) {
-    this.audioPlayService = audioPlayService;
+  public init() {
   }
 
   public activate() {
@@ -145,7 +144,7 @@ export default class UniversalPlane extends BasePlane {
     const universalProperty = this.prop as Universal;
 
     if (universalProperty.audioContent.hasAsset()) {
-      this.audioBufferSourceNode = this.audioPlayService.playHotspotAudio(
+      this.audioBufferSourceNode = audioPlayService.playHotspotAudio(
         universalProperty.getId(),
         universalProperty.volume,
         universalProperty.loop
@@ -155,7 +154,7 @@ export default class UniversalPlane extends BasePlane {
 
   public onDeactivated() {
     if(this.audioBufferSourceNode) {
-      this.audioPlayService.stopHotspotAudio(this.audioBufferSourceNode);
+      audioPlayService.stopHotspotAudio(this.audioBufferSourceNode);
     }
   }
 }

@@ -86,7 +86,9 @@ AFRAME.registerComponent('svr-camera', <any>{
     this.makeUpdate();
   },
   remove() {
-    this.el.removeAllListeners();
+    if (this.el.removeAllListeners) {
+      this.el.removeAllListeners();
+    }
     this.canvas.removeEventListener('mousedown', this.onMouseDown, false);
     this.canvas.removeEventListener('touchstart', this.onTouchStart, false);
     window.removeEventListener('resize', this.onResize, false);

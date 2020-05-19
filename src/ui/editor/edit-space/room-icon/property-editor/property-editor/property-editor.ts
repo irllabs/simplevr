@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RoomProperty } from 'data/scene/interfaces/roomProperty';
-import { PropertyRemovalService } from 'ui/editor/util/propertyRemovalService';
+import propertyRemovalService from 'ui/editor/util/propertyRemovalService';
 
 import { RoomPropertyTypeService } from 'ui/editor/util/roomPropertyTypeService';
 
@@ -16,11 +16,6 @@ export class PropertyEditor {
 
   private propertyType: string;
 
-  constructor(
-    private propertyRemovalService: PropertyRemovalService,
-  ) {
-  }
-
   getName(): string {
     return this.roomProperty.getName();
   }
@@ -33,7 +28,7 @@ export class PropertyEditor {
     if (!this.roomProperty) {
       return;
     }
-    this.propertyRemovalService.removeProperty(this.roomProperty);
+    propertyRemovalService.removeProperty(this.roomProperty);
   }
 
   ngOnChanges(changes) {

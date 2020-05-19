@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { AssetInteractor } from 'core/asset/assetInteractor';
+import assetInteractor from 'core/asset/assetInteractor';
 import * as THREE from 'three';
 import { THREE_CONST } from 'ui/common/constants';
 import { pol2car } from 'ui/editor/util/iconPositionUtil';
@@ -29,11 +29,6 @@ export class MenuManager {
   //private bButStateLast: number; //0 means far, 1 means active
   private tweenHomeActivate: any;
   private tweenBackActivate: any;
-
-  constructor(
-    private assetInteractor: AssetInteractor,
-  ) {
-  }
 
   load(scene: THREE.Scene, cameraPosition: THREE.Vector3, goToBackRoom: Function, goToHomeRoom: Function) {
     //console.log("this.menu: ", this.menu);
@@ -68,7 +63,7 @@ export class MenuManager {
 
     //back button
     const backBtnGeometry = new THREE.PlaneGeometry(THREE_CONST.HOTSPOT_DIM, THREE_CONST.HOTSPOT_DIM); //need THREE global
-    const backBtnTexture = this.assetInteractor.getTextureById('back');
+    const backBtnTexture = assetInteractor.getTextureById('back');
     const backBtnMaterial = new THREE.MeshBasicMaterial({
       map: backBtnTexture,
       transparent: true,
@@ -95,7 +90,7 @@ export class MenuManager {
 
     //home button
     const homeBtnGeometry = new THREE.PlaneGeometry(THREE_CONST.HOTSPOT_DIM, THREE_CONST.HOTSPOT_DIM);
-    const homeBtnTexture = this.assetInteractor.getTextureById('home');
+    const homeBtnTexture = assetInteractor.getTextureById('home');
     const homeBtnMaterial = new THREE.MeshBasicMaterial({
       map: homeBtnTexture,
       transparent: true,

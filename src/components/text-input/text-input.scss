@@ -1,0 +1,52 @@
+@import '../../ui/_styles/variables';
+
+$underline: 2px solid $color-grey-light;
+$underline-off: 2px solid transparent;
+
+.text-input {
+}
+
+.text-input__input {
+  outline: none;
+  border: none;
+  color: $color-grey-dark;
+  font-size: 1em;
+  display: block;
+  border-bottom: $underline-off;
+  text-shadow: $text-shadow-tree-view;
+  transition: border-bottom 0.1s linear;
+  background: transparent;
+
+  &:focus {
+    outline: none;
+    border-bottom: $underline;
+  }
+
+}
+
+.text-input__input--icon {
+  color: $color-white;
+  border-bottom: $underline-off;
+  text-shadow: $text-shadow-tree-view;
+  text-align: center;
+  margin: 5px 0 0 0px;
+}
+
+.text-input__input-row {
+  width: 110px;
+}
+
+.text-input__input-row--active {
+  color: $color-white;
+}
+
+.text-input__storymap--roomname {
+  text-align: center;
+  color: $color-white;
+  width: 110px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.text-input__input--title {
+  text-shadow: none;
+}

@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { getCoordinatePosition } from '../../util/iconPositionUtil';
 import { buildMaterialFromText } from '../modules/textMaterialBuilder';
 import BasePlane from './base-plane';
+import assetInteractor from 'core/asset/assetInteractor';
 
 
 export default class ImagePlane extends BasePlane {
@@ -30,14 +31,14 @@ export default class ImagePlane extends BasePlane {
 
   protected _render(): THREE.Mesh {
     const imageProperty = this.prop as Image;
-    const imageTexture = this.assetInteractor.getTextureById(imageProperty.getId());
+    const imageTexture = assetInteractor.getTextureById(imageProperty.getId());
     const location = imageProperty.getLocation();
     const position = getCoordinatePosition(location.getX(), location.getY(), 250);
 
     if (imageTexture) {
       return ImagePlane.buildMesh(
         imageTexture,
-        this.assetInteractor.getTextureById('imageMask'),
+        assetInteractor.getTextureById('imageMask'),
         position,
         this.camera,
       );

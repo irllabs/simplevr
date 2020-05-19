@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 
-import { AssetInteractor } from 'core/asset/assetInteractor';
+import assetInteractor from 'core/asset/assetInteractor';
 import { getAudioContext } from 'ui/editor/util/audioContextProvider';
 
-
-@Injectable()
-export class AudioPlayService {
+class AudioPlayService {
   private gainNode: GainNode;
   private soundtrack: AudioBufferSourceNode;
   private narrationId: string;
@@ -17,7 +15,7 @@ export class AudioPlayService {
 
   public audioContext: any;
 
-  constructor(private assetInteractor: AssetInteractor) {
+  constructor() {
     const audioContext = getAudioContext();
 
     this.audioContext = audioContext;
@@ -160,7 +158,7 @@ export class AudioPlayService {
   }
 
   getAudioSource(audioAssetId: string): AudioBufferSourceNode {
-    const audioBuffer = this.assetInteractor.getAudioBufferById(audioAssetId);
+    const audioBuffer = assetInteractor.getAudioBufferById(audioAssetId);
 
     if (!audioBuffer) {
       console.log(
@@ -179,3 +177,4 @@ export class AudioPlayService {
   }
 
 }
+export default new AudioPlayService();

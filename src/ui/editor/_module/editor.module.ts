@@ -42,13 +42,10 @@ import { RowItem } from 'ui/editor/modal/story/row-item/row-item';
 import { Story } from 'ui/editor/modal/story/story';
 import { TreeTab } from 'ui/editor/modal/story/tree-tab/tree-tab';
 import { Upload } from 'ui/editor/modal/upload/upload';
-import { AudioManager } from 'ui/editor/preview-space/modules/audioManager';
-import { AudioPlayService } from 'ui/editor/preview-space/modules/audioPlayService';
 import { HotspotManager } from 'ui/editor/preview-space/modules/hotspotManager';
 import { MenuManager } from 'ui/editor/preview-space/modules/menuManager';
 import { MultiViewService } from 'ui/editor/preview-space/modules/multiViewService';
 import { Reticle } from 'ui/editor/preview-space/modules/reticle';
-import { TextureLoader } from 'ui/editor/preview-space/modules/textureLoader';
 // Preview mode
 // TODO: make into separate module
 import { PreviewSpace } from 'ui/editor/preview-space/preview-space/preview-space';
@@ -56,7 +53,6 @@ import { AboutTab } from 'ui/editor/topbar/about/about';
 // Topbar
 import { Topbar } from 'ui/editor/topbar/topbar/topbar';
 import { AudioRecorder } from 'ui/editor/util/audio-recorder/audio-recorder';
-import { AudioRecorderService } from 'ui/editor/util/audioRecorderService';
 import { CloseButton } from 'ui/editor/util/close-button/close-button';
 import { CombinedHotspotUtil } from 'ui/editor/util/combinedHotspotUtil';
 // Util
@@ -66,11 +62,8 @@ import { FileLoaderMulti } from 'ui/editor/util/file-loader-multi/file-loader-mu
 import { FileLoader } from 'ui/editor/util/file-loader/file-loader';
 import { HiddenFileLoader } from 'ui/editor/util/hidden-file-loader/hidden-file-loader';
 import { InfoButton } from 'ui/editor/util/info-button/info-button';
-import { PropertyRemovalService } from 'ui/editor/util/propertyRemovalService';
-import { ResponsiveUtil } from 'ui/editor/util/responsiveUtil';
 import { Slider } from 'ui/editor/util/slider/slider';
 import { SlideshowBuilder } from 'ui/editor/util/slideshowBuilder';
-import { ZipFileReader } from 'ui/editor/util/zipFileReader';
 import { UrlSanitizePipe } from 'ui/editor/util/urlSanitizePipe';
 import { MediaElement} from 'ui/editor/util/audio-element/audio-element';
 import 'ui/editor/util/a-frame/svr-camera';
@@ -200,16 +193,9 @@ const route = RouterModule.forChild([
     DropzoneModule
   ],
   providers: [
-    PropertyRemovalService,
-    ZipFileReader,
-    AudioRecorderService,
     CombinedHotspotUtil,
-    AudioPlayService,
     SlideshowBuilder,
-    ResponsiveUtil,
     MultiViewService,
-    AudioManager,
-    TextureLoader,
     HotspotManager,
     MenuManager,
     Reticle,

@@ -1,12 +1,11 @@
-import { Injectable } from '@angular/core';
 import projectInteractor from 'core/project/projectInteractor';
 import sceneInteractor from 'core/scene/sceneInteractor';
 import storageInteractor from 'core/storage/storageInteractor';
 
 import eventBus from 'ui/common/event-bus';
+import openStoryEvent from 'root/events/open-story-event';
 
-@Injectable()
-export class ZipFileReader {
+class ZipFileReader {
 	loadFile(zipFile: any) {
 		eventBus.onStartLoading();
 		return storageInteractor.deserializeProject(zipFile)
@@ -15,6 +14,8 @@ export class ZipFileReader {
 			projectInteractor.setProject(null);
 			eventBus.onSelectRoom(null, false);
 			eventBus.onStopLoading();
+		}).then(() => {
+			openStoryEvent.emit();
 		})
 		.catch((error) => {
 			const errorMessage: string = `The zip file does not seem to be a properly formatted story file. \n Error received: ${error}`;
@@ -23,3 +24,4 @@ export class ZipFileReader {
 		})
 	}
 }
+export default new ZipFileReader();

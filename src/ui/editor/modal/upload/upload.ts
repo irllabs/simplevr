@@ -7,7 +7,7 @@ import eventBus from 'ui/common/event-bus';
 import fileLoaderUtil from 'ui/editor/util/fileLoaderUtil';
 //added by ali for dragging images in
 import { SlideshowBuilder } from 'ui/editor/util/slideshowBuilder';
-import { ZipFileReader } from 'ui/editor/util/zipFileReader';
+import zipFileReader from 'ui/editor/util/zipFileReader';
 import settingsInteractor from 'core/settings/settingsInteractor'
 
 @Component({
@@ -24,7 +24,6 @@ export class Upload {
   constructor(
     private router: Router,
     private slideshowBuilder: SlideshowBuilder,
-    private zipFileReader: ZipFileReader,
     private element: ElementRef,
   ) {
   }

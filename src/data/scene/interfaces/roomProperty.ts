@@ -16,7 +16,7 @@ export interface RoomProperty {
 
   getTimestamp(): number;
 
-  getIcon(): string;
+  getIcon(ext?): string;
 
   setTimestamp(timestamp: number): RoomProperty;
 

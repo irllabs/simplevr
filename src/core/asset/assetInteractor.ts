@@ -1,11 +1,8 @@
-import { Injectable } from '@angular/core';
-
 import apiService from 'data/api/apiService';
 import assetManager from 'data/asset/assetManager';
 import { Texture } from 'three';
 
-@Injectable()
-export class AssetInteractor {
+class AssetInteractor {
   loadTextures(imageDataList: AssetModel[]): Promise<any> {
     return assetManager.loadTextures(imageDataList);
   }
@@ -22,6 +19,7 @@ export class AssetInteractor {
     return assetManager.getAudioBufferById(id);
   }
 }
+export default new AssetInteractor();
 
 export class AssetModel {
   public id: string;

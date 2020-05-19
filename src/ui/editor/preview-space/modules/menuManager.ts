@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { AssetInteractor } from 'core/asset/assetInteractor';
+import assetInteractor from 'core/asset/assetInteractor';
 import * as THREE from 'three';
 import { THREE_CONST } from 'ui/common/constants';
 import { pol2car } from 'ui/editor/util/iconPositionUtil';
@@ -28,11 +28,6 @@ export class MenuManager {
   private tweenBackActivate: any;
   private reticleRaycast: THREE.Raycaster = new THREE.Raycaster();
   private reitlceRay: THREE.Vector2 = new THREE.Vector2();
-
-  constructor(
-    private assetInteractor: AssetInteractor,
-  ) {
-  }
 
   exists(): boolean {
     //!! cast the existence of this.menu as a boolean
@@ -78,7 +73,7 @@ export class MenuManager {
 
     //back button
     const backBtnGeometry = new THREE.PlaneGeometry(THREE_CONST.HOME_BACK_DIM, THREE_CONST.HOME_BACK_DIM); //need THREE global
-    const backBtnTexture = this.assetInteractor.getTextureById('back');
+    const backBtnTexture = assetInteractor.getTextureById('back');
     const backBtnMaterial = new THREE.MeshBasicMaterial({
       map: backBtnTexture,
       transparent: true,
@@ -93,7 +88,7 @@ export class MenuManager {
 
     //back button ghost, used for raycaster
     const backBtnGeometryG = new THREE.PlaneGeometry(THREE_CONST.HOME_BACK_DIM, THREE_CONST.HOME_BACK_DIM); //need THREE global
-    const backBtnTextureG = this.assetInteractor.getTextureById('back');
+    const backBtnTextureG = assetInteractor.getTextureById('back');
     const backBtnMaterialG = new THREE.MeshBasicMaterial({
       map: backBtnTexture,
       transparent: true,
@@ -127,7 +122,7 @@ export class MenuManager {
 
     //home button
     const homeBtnGeometry = new THREE.PlaneGeometry(THREE_CONST.HOME_BACK_DIM, THREE_CONST.HOME_BACK_DIM);
-    const homeBtnTexture = this.assetInteractor.getTextureById('home');
+    const homeBtnTexture = assetInteractor.getTextureById('home');
     const homeBtnMaterial = new THREE.MeshBasicMaterial({
       map: homeBtnTexture,
       transparent: true,
@@ -140,7 +135,7 @@ export class MenuManager {
     this.homeButtonMesh = homeBtnMesh;
 
     const homeBtnGeometryG = new THREE.PlaneGeometry(THREE_CONST.HOME_BACK_DIM, THREE_CONST.HOME_BACK_DIM);
-    const homeBtnTextureG = this.assetInteractor.getTextureById('home');
+    const homeBtnTextureG = assetInteractor.getTextureById('home');
     const homeBtnMaterialG = new THREE.MeshBasicMaterial({
       map: homeBtnTexture,
       transparent: true,

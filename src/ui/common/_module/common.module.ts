@@ -10,7 +10,6 @@ import { MessageModal } from 'ui/common/modal/message-modal/message-modal';
 // Modal
 import { Modal } from 'ui/common/modal/modal';
 import { ShareableModal } from 'ui/common/modal/shareable-modal/shareable-modal';
-import { ShareableLoader } from 'ui/common/shareable-loader';
 import { TextInputMaterial } from 'ui/common/text-input-material/text-input-material';
 import { TextInput } from 'ui/common/text-input/text-input';
 import { PlayStoryModal } from 'ui/common/modal/play-story-modal/play-story-modal';
@@ -41,7 +40,6 @@ import { PlayStoryModal } from 'ui/common/modal/play-story-modal/play-story-moda
     PlayStoryModal,
   ],
   providers: [
-    ShareableLoader,
   ],
 })
 export class CommonModule {

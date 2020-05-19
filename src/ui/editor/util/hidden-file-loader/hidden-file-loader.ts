@@ -3,7 +3,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
 import eventBus, { EventType } from 'ui/common/event-bus';
-import { ZipFileReader } from 'ui/editor/util/zipFileReader';
+import zipFileReader from 'ui/editor/util/zipFileReader';
 
 
 @Component({
@@ -16,11 +16,6 @@ export class HiddenFileLoader {
   private subscriptions: Set<Subscription> = new Set<Subscription>();
 
   @ViewChild('hiddenLabel') hiddenLabel;
-
-  constructor(
-    private zipFileReader: ZipFileReader,
-  ) {
-  }
 
   ngOnInit() {
     const onEvent: Subscription = eventBus.getObservable(EventType.OPEN_FILE_LOADER)
@@ -42,6 +37,6 @@ export class HiddenFileLoader {
       eventBus.onModalMessage('Error', 'No valid file selected');
       return;
     }
-    this.zipFileReader.loadFile(file);
+    zipFileReader.loadFile(file);
   }
 }

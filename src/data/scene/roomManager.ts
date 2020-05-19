@@ -76,11 +76,7 @@ class RoomManager {
   }
 
   getProjectIsEmpty(): boolean {
-    if (this.rooms.size === 1) {
-      return !Array.from(this.rooms)[0].hasBackgroundImage();
-    } else {
-      return false;
-    }
+    return this.rooms.size === 0;
   }
 
   getProjectTags(): string {

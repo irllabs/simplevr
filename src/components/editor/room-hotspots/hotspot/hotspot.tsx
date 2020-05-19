@@ -8,6 +8,7 @@ import { normalizeAbsolutePosition, denormalizePosition } from 'ui/editor/util/i
 
 import './hotspot.scss';
 import colors from 'root/styles/colors';
+import { ROOM_ICON_BUFFER_WIDTH, ROOM_ICON_BUFFER_HEIGHT } from 'ui/common/constants';
 
 interface HotspotProps {
 	roomProperty: RoomProperty;
@@ -24,6 +25,7 @@ export default class Hotspot extends React.Component<HotspotProps, HotspotState>
 	private _hotspotElementRef = React.createRef<HTMLDivElement>();
 	private _grabbed = false;
 	private _mouseOffset = new Vector2(0, 0);
+	private _screenPosition: Vector2 = new Vector2(0, 0);
 
 	constructor(props: HotspotProps) {
 		super(props);
@@ -61,7 +63,7 @@ export default class Hotspot extends React.Component<HotspotProps, HotspotState>
 		return (
 			<div className='hotspot-container' style={style} onMouseDown={this.onMouseDown} ref={this._hotspotElementRef}>
 				<div className='hotspot-icon-container'>
-					<img draggable={false} src={`icons/${this.props.roomProperty.getIcon()}`}></img>
+					<img draggable={false} src={`icons/${this.props.roomProperty.getIcon('svg')}`}></img>
 				</div>
 				<div className='hotspot-label-container'>
 					<Typography variant={TypographyVariant.TEXT_X_SMALL} color={colors.textDaylight2}>
@@ -75,7 +77,7 @@ export default class Hotspot extends React.Component<HotspotProps, HotspotState>
 	private onMouseDown(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
 		const hotspotContainerRect = this._hotspotElementRef.current.getBoundingClientRect();
 
-		this._grabbed = true;
+		// this._grabbed = true;
 		this._mouseOffset.setPosition(
 			event.clientX - hotspotContainerRect.left,
 			event.clientY - hotspotContainerRect.top,
@@ -115,5 +117,26 @@ export default class Hotspot extends React.Component<HotspotProps, HotspotState>
 
 	private setModelLocation(location: Vector2) {
 		this.props.roomProperty.setLocation(location);
+	}
+
+	public getLocation(): Vector2 {
+		return this.props.roomProperty.getLocation();
+	}
+
+	// Hotspot interface method
+	public setPixelLocationWithBuffer(x: number, y: number) {
+		const adjustedX: number = x - ROOM_ICON_BUFFER_WIDTH;
+		const adjustedY: number = y - ROOM_ICON_BUFFER_HEIGHT;
+		this.setScreenPosition(adjustedX, adjustedY);
+		this.setPixelLocation(adjustedX, adjustedY);
+	}
+
+	setScreenPosition(x: number, y: number) {
+		const shift = {
+			right: x < (280 / 2),
+			left: x > window.innerWidth - (280 / 2),
+			up: y > window.innerHeight - 200,
+		};
+		this._screenPosition.setPosition(x, y);
 	}
 }

@@ -1,28 +1,21 @@
 import { Injectable } from '@angular/core';
-import { AssetInteractor, AssetModel } from 'core/asset/assetInteractor';
+import assetInteractor, { AssetModel } from 'core/asset/assetInteractor';
 
 import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
 import sceneInteractor from 'core/scene/sceneInteractor';
-import { AudioPlayService } from 'ui/editor/preview-space/modules/audioPlayService';
+import audioPlayService from 'ui/editor/preview-space/modules/audioPlayService';
 
-@Injectable()
-export class AudioManager {
+class AudioManager {
 
   private roomBgAudioMap: Map<String, Boolean> = new Map();
   private roomNarrationMap: Map<String, Boolean> = new Map();
 
-  constructor(
-    private assetInteractor: AssetInteractor,
-    private audioPlayService: AudioPlayService,
-  ) {
-  }
-
   public checkAudioContextState() {
-    this.audioPlayService.checkAudioContextState();
+    audioPlayService.checkAudioContextState();
   }
 
   public isAudioContextSuspended() {
-    return this.audioPlayService.isAudioContextSuspended();
+    return audioPlayService.isAudioContextSuspended();
   }
 
   public hasAutoplayAudio(roomId) {
@@ -121,25 +114,25 @@ export class AudioManager {
       .concat(narrationAudios)
       .concat(hotspotAudios);
 
-    return this.assetInteractor.loadAudioBuffers(audioList);
+    return assetInteractor.loadAudioBuffers(audioList);
   }
 
   stopAllAudio(includeSoundtrack: boolean) {
-    this.audioPlayService.stopAll(includeSoundtrack);
+    audioPlayService.stopAll(includeSoundtrack);
   }
 
   playSoundtrack() {
     const soundtrack = metaDataInteractor.getSoundtrack();
 
     if (soundtrack.hasAsset()) {
-      this.audioPlayService.playSoundtrack('soundtrack', soundtrack.getVolume());
+      audioPlayService.playSoundtrack('soundtrack', soundtrack.getVolume());
     }
   }
 
   playBackgroundAudio() {
     if (this.roomBgAudioMap.get(sceneInteractor.getActiveRoomId())) {
       const BackgroundAudioId: string = sceneInteractor.getActiveRoomId() + 'b';
-      this.audioPlayService.playBgAudio(BackgroundAudioId);
+      audioPlayService.playBgAudio(BackgroundAudioId);
     }
   }
 
@@ -147,7 +140,8 @@ export class AudioManager {
     if (this.roomNarrationMap.get(sceneInteractor.getActiveRoomId())) {
       const narrationId: string = sceneInteractor.getActiveRoomId() + 'n';
 
-      this.audioPlayService.playNarrationAudio(narrationId);
+      audioPlayService.playNarrationAudio(narrationId);
     }
   }
 }
+export default new AudioManager();

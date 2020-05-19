@@ -3,7 +3,7 @@ import sceneInteractor from 'core/scene/sceneInteractor';
 
 import { Room } from 'data/scene/entities/room';
 
-import { PropertyRemovalService } from 'ui/editor/util/propertyRemovalService';
+import propertyRemovalService from 'ui/editor/util/propertyRemovalService';
 import { RoomPropertyTypeService } from 'ui/editor/util/roomPropertyTypeService';
 
 @Component({
@@ -26,7 +26,6 @@ export class StorymapItem {
   private inspectorIsVisible = false;
 
   constructor(
-    private propertyRemovalService: PropertyRemovalService,
     protected ngZone: NgZone,
   ) {
   }
@@ -40,7 +39,7 @@ export class StorymapItem {
     if (this.isHomeRoom()) {
       sceneInteractor.setHomeRoomId(null);
     }
-    this.propertyRemovalService.removeProperty(this.roomProperty);
+    propertyRemovalService.removeProperty(this.roomProperty);
   }
 
   onInfoClick($event) {

@@ -11,7 +11,7 @@ import { Hotspot } from 'ui/editor/interfaces/hotspot';
 import { CombinedHotspotUtil } from 'ui/editor/util/combinedHotspotUtil';
 
 import { denormalizePosition, normalizeAbsolutePosition } from 'ui/editor/util/iconPositionUtil';
-import { PropertyRemovalService } from 'ui/editor/util/propertyRemovalService';
+import propertyRemovalService from 'ui/editor/util/propertyRemovalService';
 import { RoomPropertyTypeService } from 'ui/editor/util/roomPropertyTypeService';
 import metaDataInteractor from '../../../../../core/scene/projectMetaDataInteractor';
 import { debug } from 'util';
@@ -92,7 +92,6 @@ export class RoomIcon implements Hotspot {
   private YPosition: number;
 
   constructor(
-    private propertyRemovalService: PropertyRemovalService,
     private combinedHotspotUtil: CombinedHotspotUtil,
     protected ngZone: NgZone,
     private element: ElementRef,
@@ -420,7 +419,7 @@ export class RoomIcon implements Hotspot {
   }
 
   onDeleteClick($event) {
-    this.propertyRemovalService.removeProperty(this.roomProperty);
+    propertyRemovalService.removeProperty(this.roomProperty);
   }
 
   onMouseOver($event) {

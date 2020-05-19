@@ -9,15 +9,15 @@ import { Vector2 } from 'data/scene/entities/vector2';
 import { resizeImage } from 'data/util/imageResizeService';
 import { Subscription } from 'rxjs/Subscription';
 import eventBus, { EventType } from 'ui/common/event-bus';
-import { ShareableLoader } from 'ui/common/shareable-loader';
+import shareableLoader from 'ui/common/shareable-loader';
 
 import { EditSpaceSphere } from 'ui/editor/edit-space/edit-space-sphere/edit-space-sphere';
 import fileLoaderUtil, { mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
 import { normalizeAbsolutePosition } from 'ui/editor/util/iconPositionUtil';
 import { SHARED_KEY } from 'ui/editor/util/publicLinkHelper';
-import { ResponsiveUtil } from 'ui/editor/util/responsiveUtil';
+import responsiveUtil from 'ui/editor/util/responsiveUtil';
 import { SlideshowBuilder } from 'ui/editor/util/slideshowBuilder';
-import { ZipFileReader } from 'ui/editor/util/zipFileReader';
+import zipFileReader from 'ui/editor/util/zipFileReader';
 
 @Component({
   selector: 'editor',
@@ -36,14 +36,11 @@ export class Editor {
   private editSpaceSphere: EditSpaceSphere;
 
   constructor(
-    private zipFileReader: ZipFileReader,
     private slideshowBuilder: SlideshowBuilder,
     private videoInteractor: VideoInteractor,
     private route: ActivatedRoute,
     private router: Router,
-    private shareableLoader: ShareableLoader,
     private element: ElementRef,
-    private responsiveUtil: ResponsiveUtil,
   ) {
   }
 
@@ -53,7 +50,7 @@ export class Editor {
       .filter(value => !!value)
       .subscribe(
         sharableValue => {
-          setTimeout(() => this.shareableLoader.openProject(sharableValue));
+          setTimeout(() => shareableLoader.openProject(sharableValue));
         },
         error => console.log('error', error),
       );
@@ -142,7 +139,7 @@ export class Editor {
   }
 
   private hotspotMenuIsVisible(): boolean {
-    if (this.responsiveUtil.isMobile()) {
+    if (responsiveUtil.isMobile()) {
       return this.hasBackgroundImage()
         && !this.isPreview()
         && !this.hotspotEditorIsOpen;
@@ -160,7 +157,7 @@ export class Editor {
   }
 
   private viewToggleIsVisibleOLD(): boolean {
-    if (this.responsiveUtil.isMobile()) {
+    if (responsiveUtil.isMobile()) {
       return this.hasBackgroundImage()
         && !this.hotspotMenuIsOpen
         && !this.hotspotEditorIsOpen;
@@ -169,7 +166,7 @@ export class Editor {
   }
 
   private roomEditorIsVisible(): boolean {
-    if (this.responsiveUtil.isMobile()) {
+    if (responsiveUtil.isMobile()) {
       return this.hasBackgroundImage()
         && !this.isPreview()
         && !this.hotspotMenuIsOpen
@@ -295,7 +292,7 @@ export class Editor {
       },
 
       zip: (file, binaryFileData, position) => {
-        this.zipFileReader.loadFile(file);
+        zipFileReader.loadFile(file);
         //TODO: set as read - write
       },
 

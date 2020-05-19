@@ -78,7 +78,7 @@ export class Universal extends BaseElement {
     this._imageContent.setRemoteFile(null);
   }
 
-  getIcon(): string {
+  getIcon(ext?): string {
     const parts = [];
 
     if (this.imageContent.hasAsset()) {
@@ -93,7 +93,7 @@ export class Universal extends BaseElement {
       parts.push('audio');
     }
 
-    return `icon-${parts.length > 0 ? parts.join('-') : 'add'}.svg`;
+    return `icon-${parts.length > 0 ? parts.join('-') : 'add'}.${ext || 'png'}`;
   }
 
   toJson() {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AssetInteractor, AssetModel } from 'core/asset/assetInteractor';
+import assetInteractor, { AssetModel } from 'core/asset/assetInteractor';
 
 import sceneInteractor from 'core/scene/sceneInteractor';
 import { ICON_PATH, IMAGE_PATH } from 'ui/common/constants';
@@ -16,13 +16,7 @@ const iconPaths: AssetModel[] = [
   new AssetModel('imageMask', 'imageMask', `${IMAGE_PATH}image-mask_1920.jpg`),
 ];
 
-@Injectable()
-export class TextureLoader {
-
-  constructor(
-    private assetInteractor: AssetInteractor,
-  ) {
-  }
+class TextureLoader {
 
   load(): Promise<any> {
     const backgroundImages = sceneInteractor.getRoomIds()
@@ -69,6 +63,7 @@ export class TextureLoader {
     const imageList = backgroundImages
       .concat(hotspotImages)
       .concat(iconPaths);
-    return this.assetInteractor.loadTextures(imageList);
+    return assetInteractor.loadTextures(imageList);
   }
 }
+export default new TextureLoader();

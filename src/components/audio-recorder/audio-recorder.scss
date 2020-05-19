@@ -1,0 +1,13 @@
+@import '../../ui/_styles/variables';
+@import '../../ui/editor/bottombar/edit-space-toggle/circle-beacon';
+
+.audio-recorder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: $color-pink-dark;
+  text-align: center;
+  cursor: pointer;
+  line-height: 36px;
+  position: relative;
+}

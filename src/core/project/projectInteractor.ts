@@ -293,7 +293,7 @@ class ProjectInteractor {
 		for (let i = 0; i < mediaFiles.length; i++) {
 			const mediaFile: MediaFile = mediaFiles[i];
 
-			const task = this._storage.ref().put(mediaFile.getBlob());
+			const task = this._storage.ref(mediaFile.getRemoteFile()).put(mediaFile.getBlob());
 
 			uploadPromises.push(task
 				.then(() => {

@@ -1,7 +1,4 @@
-import { Injectable } from '@angular/core';
-
-@Injectable()
-export class ResponsiveUtil {
+class ResponsiveUtil {
 
   private screenWidth: number;
 
@@ -15,3 +12,4 @@ export class ResponsiveUtil {
   }
 
 }
+export default new ResponsiveUtil();

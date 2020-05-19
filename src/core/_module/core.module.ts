@@ -1,6 +1,5 @@
 // external imports
 import { NgModule } from '@angular/core';
-import { AssetInteractor } from 'core/asset/assetInteractor';
 import { ChatInteractor } from 'core/chat/chatInteractor';
 import { GroupInteractor } from 'core/group/groupInteractor';
 import { CameraInteractor } from 'core/scene/cameraInteractor';
@@ -17,7 +16,6 @@ import { DataModule } from 'data/_module/data.module';
   ],
   providers: [
     CameraInteractor,
-    AssetInteractor,
     VideoInteractor,
     SearchInteractor,
     GroupInteractor,

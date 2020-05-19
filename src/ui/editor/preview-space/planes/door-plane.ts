@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { THREE_CONST } from 'ui/common/constants';
 import BasePlane from "./base-plane";
 import {Door} from "data/scene/entities/door";
+import assetInteractor from 'core/asset/assetInteractor';
 
 
 export default class DoorPlane extends BasePlane {
@@ -16,7 +17,7 @@ export default class DoorPlane extends BasePlane {
   }
 
   protected hoverIconTexture() {
-    return this.assetInteractor.getTextureById(this.type);
+    return assetInteractor.getTextureById(this.type);
   }
 
   protected get_activate_duration(defaultDuration): number {

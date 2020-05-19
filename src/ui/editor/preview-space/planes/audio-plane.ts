@@ -1,24 +1,22 @@
-import { AudioPlayService } from '../modules/audioPlayService';
+import audioPlayService from '../modules/audioPlayService';
 import BasePlane from './base-plane';
 
 
 export default class AudioPlane extends BasePlane {
-  private audioPlayService: AudioPlayService;
   private audioBufferSourceNode: AudioBufferSourceNode;
 
   protected _hasPlaneMesh: boolean = false;
 
-  public init(audioPlayService: AudioPlayService) {
-    this.audioPlayService = audioPlayService;
+  public init() {
   }
 
   public onActivated() {
-    this.audioBufferSourceNode = this.audioPlayService.playHotspotAudio(this.prop.getId());
+    this.audioBufferSourceNode = audioPlayService.playHotspotAudio(this.prop.getId());
   }
 
   public onDeactivated() {
     if (this.audioBufferSourceNode) {
-      this.audioPlayService.stopPlaying(this.audioBufferSourceNode);
+      audioPlayService.stopPlaying(this.audioBufferSourceNode);
     }
   }
 }

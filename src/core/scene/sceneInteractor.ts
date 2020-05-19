@@ -10,14 +10,17 @@ import metaDataInteractor from './projectMetaDataInteractor';
 import eventBus from '../../ui/common/event-bus';
 import assetManager from './../../data/asset/assetManager';
 
+import openModalEvent, { OpenModalEventData } from 'root/events/open-modal-event';
+import { hotspotRemovedEvent, roomsUpdatedEvent } from 'root/events/event-manager';
+
 class SceneInteractor {
 	private _activeRoomId: string;
 
-	constructor() {
+	/*constructor() {
 		if (!this.getRoomIds().length) {
 			this.addRoom(true);
 		}
-	}
+	}*/
 
 	public isLoadedAssets() {
 		const rooms = Array.from(roomManager.getRooms());
@@ -78,15 +81,14 @@ class SceneInteractor {
 			console.warn('user should not be allowed to remove last room');
 			return;
 		}
-		eventBus.onModalMessage(
-			'',
-			'Do you want to delete the room?',
-			true,
-			// modal dismissed callback
-			() => {
-			},
-			// modal accepted callback
-			() => {
+
+		openModalEvent.emitAsync({
+			bodyText: 'Do you want to delete the room?',
+			headerText: '',
+			isMessage: true,
+			modalType: 'message',
+		}).then((accepted) => {
+			if (accepted) {
 				this._activeRoomId = null;
 				roomManager.removeRoomById(roomId);
 
@@ -100,9 +102,10 @@ class SceneInteractor {
 					}, [])
 					.forEach(door => door.reset());
 
-					metaDataInteractor.onProjectChanged();
-			},
-		);
+				metaDataInteractor.onProjectChanged();
+				roomsUpdatedEvent.emit({});
+			}
+		});
 	}
 
 	getActiveRoomId(): string {
@@ -162,6 +165,17 @@ class SceneInteractor {
 
 	removeUniversal(roomId: string, universal: Universal) {
 		if (universal.hasData) {
+			openModalEvent.emitAsync({
+				bodyText: 'Do you want to delete the hotspot?',
+				headerText: '',
+				isMessage: true,
+				modalType: 'message'
+			}).then((accepted) => {
+				if (accepted) {
+					this._removeUniversal(roomId, universal);
+				}
+			});
+
 			eventBus.onModalMessage(
 				'',
 				'Do you want to delete the hotspot?',
@@ -182,6 +196,8 @@ class SceneInteractor {
 	_removeUniversal(roomId: string, universal: Universal) {
 		this.getRoomById(roomId).removeUniversal(universal);
 		metaDataInteractor.onProjectChanged();
+
+		hotspotRemovedEvent.emit({});
 	}
 
 	addDoor(roomId: string): Door {

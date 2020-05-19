@@ -6,6 +6,7 @@ import userInteractor from 'core/user/userInteractor';
 import eventBus from 'ui/common/event-bus';
 
 import './unauth-user-tab.scss';
+import openModalEvent from 'root/events/open-modal-event';
 
 interface UnauthUserTabState {
 	email: string;
@@ -86,10 +87,12 @@ export default class UnauthUserTab extends React.Component<{}, UnauthUserTabStat
 
 	private onOpenClick() {
 		if (!userInteractor.isLoggedIn()) {
-			eventBus.onModalMessage(
-				"Error",
-				"You must be logged in to download as .zip"
-			);
+			openModalEvent.emit({
+				headerText: "Error",
+				bodyText: "You must be logged in to download as .zip",
+				isMessage: false,
+				modalType: 'message'
+			});
 			return;
 		}
 	

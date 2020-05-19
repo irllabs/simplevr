@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, NgZone, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AssetInteractor } from 'core/asset/assetInteractor';
+import assetInteractor from 'core/asset/assetInteractor';
 
 import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
 import sceneInteractor from 'core/scene/sceneInteractor';
@@ -8,10 +8,10 @@ import { Room } from 'data/scene/entities/room';
 import * as THREE from 'three';
 
 
-import { AudioManager } from 'ui/editor/preview-space/modules/audioManager';
+import audioManager from 'ui/editor/preview-space/modules/audioManager';
 import fontHelper from 'ui/editor/preview-space/modules/fontHelper';
 import { HotspotManager } from 'ui/editor/preview-space/modules/hotspotManager';
-import { TextureLoader } from 'ui/editor/preview-space/modules/textureLoader';
+import textureLoader from 'ui/editor/preview-space/modules/textureLoader';
 
 import { DomSanitizer } from '@angular/platform-browser';
 import roomManager from 'data/scene/roomManager';
@@ -46,11 +46,8 @@ export class PreviewSpace {
   private autoplaySounds:boolean = true;
   
   constructor(
-    private assetInteractor: AssetInteractor,
     private route: ActivatedRoute,
     private router: Router,
-    private audioManager: AudioManager,
-    private textureLoader: TextureLoader,
     private ref: ChangeDetectorRef,
     private sanitizer: DomSanitizer,
   ) {
@@ -107,8 +104,8 @@ export class PreviewSpace {
 
   initWorld(){
     Promise.all([
-      this.audioManager.loadBuffers(),
-      this.textureLoader.load(),
+      audioManager.loadBuffers(),
+      textureLoader.load(),
       fontHelper.load(),
     ])
       .then(() => {

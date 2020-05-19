@@ -3,7 +3,7 @@ import { AfterViewInit, Component, NgZone, ViewChild, Input, ChangeDetectionStra
 import { getCoordinatePosition } from 'ui/editor/util/iconPositionUtil';
 import { Universal } from 'data/scene/entities/universal';
 import { getTextureSizeFromText } from 'ui/editor/preview-space/modules/textMaterialBuilder';
-import { AssetInteractor } from 'core/asset/assetInteractor';
+import assetInteractor from 'core/asset/assetInteractor';
 import { fitToMax } from 'data/util/imageResizeService';
 import { ICON_PATH } from 'ui/common/constants';
 
@@ -26,7 +26,6 @@ export class Hotspot implements AfterViewInit {
   @ViewChild('assetAudio') assetAudio: any;
 
   constructor(
-    private assetInteractor: AssetInteractor,
     private ngZone: NgZone
   ) {
   }
@@ -96,7 +95,7 @@ export class Hotspot implements AfterViewInit {
     canvas.height = height;
 
     if (hasImageContent) {
-      const imageTexture = this.assetInteractor.getTextureById(hotspot.getId());
+      const imageTexture = assetInteractor.getTextureById(hotspot.getId());
       const imgWidth = imageTexture.image.width;
       const imgHeight = imageTexture.image.height;
       const adjustedWidth = imgWidth >= imgHeight && width > 0 ? width : imgWidth;

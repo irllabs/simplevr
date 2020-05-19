@@ -5,7 +5,7 @@ import { resizeImage } from 'data/util/imageResizeService';
 import eventBus from 'ui/common/event-bus';
 import fileLoaderUtil, { mimeTypeMap } from 'ui/editor/util/fileLoaderUtil';
 import { SlideshowBuilder } from 'ui/editor/util/slideshowBuilder';
-import { ZipFileReader } from 'ui/editor/util/zipFileReader';
+import zipFileReader from 'ui/editor/util/zipFileReader';
 import settingsInteractor from 'core/settings/settingsInteractor'
 
 
@@ -19,7 +19,6 @@ export class DefaultOverlay {
   @Output() onFileLoad = new EventEmitter();
 
   constructor(
-    private zipFileReader: ZipFileReader,
     private slideshowBuilder: SlideshowBuilder,
   ) {
   }
@@ -108,7 +107,7 @@ export class DefaultOverlay {
   }
 
   private loadZipFile(file) {
-    this.zipFileReader.loadFile(file);
+    zipFileReader.loadFile(file);
   }
 
 }

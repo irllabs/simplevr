@@ -5,7 +5,7 @@ import projectInteractor from 'core/project/projectInteractor';
 import { SearchInteractor } from 'core/search/searchInteractor';
 import userInteractor from 'core/user/userInteractor';
 import { GROUP_TYPE } from 'ui/common/constants';
-import { ShareableLoader } from 'ui/common/shareable-loader';
+import shareableLoader from 'ui/common/shareable-loader';
 
 @Component({
   selector: 'admin-search-explore',
@@ -22,7 +22,6 @@ export class AdminSearchExplore {
 
   constructor(
     private searchInteractor: SearchInteractor,
-    private shareableLoader: ShareableLoader,
   ) {
   }
 
@@ -61,7 +60,7 @@ export class AdminSearchExplore {
   }
 
   onProjectClick(projectUrl: string) {
-    this.shareableLoader.openDecodedProject(projectUrl);
+    shareableLoader.openDecodedProject(projectUrl);
   }
 
   searchPublicProjects(query: string) {

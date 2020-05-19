@@ -5,8 +5,9 @@ import './text-input-material.scss';
 interface TextInputMaterialProps {
 	inputLabel: string;
 	inputType?: string;
+	className?: string;
 	onTextChange: (text: string) => void;
-	onBlurEvent?: () => void;
+	onBlurEvent?: (data?: any) => void;
 }
 
 interface TextInputMaterialState {
@@ -26,7 +27,7 @@ export default class TextInputMaterial extends React.Component<TextInputMaterial
 
 	public render() {
 		return (
-			<div className="text-input-material">
+			<div className={`text-input-material ${this.props.className ? this.props.className : ''}`}>
 				<input
 					type={this.props.inputType}
 					value={this.state.text}
@@ -48,6 +49,8 @@ export default class TextInputMaterial extends React.Component<TextInputMaterial
 		this.setState({
 			text: event.target.value
 		});
+
+		this.props.onTextChange(event.target.value);
 	}
 
 	private onBlur() {

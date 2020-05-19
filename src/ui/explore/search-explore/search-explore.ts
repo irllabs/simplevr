@@ -3,7 +3,7 @@ import { AngularFireStorage } from 'angularfire2/storage';
 
 import projectInteractor from 'core/project/projectInteractor';
 import { SearchInteractor } from 'core/search/searchInteractor';
-import { ShareableLoader } from 'ui/common/shareable-loader';
+import shareableLoader from 'ui/common/shareable-loader';
 
 @Component({
   selector: 'search-explore',
@@ -18,7 +18,6 @@ export class SearchExplore {
 
   constructor(
     private searchInteractor: SearchInteractor,
-    private shareableLoader: ShareableLoader,
     public afStorage: AngularFireStorage,
   ) {
   }
@@ -46,7 +45,7 @@ export class SearchExplore {
   }
 
   openProject(projectUrl: string) {
-    this.shareableLoader.openDecodedProject(projectUrl);
+    shareableLoader.openDecodedProject(projectUrl);
   }
 
   searchPublicProjects(query: string) {

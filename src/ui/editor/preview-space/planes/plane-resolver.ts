@@ -1,4 +1,4 @@
-import { AssetInteractor } from 'core/asset/assetInteractor';
+import assetInteractor from 'core/asset/assetInteractor';
 import { Audio } from 'data/scene/entities/audio';
 import { Door } from 'data/scene/entities/door';
 import { Image } from 'data/scene/entities/image';
@@ -18,36 +18,36 @@ import VideoPlane from './video-plane';
 
 
 export default class PlaneResolver {
-  static resolve(roomProperty: any, camera: THREE.PerspectiveCamera, assetInteractor: AssetInteractor, services: any) {
+  static resolve(roomProperty: any, camera: THREE.PerspectiveCamera, services: any) {
     switch (RoomPropertyTypeService.getTypeString(roomProperty)) {
       case 'image': {
-        return new ImagePlane(roomProperty as Image, camera, assetInteractor);
+        return new ImagePlane(roomProperty as Image, camera);
       }
       case 'text': {
-        return new TextPlane(roomProperty as Text, camera, assetInteractor);
+        return new TextPlane(roomProperty as Text, camera);
       }
       case 'video': {
-        return new VideoPlane(roomProperty as Video, camera, assetInteractor);
+        return new VideoPlane(roomProperty as Video, camera);
       }
       case 'universal': {
-        const plane = new UniversalPlane(roomProperty as Universal, camera, assetInteractor);
+        const plane = new UniversalPlane(roomProperty as Universal, camera);
 
-        plane.init(services.audioPlayService);
+        plane.init();
 
         return plane;
       }
       case 'link': {
-        return new LinkPlane(roomProperty as Link, camera, assetInteractor);
+        return new LinkPlane(roomProperty as Link, camera);
       }
       case 'audio': {
-        const plane = new AudioPlane(roomProperty as Audio, camera, assetInteractor);
+        const plane = new AudioPlane(roomProperty as Audio, camera);
 
-        plane.init(services.audioPlayService);
+        plane.init();
 
         return plane;
       }
       case 'door': {
-        const plane = new DoorPlane(roomProperty as Door, camera, assetInteractor);
+        const plane = new DoorPlane(roomProperty as Door, camera);
 
         plane.init(services.position, services.goToRoom);
 

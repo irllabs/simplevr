@@ -13,8 +13,10 @@ const URL_SHORTENER_URL: string = `https://firebasedynamiclinks.googleapis.com/v
 
 class ApiService implements Api {
 	public async loadBinaryData(url: string) {
-		const response = await Axios.get(url);
-		return response.data.map(response => response.arrayBuffer());
+		const response = await Axios.get(url, {
+			responseType: 'arraybuffer'
+		});
+		return response.data;
 	}
 
 	// GET /admin_groups/groupName
@@ -67,8 +69,7 @@ class ApiService implements Api {
 			"option": "SHORT"
 			}
 		});
-		return reponse.data.map(response => response.json())
-		.map(responseJson => responseJson.shortLink);
+		return reponse.data.shortLink;
 	}
 
 	// public getShortenedUrl(url: string): Observable<any> {

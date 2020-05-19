@@ -1,6 +1,6 @@
 import { Component, NgZone, ViewChild, ViewChildren, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { AssetInteractor, AssetModel } from 'core/asset/assetInteractor';
+import assetInteractor, { AssetModel } from 'core/asset/assetInteractor';
 import { CameraInteractor } from 'core/scene/cameraInteractor';
 import metaDataInteractor from 'core/scene/projectMetaDataInteractor';
 import sceneInteractor from 'core/scene/sceneInteractor';
@@ -54,7 +54,6 @@ export class EditSpaceSphere {
 		private cameraInteractor: CameraInteractor,
 		private ngZone: NgZone,
 		private combinedHotspotUtil: CombinedHotspotUtil,
-		private assetInteractor: AssetInteractor,
 		private router: Router,
 	) {
 
@@ -105,7 +104,7 @@ export class EditSpaceSphere {
 	initRoom() {
 		const roomId = sceneInteractor.getActiveRoomId();
 		const room = sceneInteractor.getRoomById(roomId);
-		const sphereTexture = this.assetInteractor.getTextureById(roomId);
+		const sphereTexture = assetInteractor.getTextureById(roomId);
 
 		this.sky = sphereTexture.image.currentSrc;
 
@@ -134,7 +133,7 @@ export class EditSpaceSphere {
 				}
 				return new AssetModel(room.getId(), room.getFileName(), imagePath);
 			});
-		return this.assetInteractor.loadTextures(imageList);
+		return assetInteractor.loadTextures(imageList);
 	}
 
 	protected subscribeToEvents() {

@@ -1,12 +1,10 @@
-import { Injectable } from '@angular/core';
 import { getAudioContext } from 'ui/editor/util/audioContextProvider';
 
 import fileLoaderUtil from 'ui/editor/util/fileLoaderUtil';
 
 const Recorder = require('recorderjs');
 
-@Injectable()
-export class AudioRecorderService {
+class AudioRecorderService {
 
   private recorder;
   private audioNodes;
@@ -48,7 +46,7 @@ export class AudioRecorderService {
     return this.frequencyDataArray;
   }
 }
-
+export default new AudioRecorderService();
 
 function getMicAudioNode(audioContext): Promise<any> {
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {

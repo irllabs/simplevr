@@ -1,5 +1,3 @@
-import { Injectable } from '@angular/core';
-
 import sceneInteractor from 'core/scene/sceneInteractor';
 import { Door } from 'data/scene/entities/door';
 
@@ -7,13 +5,14 @@ import { Universal } from 'data/scene/entities/universal';
 import { RoomProperty } from 'data/scene/interfaces/roomProperty';
 import eventBus from 'ui/common/event-bus';
 import { RoomPropertyTypeService } from 'ui/editor/util/roomPropertyTypeService';
+import { roomsUpdatedEvent, hotspotRemovedEvent } from 'root/events/event-manager';
 
-
-@Injectable()
-export class PropertyRemovalService {
+class PropertyRemovalService {
   removeProperty(roomProperty: RoomProperty) {
     const propertyType: string = RoomPropertyTypeService.getTypeString(roomProperty);
     this.removePropertyStrategy(propertyType, roomProperty);
+
+    hotspotRemovedEvent.emit({});
   }
 
   private removePropertyStrategy(propertyType: string, roomProperty: RoomProperty) {
@@ -45,3 +44,4 @@ export class PropertyRemovalService {
     eventBus.onHotspotVisibility(false);
   }
 }
+export default new PropertyRemovalService();

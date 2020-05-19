@@ -1,17 +1,22 @@
 import React from 'react';
 import eventBus from 'ui/common/event-bus';
 import fileLoaderUtil from 'ui/editor/util/fileLoaderUtil';
+import { generateUniqueId } from 'data/util/uuid';
+import { resolve } from 'path';
 
 import './file-loader.scss';
 
 interface FileLoaderProps {
-	displayText: string;
+	displayText?: string;
 	acceptedFileType: string;
-	maxFileSize: number;
-	onFileLoad: (data, file) => void;
+	maxFileSize?: number;
+	onFileLoad: (data) => void;
+	className?: string;
 }
 
 export default class FileLoader extends React.Component<FileLoaderProps, {}> {
+	private inputId = generateUniqueId();
+
 	constructor(props: FileLoaderProps) {
 		super(props);
 
@@ -20,17 +25,18 @@ export default class FileLoader extends React.Component<FileLoaderProps, {}> {
 
 	public render() {
 		return (
-			<div className='file-loader'>
+			<div className={`file-loader ${this.props.className ? this.props.className : ''}`}>
 				<input
 					type="file"
-					id="inputId"
+					id={this.inputId}
 					onChange={this.onFileChange}
-					className="file-loader__hidden-input" />
+					className="file-loader__hidden-input"
+				/>
 
 				<label
-					id="inputId"
+					id={this.inputId}
 					className="button-full-width"
-					htmlFor='inputId'>
+					htmlFor={this.inputId}>
 						{this.props.displayText}
 				</label>
 			</div>
@@ -58,7 +64,10 @@ export default class FileLoader extends React.Component<FileLoaderProps, {}> {
 		fileLoaderUtil.validateFileLoadEvent(file, this.props.acceptedFileType)
 		.then(fileLoaderUtil.getBinaryFileData.bind(fileLoaderUtil))
 		.then(fileData => {
-			this.props.onFileLoad(fileData, file);
+			this.props.onFileLoad({
+				binaryFileData: fileData,
+				file: file,
+			});
 		})
 		.catch(error => eventBus.onModalMessage('Error', error));
 	}

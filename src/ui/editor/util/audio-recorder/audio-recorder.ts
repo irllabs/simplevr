@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, NgZone, Output, ViewChild } from '@angular/core';
 import { generateUniqueId } from 'data/util/uuid';
 
-import { AudioRecorderService } from 'ui/editor/util/audioRecorderService';
+import audioRecorderService from 'ui/editor/util/audioRecorderService';
 import settingsInteractor from 'core/settings/settingsInteractor';
 
 //this should really refer to colors inn our variables.scss file
@@ -30,7 +30,6 @@ export class AudioRecorder {
   //private isAnimating: boolean = false;
 
   constructor(
-    private audioRecorderService: AudioRecorderService,
     private ngZone: NgZone,
   ) {
   }
@@ -39,7 +38,7 @@ export class AudioRecorder {
     // cancel current recording
     //this.isAnimating = false;
     if (this.isRecording) {
-      this.audioRecorderService.stopRecording()
+      audioRecorderService.stopRecording()
         .then(dataUrl => {
         })
         .catch(error => console.error(error));
@@ -95,7 +94,7 @@ export class AudioRecorder {
     console.log('recording')
     this.isRecording = true;
     this.timerCounter = settingsInteractor.settings.maxClipDuration;
-    this.audioRecorderService.startRecording()
+    audioRecorderService.startRecording()
       .then(resolve => {
         //this.isAnimating = true;
         this.ngZone.runOutsideAngular(this.animateRecordButton.bind(this));
@@ -115,7 +114,7 @@ export class AudioRecorder {
     //this.isAnimating = false;
     this.isRecording = false;
     this.clearTimer()
-    this.audioRecorderService.stopRecording()
+    audioRecorderService.stopRecording()
       .then(dataUrl => {
         const uniqueId: string = generateUniqueId();
 
@@ -131,7 +130,7 @@ export class AudioRecorder {
 
   private animateRecordButton() {
     if (!this.isRecording) return;
-    const windowFrequencyData = this.audioRecorderService.getFrequencyData();
+    const windowFrequencyData = audioRecorderService.getFrequencyData();
     const histogramSum = windowFrequencyData.reduce((sum, item) => sum + item, 0);
     const meanValue = histogramSum / windowFrequencyData.length;
     const normalValue = Math.min(meanValue, 100) / 100;

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { AssetInteractor } from 'core/asset/assetInteractor';
+import assetInteractor from 'core/asset/assetInteractor';
 import sceneInteractor from 'core/scene/sceneInteractor';
 import * as THREE from 'three';
-import { AudioPlayService } from 'ui/editor/preview-space/modules/audioPlayService';
+import audioPlayService from 'ui/editor/preview-space/modules/audioPlayService';
 
 import HotspotEntity, { HOTSPOT_ANIM_STATES } from 'ui/editor/preview-space/modules/HotspotEntity';
 import PlaneResolver from '../planes/plane-resolver';
@@ -15,12 +15,6 @@ export class HotspotManager {
   private hotspotMap: Map<String, HotspotEntity> = new Map();
   private onRoomChange: Function;
 
-  constructor(
-    private assetInteractor: AssetInteractor,
-    private audioPlayService: AudioPlayService,
-  ) {
-  }
-
   load(scene: THREE.Scene, camera: THREE.PerspectiveCamera, onRoomChange: Function) {
     this.onRoomChange = onRoomChange;
     this.cleanMaps(scene);
@@ -30,8 +24,8 @@ export class HotspotManager {
 
     sceneInteractor.getRoomProperties(roomId).forEach((roomProperty) => {
       //add to hotspotEntity map
-      const plane = PlaneResolver.resolve(roomProperty, camera, this.assetInteractor, {
-        audioPlayService: this.audioPlayService,
+      const plane = PlaneResolver.resolve(roomProperty, camera, {
+        audioPlayService: audioPlayService,
         goToRoom: onRoomChange,
       });
       const hotspotEntity = new HotspotEntity(plane);

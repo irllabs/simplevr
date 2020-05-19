@@ -1,4 +1,5 @@
 @import './../../styles/backdrop.scss';
+@import '../../ui/_styles/variables';
 
 .editor-container {
 	@include backdrop();
@@ -8,4 +9,184 @@
 	position: absolute;
 	left: 120px;
 	bottom: 24px;
+}
+
+
+$half-icon-size: $room-icon-size / 2;
+
+.editor {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.editor__hotspot-menu {
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 16px;
+  left: 0;
+}
+
+.editor__topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.editor__toggle {
+  position: absolute;
+  top: calc(50% - #{$room-icon-size});
+  right: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.editor_center {
+  background-color: rgba(136, 136, 136, .60);
+  padding: 8px 8px;
+  border-radius: 0px 0px 4px 4px;
+  position: absolute;
+  top: 0%;
+  left: 50%;
+  display: flex;
+  flex-direction: row;
+  align-items: space-between;
+  transform: translate(-50%, 0%);
+  @include breakpoint(xs) {
+    padding: 1px 4px;
+    border-radius: 0px 0px 4px 4px;
+    left: 52%;
+    font-size: 14px;
+  }
+  @include breakpoint(xxs) {
+    padding: 1px 4px;
+    border-radius: 0px 0px 4px 4px;
+    margin-top: -2px;
+    left: 49%;
+  }
+
+}
+
+.editor_center1 {
+  display: none;
+}
+
+.editor_center > div {
+  margin: 8px 16px 8px 16px; /* and that, will result in a 10px gap */
+}
+
+.editor__editPlayToggle {
+  /*
+  top:0;
+  position: absolute;
+  left:50%;
+  */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  &:hover {
+    opacity: 1;
+
+  }
+}
+
+.editor__edit2D3DToggle {
+  /*
+    top:0;
+    position: absolute;
+    left: 60%;
+    */
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  &:hover {
+    opacity: 1;
+
+  }
+}
+
+.center-panel {
+  font-size: $tiny-font-size;
+  font-weight: $semi-bold;
+  color: $color-white;
+}
+
+.editor__2d3d {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 3px;
+}
+
+.editor__2d3d {
+  margin-left: 3px;
+  margin-right: 3px;
+  opacity: 0.5;
+}
+
+.editor__2d3d--active {
+  color: $color-white;
+  opacity: 1;
+}
+
+.editor__editPlayToggleButton {
+  margin-top: 4px;
+}
+
+.editor__edit2d3dToggleButton {
+  margin-top: 4px;
+}
+
+.editor__fullscreen {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin-bottom: 16px;
+  margin-right: 16px;
+}
+
+// .editor__story-scroll {}
+
+// .editor__sidebar {}
+
+.editor__edit-space {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: $color-grey-light;
+}
+
+.topbar__row-label2 {
+	font-weight: $semi-bold;
+	border-radius: 4px;
+	padding: 16px 24px;
+	overflow: hidden;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, .11), 0 1px 3px rgba(0, 0, 0, .08);
+	cursor: pointer;
+	&:hover {
+		box-shadow: 0 7px 14px rgba(0, 0, 0, .15), 0 3px 6px rgba(0, 0, 0, .12);
+	}
+	&:active {
+		background-color: $color-white;
+		color: $color-action;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, .11), 0 1px 3px rgba(0, 0, 0, .08);
+	}
+
+	&:focus {
+		outline: 0;
+	}
+	@include breakpoint(xxs) {
+		padding: 8px 16px;
+		font-size: 14px;
+	}
+  
+	@include breakpoint(xs) {
+		padding: 8px 16px;
+		font-size: 14px;
+	}
 }

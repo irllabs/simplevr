@@ -6,7 +6,7 @@ export class Narrator {
 
   private introAudio = new Audio();
   private returnAudio = new Audio();
-  private volume: number = DEFAULT_VOLUME;
+  public volume: number = DEFAULT_VOLUME;
 
   //private outgoingRoomId = '';
 

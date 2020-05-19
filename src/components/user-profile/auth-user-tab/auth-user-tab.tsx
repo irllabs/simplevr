@@ -12,13 +12,20 @@ import eventBus from 'ui/common/event-bus';
 import sceneInteractor from 'core/scene/sceneInteractor';
 import { MIME_TYPE_ZIP } from 'root/constants';
 import adminInteractor from 'core/admin/adminInteractor';
+import openModalEvent from 'root/events/open-modal-event';
+import openStoryEvent from 'root/events/open-story-event';
+import settingsInteractor from 'core/settings/settingsInteractor';
 
 interface AuthUserTabState {
 	projects: any[];
 }
 
-export default class AuthUserTab extends React.Component<{}, AuthUserTabState> {
-	constructor(props: {}) {
+interface AuthUserTabProps {
+	onClose: () => void;
+}
+
+export default class AuthUserTab extends React.Component<AuthUserTabProps, AuthUserTabState> {
+	constructor(props: AuthUserTabProps) {
 		super(props);
 
 		this.state = {
@@ -161,9 +168,8 @@ export default class AuthUserTab extends React.Component<{}, AuthUserTabState> {
 
 	private openProject(project: Project) {
 		projectMetaDataInteractor.checkAndConfirmResetChanges().then(() => {
-			eventBus.onStartLoading();
-	
-			projectInteractor.openProject(project)
+			
+			const promise = projectInteractor.openProject(project)
 			.then(() => {
 				//reset the current scene
 				projectMetaDataInteractor.setIsReadOnly(false);
@@ -171,33 +177,55 @@ export default class AuthUserTab extends React.Component<{}, AuthUserTabState> {
 				eventBus.onSelectRoom(sceneInteractor.getActiveRoomId(), false);
 				eventBus.onStopLoading();
 				projectMetaDataInteractor.loadingProject(false);
+				openStoryEvent.emit();
+				this.props.onClose();
 			},
 			(error) => {
 				console.error('error', error);
 				eventBus.onStopLoading();
+			});
+
+			openModalEvent.emit({
+				bodyText: '',
+				headerText: '',
+				isMessage: false,
+				modalType: 'loader',
+				promise: promise,
 			});
 		}, () => {});
 	}
 
 	private shareProject(projectId: number) {
 		const userId: string = userInteractor.getUserId();
-		eventBus.onShareableModal(userId, projectId + '');
+
+		openModalEvent.emit({
+			bodyText: '',
+			headerText: '',
+			isMessage: false,
+			modalType: 'shareable',
+			shareableData: {
+				projectId: projectId,
+			}
+		})
+
+		// eventBus.onShareableModal(userId, projectId + '');
 	}
 
 	private openMultiView(projectId: number) {
-		projectMetaDataInteractor.checkAndConfirmResetChanges().then(() => {
+		/*projectMetaDataInteractor.checkAndConfirmResetChanges().then(() => {
 			console.log('onOpenMultiView');
 			const userId = userInteractor.getUserId();
 			const queryParams = {
 			multiview: `${userId}-${projectId}`,
 		};
-		}, () => {});
+		}, () => {});*/
+		this.props.onClose();
 	}
 
 	private downloadProject(project: Project) {
-		eventBus.onStartLoading('Saving your project, just a moment...');
+		// eventBus.onStartLoading('Saving your project, just a moment...');
 	
-		projectInteractor.getProjectAsBlob(project)
+		const promise = projectInteractor.getProjectAsBlob(project)
 		.then((projectBlob) => {
 			const blob = new Blob([projectBlob], { type: MIME_TYPE_ZIP });
 	
@@ -209,6 +237,14 @@ export default class AuthUserTab extends React.Component<{}, AuthUserTabState> {
 				eventBus.onModalMessage('error', error.message);
 			},
 		);
+
+		openModalEvent.emit({
+			bodyText: 'Saving your project, just a moment...',
+			headerText: '',
+			isMessage: false,
+			modalType: 'loader',
+			promise: promise,
+		});
 	}
 
 	private onExploreClick() {
