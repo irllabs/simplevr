@@ -1,7 +1,7 @@
 import React from 'react';
+import uuid from 'uuid/v1';
 
 import './checkbox.scss';
-import { generateUniqueId } from 'data/util/uuid';
 
 interface CheckboxProps {
 	initialValue: boolean;
@@ -14,7 +14,7 @@ interface CheckboxProps {
 export default class Checkbox extends React.Component<CheckboxProps, {}> {
 	private inputRef = React.createRef<HTMLInputElement>();
 
-	public uniqueId = generateUniqueId();
+	public uniqueId = uuid();
 
 	constructor(props: CheckboxProps) {
 		super(props);

@@ -1,0 +1,41 @@
+@import './../../../../../styles/containers.scss';
+
+.profile-dialog-container {
+	z-index: 11;
+	width: 320px;
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	transform: translateY(100%);
+	padding-top: 4px;
+}
+
+.profile-dialog {
+	display: flex;
+	flex-direction: column;
+	background-color: white;
+	border-radius: 12px;
+}
+
+.profile-dialog-title {
+	height: 64px;
+	box-shadow: $shadow-lined;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.user-info-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding-top: 24px;
+	padding-bottom: 24px;
+	flex-direction: column;
+}
+
+.action-button-container {
+	padding-left: 24px;
+	padding-right: 24px;
+	padding-bottom: 24px;
+}

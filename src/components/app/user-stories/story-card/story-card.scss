@@ -1,0 +1,43 @@
+@import './../../../../styles/containers.scss';
+@import './../../../../styles/colors.scss';
+
+.story-card-container {
+	width: 100%;
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+	box-shadow: $shadow-lined;
+	border-radius: 12px;
+}
+
+.story-card-title {
+	display: flex;
+	flex-direction: column;
+	padding: 12px;
+}
+
+.story-card-image {
+	width: 100%;
+	height: 192px;
+	border-radius: 0px 0px 12px 12px;
+	background-size: cover;
+	background-position: center;
+}
+
+.story-card-image-container {
+	border-radius: 0px 0px 12px 12px;
+	display: flex;
+	position: relative;
+}
+
+.story-card-options {
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	background-color: $text-dark-2;
+}

@@ -1,0 +1,26 @@
+@import './../../../styles/colors.scss';
+
+.new-story-container {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 32px;
+	box-sizing: border-box;
+	background-color: $text-dark-4;
+	border-radius: 24px;
+	margin-top: 8px;
+	flex-direction: column;
+	cursor: pointer;
+}
+
+.new-story-button {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 24px 48px;
+	border: 2px dashed $primary;
+	border-radius: 60px;
+	box-sizing: content-box;
+}

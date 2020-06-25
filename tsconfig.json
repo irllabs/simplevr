@@ -29,7 +29,12 @@
 		"node_modules"
 	],
 	"include": [
-		"src"
+		"src/components/app",
+		"src/irl-ui",
+		"src/index.tsx",
+		"src/services",
+		"src/models",
+
 	],
 	"files": [
 		"./src/index.d.ts"

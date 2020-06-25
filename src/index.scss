@@ -1,8 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
 
+@import './styles/colors.scss';
+
 body {
 	font-family: 'Inter', sans-serif;
 	margin: 0px;
 	padding: 0px;
 	user-select: none;
+	background-color: $background;
+	padding-left: 120px;
+	padding-right: 120px;
+	box-sizing: border-box;
+}
+
+.dialog-close-surface {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	z-index: 10;
 }

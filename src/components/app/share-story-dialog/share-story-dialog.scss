@@ -1,0 +1,114 @@
+@import './../../../styles/containers.scss';
+
+.share-story-dialog-container {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1;
+}
+
+.share-story-dialog {
+	display: flex;
+	flex-direction: column;
+	background-color: white;
+	box-shadow: $shadow-elevated;
+	border-radius: 12px;
+	z-index: 2;
+	width: 320px;
+	padding-bottom: 24px;
+}
+
+.share-story-dialog-title {
+	height: 64px;
+	display: flex;
+	align-items: center;
+	padding: 24px;
+	box-sizing: border-box;
+	// box-shadow: $shadow-lined;
+}
+
+.share-story-close-button {
+	position: absolute;
+	height: 64px;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
+
+.share-story-title {
+	height: 64px;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.story-info-container {
+	display: flex;
+	align-items: center;
+	padding-left: 24px;
+	justify-content: space-between;
+	background-color: rgba(0, 0, 0, 0.1);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+	box-sizing: content-box;
+}
+
+.story-name-info {
+	display: flex;
+	flex-direction: column;
+}
+
+.story-public-info {
+	display: flex;
+}
+
+.story-room-info {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	border-left: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.story-dialog-thumbnail-image {
+	width: 80px;
+	height: 40px;
+	background-position: center;
+	background-size: cover;
+}
+
+.share-story-public-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 48px;
+	margin-top: 12px;
+	margin-left: 24px;
+	margin-right: 24px;
+	box-sizing: content-box;
+}
+
+.share-story-public-toggle-text {
+	display: flex;
+}
+
+.public-story-info {
+	padding-left: 24px;
+	padding-right: 24px;
+	padding-top: 8px;
+}
+
+.public-data-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding-top: 12px;
+	padding-left: 24px;
+	padding-right: 24px;
+	padding-bottom: 24px;
+}

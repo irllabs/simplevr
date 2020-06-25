@@ -1,16 +1,9 @@
-export interface OpenModalEventData {
-	headerText: string;
-	bodyText: string;
-	isMessage: boolean;
-	modalType: string;
-}
-
 class EventManager<T> {
 	private subscribers: Array<{
 		callback: (data: T) => void;
 		id: string;
 	}> = [];
-	
+
 	public emit(data: T): void {
 		this.subscribers.forEach((subscriber) => {
 			subscriber.callback(data);
@@ -39,6 +32,4 @@ class EventManager<T> {
 	}
 }
 
-export const hotspotRemovedEvent = new EventManager<{}>();
-export const roomsUpdatedEvent = new EventManager<{}>();
-export const propertyAddedEvent = new EventManager<{}>();
+export const onOpenSignInDialog = new EventManager<{}>();

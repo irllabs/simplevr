@@ -1,0 +1,26 @@
+.user-stories-container {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	justify-content: center;
+}
+
+.user-stories-sign-in-content {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	width: 100%;
+}
+
+.user-stories-signed-in-content {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	grid-gap: 12px;
+	width: 100%;
+}
+
+.user-stories-action-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
