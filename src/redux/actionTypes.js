@@ -1,0 +1,7 @@
+// User
+export const SET_USER = "SET_USER";
+export const CLEAR_USER = "CLEAR_USER";
+export const SET_USER_DISPLAYNAME = "SET_USER_DISPLAYNAME";
+
+// Display
+export const SET_IS_SHOWING_SIGNIN_DIALOG = "SET_IS_SHOWING_SIGNIN_DIALOG";

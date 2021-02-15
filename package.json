@@ -1,88 +1,52 @@
 {
-  "name": "simple-vr-editor",
-  "version": "0.0.2",
-  "description": "Simple VR Editor Application",
-  "scripts": {
-    "build:copy": "cp src/favicon.ico dist/favicon.ico; cp src/manifest.json dist/manifest.json; cp src/socialVR.png dist/socialVR.png; cp -r src/assets dist/assets; cp -r src/__stubs__ dist/__stubs__",
-    "build:webpack": "webpack --colors --progress",
-    "build:webpack-prod": "webpack --colors --progress -p",
-    "build": "npm run clean && npm run build:webpack && npm run build:copy",
-    "deploy": "npm run build && git-directory-deploy --directory dist --branch gh-pages",
-    "build:prod": "npm run clean && npm run build:webpack-prod && npm run build:copy",
-    "deploy:prod": "npm run build && git-directory-deploy --directory dist --branch gh-pages",
-    "dev": "webpack-dev-server --inline --colors --progress --content-base src",
-    "dev-prod": "webpack-dev-server --inline --colors --progress --content-base src -p",
-    "dev-local": "webpack-dev-server --inline --colors --progress --content-base src -d",
-    "clean": "rm -rf dist",
-    "clean:node": "npm run clean; rm -rf node_modules",
-    "lint": "tslint  --type-check --project tslint.json"
-  },
-  "devDependencies": {
-    "@types/aframe": "^0.8.4",
-    "@types/core-js": "^0.9.32",
-    "@types/node": "^6.0.38",
-    "@types/three": "^0.92.8",
-    "angular2-template-loader": "^0.6.2",
-    "awesome-typescript-loader": "^5.2.1",
-    "babel-core": "^6.24.1",
-    "css-loader": "^0.23.1",
-    "gh-pages": "^0.11.0",
-    "git-directory-deploy": "^1.5.1",
-    "html-webpack-plugin": "^3.2.0",
-    "node-sass": "^4.5.3",
-    "postcss-loader": "^2.0.5",
-    "promise-polyfill": "^6.0.2",
-    "raw-loader": "^0.5.1",
-    "sass-loader": "^6.0.5",
-    "to-string-loader": "^1.1.4",
-    "tslint": "^5.7.0",
-    "typescript": "^3.8.3",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3",
-    "webpack-merge": "^4.2.2",
-    "webpack-manifest-plugin": "^2.2.0",
-    "webpack-md5-hash": "0.0.6",
-    "serviceworker-webpack-plugin": "^1.0.1"
-  },
+  "name": "simplevr-simplified",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "@angular/common": "^4.3.3",
-    "@angular/compiler": "^4.3.3",
-    "@angular/core": "^4.3.3",
-    "@angular/forms": "^4.3.3",
-    "@angular/http": "^4.3.3",
-    "@angular/platform-browser": "^4.3.3",
-    "@angular/platform-browser-dynamic": "^4.3.3",
-    "@angular/router": "^4.3.3",
-    "@tweenjs/tween.js": "^16.8.0",
-    "@types/uuid": "^3.4.3",
-    "aframe": "1.0.4",
-    "angularfire2": "5.0.0-rc.5-next",
-    "core-js": "^2.4.1",
-    "file-saver": "^1.3.3",
-    "firebase": "^4.13.1",
-    "ie-shim": "^0.1.0",
-    "js-yaml": "^3.7.0",
-    "jszip": "3.1.4",
-    "kframe": "git+https://github.com/emilt27/kframe.git#81be162a14ad777e2f3ed0a10687e7573c18e314",
-    "ngx-dropzone-wrapper": "^9.0.0",
-    "qrcode": "^1.2.0",
-    "recorderjs": "git+https://github.com/mattdiamond/Recorderjs.git#08e7abd99739be6946f19f6806ccb368138f2dd3",
-    "rxjs": "^5.4.2",
-    "stats.js": "^0.17.0",
-    "three": "0.93.0",
-    "zone.js": "^0.8.16"
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "aframe": "^1.2.0",
+    "aframe-look-at-component": "^1.0.0",
+    "aframe-react": "^4.4.0",
+    "firebase": "^8.2.6",
+    "immutability-helper": "^3.1.1",
+    "lodash": "^4.17.20",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-loader-spinner": "^4.0.0",
+    "react-perfect-scrollbar": "^1.5.8",
+    "react-redux": "^7.2.2",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.2",
+    "redux": "^4.0.5",
+    "web-vitals": "^1.0.1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cmuartfab/social-vr.git"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
-  "bugs": {
-    "url": "https://github.com/cmuartfab/social-vr/issues"
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
-  "homepage": "https://github.com/cmuartfab/social-vr/tree/gh-pages/#readme",
-  "main": "postcss.config.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }
