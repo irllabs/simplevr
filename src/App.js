@@ -39,8 +39,40 @@ function App () {
           borderRadius: 32
         },
         typography: {
+          fontFamily: [
+            'Inter',
+            'sans-serif'
+          ],
           button: {
             textTransform: 'none'
+          },
+          // Heading large
+          h1: {
+            fontSize: '20px',
+            fontStyle: 'normal',
+            fontWeight: 'bold',
+            lineHeight: '24px',
+          },
+          // Heading medium
+          h2: {
+            fontSize: '16px',
+            fontStyle: 'normal',
+            fontWeight: 'bold',
+            lineHeight: '20px',
+          },
+          // Text large
+          body1: {
+            fontSize: '20px',
+            fontStyle: 'normal',
+            fontWeight: 'normal',
+            lineHeight: '24px'
+          },
+          // Text small
+          body2: {
+            fontSize: '14px',
+            fontStyle: 'normal',
+            fontWeight: 'normal',
+            lineHeight: '20px',
           }
         }
       }),

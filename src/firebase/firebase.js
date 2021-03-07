@@ -95,6 +95,34 @@ class Firebase {
         })
 
     }
+
+    loadUserStories = async (userId) => {
+        const storiesData = [];
+
+        const stories = await this.db
+        .collection('projects')
+        .where('userId', '==', userId)
+        .get();
+
+        stories.forEach((story) => {
+            storiesData.push(story.data());
+        });
+
+        return storiesData;
+    }
+
+    loadPublicStories = async () => {
+        const stories = await this.db
+        .collection('projects')
+        .where('isPublic', '==', true)
+        .get();
+
+        const storyModels = [];
+        stories.forEach((story) => {
+            storyModels.push(story.data());
+        });
+        return storyModels;
+    }
 }
 
 export default Firebase;

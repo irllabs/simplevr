@@ -1,21 +1,26 @@
+// External libraries
 import React from 'react'
-import { makeStyles } from '@material-ui/core/styles';
-import { Box, Button, Container } from '@material-ui/core';
 import { Link as RouterLink } from 'react-router-dom';
+import { connect } from "react-redux";
+
+// External UI Components
+import { makeStyles } from '@material-ui/core/styles';
+import { Box, Button, Container, Typography } from '@material-ui/core';
+
+// Components
 import Header from '../header/Header'
 import SignInDialog from '../dialogs/SignInDialog';
-import { connect } from "react-redux";
+import UserStoriesSection from './UserStoriesSection';
+import PublicStoriesSection from './PublicStoriesSection';
+
+// Redux Actions
 import { setIsShowingSignInDialog, setUser } from '../../redux/actions'
 
 const styles = makeStyles((theme) => ({
-    root: {
-        paddingTop: 96,
-
-    },
     hero: {
         backgroundColor: theme.palette.secondary.main,
-        padding: '2rem',
-        borderRadius: '1rem',
+        padding: '32px 64px',
+        borderRadius: '24px',
         textAlign: 'center'
     },
     uploadButton: {
@@ -25,7 +30,11 @@ const styles = makeStyles((theme) => ({
         boxSizing: 'content-box',
         fontSize: '20px',
         fontWeight: 600,
-        marginTop: '1rem'
+        marginTop: '32px'
+    },
+    uploadButtonContent: {
+        display: 'flex',
+        flexDirection: 'column'
     }
 }))
 function LandingPageRoute ({ setIsShowingSignInDialog, setUser }) {
@@ -33,12 +42,31 @@ function LandingPageRoute ({ setIsShowingSignInDialog, setUser }) {
     return (
         <>
             <Header />
-            <Container className={classes.root} maxWidth="md">
+            <Container maxWidth="md">
                 <Box className={classes.hero}>
-                    <h2>Start creating your immersive story by combining 360 photos with audio recordings, images, and text</h2>
-                    <Button className={classes.uploadButton} size="large" color="primary" component={RouterLink} to="/editor/123-123-123-123">Upload 360° panorama image</Button>
+                    <Typography variant='body1'>
+                        Start creating your immersive story by combining 360 photos with audio recordings, images, and text
+                    </Typography>
+                    <Button
+                        className={classes.uploadButton}
+                        size="large"
+                        color="primary"
+                        component={RouterLink}
+                        to="/editor/123-123-123-123"
+                    >
+                        <div className={classes.uploadButtonContent}>
+                            <Typography variant='h1'>
+                                Upload 360° panorama image
+                            </Typography>
+                            <Typography variant='h2'>
+                                or a story .zip
+                            </Typography>
+                        </div>
+                    </Button>
                 </Box>
             </Container>
+            <UserStoriesSection />
+            <PublicStoriesSection />
             <SignInDialog />
         </>
     )
