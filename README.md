@@ -3,9 +3,9 @@
 This project makes use of Material UI.\
 [https://material-ui.com/](https://material-ui.com/)
 
-The theme is customisable in App.js.
+The theme is customizable in App.js.
 
-The project also uses Aframe-react.\
+The project also uses aframe-react.\
 [https://github.com/supermedium/aframe-react](https://github.com/supermedium/aframe-react).
 
 
@@ -13,7 +13,7 @@ The project also uses Aframe-react.\
 
 In the project directory, you can run:
 
-### `yarn start`
+### `npm run start`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
@@ -21,17 +21,12 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
+### `npm run build`
 
 Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Deploy to Firebase
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+In order to deploy application, you need to run `npm run build` to create production minified version of the application.\
+After building is done, you need to run `firebase deploy --only hosting`, this will deploy current local build to firebase.\
+Make sure you have firebase-cli installed and setup.

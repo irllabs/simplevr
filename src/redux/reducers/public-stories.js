@@ -1,17 +1,17 @@
-/* eslint-disable import/no-anonymous-default-export */
-import { SET_PUBLIC_STORIES } from "../actionTypes";
 import update from 'immutability-helper';
+
+import { SET_PUBLIC_STORIES } from '../actionTypes';
 
 const initialState = [];
 
-export default function (state = initialState, action) {
+export default function publicStoriesReducer(state = initialState, action) {
     switch (action.type) {
-        case SET_PUBLIC_STORIES: {
-            return update(state, {
-                $set: action.payload.value
-            });
-        }
-        default:
-            return state;
+    case SET_PUBLIC_STORIES: {
+        return update(state, {
+            $set: action.payload.value,
+        });
+    }
+    default:
+        return state;
     }
 }

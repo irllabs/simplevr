@@ -1,21 +1,19 @@
-/* eslint-disable import/no-anonymous-default-export */
-import {
-    SET_IS_SHOWING_SIGNIN_DIALOG
-} from "../actionTypes";
 import update from 'immutability-helper';
 
+import { SET_IS_SHOWING_SIGNIN_DIALOG } from '../actionTypes';
+
 const initialState = {
-    isShowingSignInDialog: false
+    isShowingSignInDialog: false,
 };
 
-export default function (state = initialState, action) {
+export default function displayReducer(state = initialState, action) {
     switch (action.type) {
-        case SET_IS_SHOWING_SIGNIN_DIALOG: {
-            return update(state, {
-                isShowingSignInDialog: { $set: action.payload.value }
-            })
-        }
-        default:
-            return state;
+    case SET_IS_SHOWING_SIGNIN_DIALOG: {
+        return update(state, {
+            isShowingSignInDialog: { $set: action.payload.value },
+        });
+    }
+    default:
+        return state;
     }
 }
