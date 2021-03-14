@@ -1,4 +1,6 @@
 import React from 'react';
+import mime from 'mime-types';
+import { connect } from 'react-redux';
 import {
     Box,
     Button,
@@ -14,6 +16,9 @@ import {
 import { Close } from '@material-ui/icons';
 
 import EditorAudioSelector from './EditorAudioSelector';
+
+import { setStoryName, setStoryTags, setStorySoundtrack } from '../../redux/actions';
+import Soundtrack from '../../models/soundtrack';
 
 const styles = makeStyles(() => {
     return {
@@ -32,8 +37,43 @@ const styles = makeStyles(() => {
         },
     };
 });
-export default function EditorEditStory({ onClose }) {
+function EditorEditStory({
+    onClose,
+    story,
+    setStoryNameAction,
+    setStoryTagsAction,
+    setStorySoundtrackAction,
+}) {
     const classes = styles();
+
+    const onNameChange = (event) => {
+        setStoryNameAction(event.target.value);
+    };
+
+    const onTagsChange = (event) => {
+        // Split comma separated tags into an array of tags
+        const tags = event.target.value.split(',');
+
+        setStoryTagsAction(tags);
+    };
+
+    const onSoundtrackChange = (fileData, fileName, fileMimeType) => {
+        const extension = mime.extension(fileMimeType);
+
+        const soundtrack = new Soundtrack();
+        soundtrack.fileName = fileName;
+        soundtrack.data = fileData;
+        soundtrack.extension = extension;
+
+        setStorySoundtrackAction(soundtrack);
+    };
+
+    const onSoundtrackRemove = () => {
+        const soundtrack = new Soundtrack();
+
+        // Create empty soundtrack
+        setStorySoundtrackAction(soundtrack);
+    };
 
     return (
         <Dialog onClose={onClose} open maxWidth="xs" fullWidth>
@@ -55,6 +95,8 @@ export default function EditorEditStory({ onClose }) {
                     helperText="Enter a short name for your story"
                     variant="outlined"
                     fullWidth
+                    onChange={onNameChange}
+                    value={story.name}
                 />
                 <Box m={4} />
                 <TextField
@@ -64,13 +106,17 @@ export default function EditorEditStory({ onClose }) {
                     label="Story tags"
                     helperText="Use comma to add separate tags"
                     variant="outlined"
+                    onChange={onTagsChange}
+                    value={story.getStoryTagsString()}
                 />
                 <Box m={4} />
-                <Typography variant="body1">
-                    Story soundtrack
-                </Typography>
-                <Box m={1} />
-                <EditorAudioSelector />
+                <EditorAudioSelector
+                    title="Story soundtrack"
+                    data={story.soundtrack.data}
+                    name={story.soundtrack.fileName}
+                    onChange={onSoundtrackChange}
+                    onRemove={onSoundtrackRemove}
+                />
             </DialogContent>
             <DialogActions>
                 <Button variant="text" color="primary">
@@ -80,3 +126,18 @@ export default function EditorEditStory({ onClose }) {
         </Dialog>
     );
 }
+
+const mapStateToProps = (state) => {
+    return {
+        story: state.project.story,
+    };
+};
+
+export default connect(
+    mapStateToProps,
+    {
+        setStoryNameAction: setStoryName,
+        setStoryTagsAction: setStoryTags,
+        setStorySoundtrackAction: setStorySoundtrack,
+    },
+)(EditorEditStory);

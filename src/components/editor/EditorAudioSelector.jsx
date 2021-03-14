@@ -73,15 +73,21 @@ const styles = makeStyles(() => {
         },
     };
 });
-export default function EditorAudioSelector({ title }) {
+export default function EditorAudioSelector({
+    title,
+    name,
+    data,
+    onChange,
+    onRemove,
+}) {
     const classes = styles();
 
     const audioElement = useRef();
     const audioInput = useRef();
 
-    const [audioData, setAudioData] = useState(null);
+    const [audioData, setAudioData] = useState(data || null);
     const [playInLoop, setPlayInLoop] = useState(false);
-    const [fileName, setFileName] = useState('');
+    const [fileName, setFileName] = useState(name || '');
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -120,6 +126,8 @@ export default function EditorAudioSelector({ title }) {
         fileReader.onloadend = () => {
             setAudioData(fileReader.result);
             setFileName(file.name);
+
+            onChange(fileReader.result, file.name, file.type);
         };
         fileReader.readAsDataURL(file);
     };
@@ -127,6 +135,8 @@ export default function EditorAudioSelector({ title }) {
     const removeAudio = () => {
         setAudioData(null);
         setFileName('');
+
+        onRemove();
     };
 
     const togglePlay = () => {
@@ -160,7 +170,7 @@ export default function EditorAudioSelector({ title }) {
             />
 
             <div className={classes.audioSelectorTitle}>
-                <Typography variant="body2">
+                <Typography variant="body1">
                     {title}
                 </Typography>
             </div>

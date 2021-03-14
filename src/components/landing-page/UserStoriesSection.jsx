@@ -9,6 +9,7 @@ import {
     Button,
     Container,
     makeStyles,
+    Box,
 } from '@material-ui/core';
 
 // Actions
@@ -16,6 +17,7 @@ import { setIsShowingSignInDialog, setUserStories } from '../../redux/actions';
 
 // Firebase
 import { FirebaseContext } from '../../firebase';
+import ProjectCard from './ProjectCard';
 
 const styles = makeStyles(() => {
     return {
@@ -37,9 +39,20 @@ const styles = makeStyles(() => {
             height: '48px',
             borderRadius: '24px',
         },
+        userStoriesSignedInContent: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridGap: '12px',
+            width: '100%',
+        },
     };
 });
-function UserStoriesSection({ user, userStories, setIsShowingSignInDialogAction }) {
+function UserStoriesSection({
+    user,
+    userStories,
+    setUserStoriesAction,
+    setIsShowingSignInDialogAction,
+}) {
     const firebaseContext = useContext(FirebaseContext);
 
     const classes = styles();
@@ -47,11 +60,8 @@ function UserStoriesSection({ user, userStories, setIsShowingSignInDialogAction 
     useEffect(() => {
         firebaseContext.onUserUpdatedObservers.push(async (authUser) => {
             if (!_.isNil(authUser)) {
-                firebaseContext.loadUserStories(authUser.uid, 10, 0).then((stories) => {
-                    setUserStories([
-                        ...userStories,
-                        ...stories,
-                    ]);
+                firebaseContext.loadUserStories(authUser.uid).then((stories) => {
+                    setUserStoriesAction(stories);
                 });
             }
         });
@@ -94,10 +104,11 @@ function UserStoriesSection({ user, userStories, setIsShowingSignInDialogAction 
                         }
                         )
                     </Typography>
-                    <div className="user-stories-signed-in-content">
-                        {[].map(() => {
+                    <Box m={2} />
+                    <div className={classes.userStoriesSignedInContent}>
+                        {userStories.map((story) => {
                             return (
-                                <p>TODO SHOW USER STORY CARD</p>
+                                <ProjectCard key={story.id} project={story} />
                             );
                         })}
                     </div>
@@ -124,6 +135,7 @@ const mapStateToProps = (state) => {
 export default connect(
     mapStateToProps,
     {
+        setUserStoriesAction: setUserStories,
         setIsShowingSignInDialogAction: setIsShowingSignInDialog,
     },
 )(UserStoriesSection);

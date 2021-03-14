@@ -90,7 +90,7 @@ function EditorFab({ addHotspotAction, addDoorAction, story }) {
 
 const mapStateToProps = (state) => {
     return {
-        story: state.story,
+        story: state.project.story,
     };
 };
 

@@ -19,15 +19,15 @@ import UserStoriesSection from './UserStoriesSection';
 import PublicStoriesSection from './PublicStoriesSection';
 
 // Redux Actions
-import { setCurrentRoom, setStory } from '../../redux/actions';
+import { setCurrentRoom, setProject, setStory } from '../../redux/actions';
 
 // Util
 import FileLoaderUtil from '../../util/FileLoader';
 import resizeImageAsync from '../../util/ResizeImage';
 
 // Models
-import Story from '../../models/story';
 import Room from '../../models/room';
+import Project from '../../models/project';
 
 const styles = makeStyles((theme) => {
     return {
@@ -55,7 +55,7 @@ const styles = makeStyles((theme) => {
         },
     };
 });
-function LandingPageRoute({ setStoryAction, setCurrentRoomAction }) {
+function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomAction }) {
     const classes = styles();
     const fileInput = useRef();
     const history = useHistory();
@@ -69,16 +69,19 @@ function LandingPageRoute({ setStoryAction, setCurrentRoomAction }) {
         const fileData = await FileLoaderUtil.getBinaryFileData(file);
         const resizedImage = await resizeImageAsync(fileData, 'backgroundImage');
 
-        // Create new story with user selected panorama
-        const story = new Story();
+        // Create new project
+        const project = new Project();
 
         const room = new Room();
         room.panoramaUrl = resizedImage;
 
-        story.addRoom(room);
+        project.story.addRoom(room);
+        project.thumbnail.data = resizedImage.thumbnail;
+        project.thumbnail.extension = 'jpeg';
 
         // Set newly created story (and first room) as active story in redux
-        setStoryAction(story);
+        setProjectAction(project);
+        setStoryAction(project.story);
         setCurrentRoomAction(room);
 
         // Navigate to editor for further story edits
@@ -135,6 +138,7 @@ const mapStateToProps = () => {
 export default connect(
     mapStateToProps,
     {
+        setProjectAction: setProject,
         setStoryAction: setStory,
         setCurrentRoomAction: setCurrentRoom,
     },

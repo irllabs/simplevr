@@ -1,7 +1,7 @@
 import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
-import 'firebase/functions';
+import 'firebase/storage';
 import _ from 'lodash';
 import firebase from 'firebase';
 
@@ -21,13 +21,13 @@ class Firebase {
             app.initializeApp(firebaseConfig);
         }
 
-        this.app = app;
         this.currentUser = null;
+        this.onUserUpdatedObservers = [];
+
+        this.app = app;
         this.auth = app.auth();
         this.db = app.firestore();
-        this.firestore = app.firestore;
-        this.functions = app.functions();
-        this.onUserUpdatedObservers = [];
+        this.storage = app.storage();
 
         app.auth().onAuthStateChanged((user) => {
             // console.log('onAuthStateChanged', user);
@@ -103,6 +103,39 @@ class Firebase {
             storyModels.push(story.data());
         });
         return storyModels;
+    }
+
+    saveProject = async (project) => {
+        const projectJson = project.toJSON(this.currentUser.uid);
+
+        // Save story data in Firebase Firestore
+        await this.db.collection('projects')
+            .doc(project.id)
+            .set(projectJson, { merge: true });
+
+        // Save story thumbnail image data in Firebase Storage
+        await this.uploadFileFromDataUrl(project.thumbnail.getRemoteFilePath(project.id), project.thumbnail.data);
+
+        // Save story soundtrack data in Firebase Storage
+        if (project.story.soundtrack.data) {
+            await this.uploadFileFromDataUrl(project.story.soundtrack.getRemoteFilePath(project.id), project.story.soundtrack.data);
+        }
+    }
+
+    updateProjectPublicFlag = async (projectId, isPublic) => {
+        await this.db.collection('projects')
+            .doc(projectId)
+            .update({
+                isPublic: isPublic,
+            });
+    }
+
+    uploadFileFromDataUrl = async (uploadPath, fileData) => {
+        await this.storage.ref(uploadPath).putString(fileData, firebase.storage.StringFormat.DATA_URL);
+    }
+
+    getDownloadUrl = async (remoteFilePath) => {
+        return this.storage.ref(remoteFilePath).getDownloadURL();
     }
 }
 

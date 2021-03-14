@@ -25,5 +25,7 @@ module.exports = {
         'jsx-a11y/media-has-caption': ['off'],
         'jsx-a11y/no-static-element-interactions': ['off'],
         'no-param-reassign': ['off'],
+        'react/jsx-one-expression-per-line': ['off'],
+        'no-use-before-define': ['off'],
     },
 };

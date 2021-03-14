@@ -10,6 +10,10 @@ import {
     ADD_ROOM,
     SET_HOTSPOT_LOCATION,
     ADD_DOOR,
+    SET_STORY_NAME,
+    SET_STORY_TAGS,
+    SET_STORY_SOUNDTRACK,
+    SET_PROJECT,
 } from './actionTypes';
 
 // User
@@ -60,7 +64,15 @@ export const setIsShowingSignInDialog = (value) => {
     };
 };
 
-// Story
+// Project
+export const setProject = (project) => {
+    return {
+        type: SET_PROJECT,
+        payload: {
+            project: project,
+        },
+    };
+};
 export const setStory = (value) => {
     return {
         type: SET_STORY,
@@ -108,6 +120,30 @@ export const updateHotspot = (hotspot) => {
         type: SET_HOTSPOT_LOCATION,
         payload: {
             hotspot: hotspot,
+        },
+    };
+};
+export const setStoryName = (name) => {
+    return {
+        type: SET_STORY_NAME,
+        payload: {
+            name: name,
+        },
+    };
+};
+export const setStoryTags = (tags) => {
+    return {
+        type: SET_STORY_TAGS,
+        payload: {
+            tags: tags,
+        },
+    };
+};
+export const setStorySoundtrack = (soundtrack) => {
+    return {
+        type: SET_STORY_SOUNDTRACK,
+        payload: {
+            soundtrack: soundtrack,
         },
     };
 };

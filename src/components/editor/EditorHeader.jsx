@@ -1,5 +1,6 @@
+import { connect } from 'react-redux';
 import { Box, Divider } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import BackArrowIcon from '@material-ui/icons/KeyboardBackspace';
 import IconButton from '@material-ui/core/IconButton';
@@ -8,6 +9,7 @@ import SaveIcon from '@material-ui/icons/SaveOutlined';
 import ShareIcon from '@material-ui/icons/ShareOutlined';
 import EditorEditStory from './EditorEditStory';
 import UserProfile from '../user-profile/UserProfile';
+import { FirebaseContext } from '../../firebase';
 
 const styles = makeStyles((theme) => {
     return {
@@ -77,13 +79,19 @@ const styles = makeStyles((theme) => {
     };
 });
 
-export default function EditorHeader() {
+function EditorHeader({ project }) {
     const classes = styles();
+
+    const firebaseContext = useContext(FirebaseContext);
 
     const [editStoryOpen, setEditStoryOpen] = useState(false);
 
     const onEditStory = () => {
         setEditStoryOpen(true);
+    };
+
+    const onSaveStory = () => {
+        firebaseContext.saveProject(project);
     };
 
     const onCloseEditStory = () => {
@@ -98,11 +106,13 @@ export default function EditorHeader() {
                         <BackArrowIcon />
                     </IconButton>
                     <Divider className={classes.divider} orientation="vertical" flexItem />
-                    <Box className={classes.storyName}>Story name</Box>
+                    <Box className={classes.storyName}>
+                        {project.story.name}
+                    </Box>
                     <IconButton className={classes.toolBarIcon} onClick={onEditStory}>
                         <img alt="edit-story" src="icons/pencil.svg" />
                     </IconButton>
-                    <IconButton className={classes.toolBarIcon}>
+                    <IconButton className={classes.toolBarIcon} onClick={onSaveStory}>
                         <SaveIcon />
                     </IconButton>
                     <IconButton className={classes.toolBarIcon}>
@@ -124,3 +134,14 @@ export default function EditorHeader() {
         </>
     );
 }
+
+const mapStateToProps = (state) => {
+    return {
+        project: state.project,
+    };
+};
+
+export default connect(
+    mapStateToProps,
+    {},
+)(EditorHeader);

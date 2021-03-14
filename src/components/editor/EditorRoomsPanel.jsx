@@ -99,7 +99,7 @@ function EditorRoomsPanel({ rooms }) {
 
 const mapStateToProps = (state) => {
     return {
-        rooms: state.story.rooms,
+        rooms: state.project.story.rooms,
     };
 };
 
