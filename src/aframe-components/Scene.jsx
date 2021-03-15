@@ -1,43 +1,70 @@
 // External libraries
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
-import { Entity, Scene as AframeScene } from 'aframe-react';
 import 'aframe';
 
 import Hotspot from './Hotspot';
 import Door from './Door';
+import { setCurrentRoom } from '../redux/actions';
 
-function Scene({ story }) {
+function Scene({ story, setCurrentRoomAction }) {
+    const sceneRef = useRef();
+
+    useEffect(() => {
+        sceneRef.current.addEventListener('switch-room', (e) => {
+            goToRoom(e.detail);
+        });
+    }, []);
+
+    const goToRoom = (roomId) => {
+        const targetRoom = story.rooms.find((room) => {
+            return room.id === roomId;
+        });
+
+        setCurrentRoomAction(targetRoom);
+
+        sceneRef.current.emit('reset-camera');
+    };
+
+    const activeRoom = story.rooms.find((room) => {
+        return room.active;
+    });
+
     return (
-        <AframeScene>
-            <Entity primitive="a-camera">
-                <Entity
-                    primitive="a-cursor"
-                    animation__click={{
-                        property: 'scale',
-                        startEvents: 'click',
-                        from: '0.1 0.1 0.1',
-                        to: '1 1 1',
-                        dur: 150,
-                    }}
+        <a-scene ref={sceneRef} preview-space device-orientation-permission-ui="enabled: true">
+            <a-camera
+                wasd-controls-enabled="false"
+                look-controls-enabled="true"
+                fov="65"
+                animation__zoom-in="
+                    property: zoom;
+                    from: 1;
+                    startEvents: start-zoom-in;
+                    to: 5;"
+                zoom="1"
+                near="1"
+            >
+                <a-cursor
+                    id="cursor"
+                    animation__scale-out="property: scale; from: 1 1 1; to: .2 .2 .2; startEvents: start-scale-out;"
                 />
-            </Entity>
+            </a-camera>
 
-            {story.currentRoom.hotspots.map((hotspot) => {
+            {activeRoom.hotspots.map((hotspot) => {
                 return (
                     <Hotspot key={hotspot.id} hotspot={hotspot} />
                 );
             })}
 
-            {story.currentRoom.doors.map((door) => {
+            {activeRoom.doors.map((door) => {
                 return (
                     <Door key={door.id} door={door} />
                 );
             })}
 
-            <Entity primitive="a-sky" radius="512" src={story.currentRoom.panoramaUrl.backgroundImage.data} />
+            <a-sky src={activeRoom.panoramaUrl.backgroundImage.data} radius="512" />
 
-        </AframeScene>
+        </a-scene>
     );
 }
 
@@ -49,5 +76,7 @@ const mapStateToProps = (state) => {
 
 export default connect(
     mapStateToProps,
-    {},
+    {
+        setCurrentRoomAction: setCurrentRoom,
+    },
 )(Scene);

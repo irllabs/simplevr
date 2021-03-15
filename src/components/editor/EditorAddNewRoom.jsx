@@ -13,6 +13,7 @@ const styles = makeStyles(() => {
             marginLeft: '8px',
             width: '48px',
             height: '135px',
+            minWidth: '48px',
             display: 'flex',
             flexDirection: 'column',
             borderRadius: '8px',

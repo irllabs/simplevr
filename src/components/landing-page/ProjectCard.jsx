@@ -8,7 +8,7 @@ import { IconButton, makeStyles, Typography } from '@material-ui/core';
 
 // Firebase
 import { FirebaseContext } from '../../firebase';
-import ShareStoryDialog from './ShareStoryDialog';
+import ShareStoryDialog from '../dialogs/ShareStoryDialog';
 import Project from '../../models/project';
 import { setCurrentRoom, setProject, setStory } from '../../redux/actions';
 

@@ -21,15 +21,19 @@ const styles = makeStyles(() => {
 function EditBackground({ story }) {
     const classes = styles();
 
+    const activeRoom = story.rooms.find((room) => {
+        return room.active;
+    });
+
     return (
         <div>
-            <img src={story.currentRoom.panoramaUrl.backgroundImage.data} alt="room-background" className={classes.backgroundImage} draggable={false} />
-            {story.currentRoom.hotspots.map((hotspot) => {
+            <img src={activeRoom.panoramaUrl.backgroundImage.data} alt="room-background" className={classes.backgroundImage} draggable={false} />
+            {activeRoom.hotspots.map((hotspot) => {
                 return (
                     <EditorHotspot key={hotspot.id} hotspot={hotspot} />
                 );
             })}
-            {story.currentRoom.doors.map((door) => {
+            {activeRoom.doors.map((door) => {
                 return (
                     <EditorDoor key={door.id} door={door} />
                 );

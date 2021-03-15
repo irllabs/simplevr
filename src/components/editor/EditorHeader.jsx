@@ -6,10 +6,10 @@ import BackArrowIcon from '@material-ui/icons/KeyboardBackspace';
 import IconButton from '@material-ui/core/IconButton';
 import { Link as RouterLink } from 'react-router-dom';
 import SaveIcon from '@material-ui/icons/SaveOutlined';
-import ShareIcon from '@material-ui/icons/ShareOutlined';
 import EditorEditStory from './EditorEditStory';
 import UserProfile from '../user-profile/UserProfile';
 import { FirebaseContext } from '../../firebase';
+import ShareStoryDialog from '../dialogs/ShareStoryDialog';
 
 const styles = makeStyles((theme) => {
     return {
@@ -85,6 +85,7 @@ function EditorHeader({ project }) {
     const firebaseContext = useContext(FirebaseContext);
 
     const [editStoryOpen, setEditStoryOpen] = useState(false);
+    const [shareStoryDialogOpen, setShareStoryDialogOpen] = useState(false);
 
     const onEditStory = () => {
         setEditStoryOpen(true);
@@ -96,6 +97,14 @@ function EditorHeader({ project }) {
 
     const onCloseEditStory = () => {
         setEditStoryOpen(false);
+    };
+
+    const onShareStory = () => {
+        setShareStoryDialogOpen(true);
+    };
+
+    const onCloseShareStory = () => {
+        setShareStoryDialogOpen(false);
     };
 
     return (
@@ -110,13 +119,13 @@ function EditorHeader({ project }) {
                         {project.story.name}
                     </Box>
                     <IconButton className={classes.toolBarIcon} onClick={onEditStory}>
-                        <img alt="edit-story" src="icons/pencil.svg" />
+                        <img alt="edit-story" src="/icons/pencil.svg" />
                     </IconButton>
                     <IconButton className={classes.toolBarIcon} onClick={onSaveStory}>
                         <SaveIcon />
                     </IconButton>
-                    <IconButton className={classes.toolBarIcon}>
-                        <ShareIcon />
+                    <IconButton className={classes.toolBarIcon} onClick={onShareStory}>
+                        <img alt="share-story" src="/icons/share-icon-light.svg" />
                     </IconButton>
                 </Box>
 
@@ -130,6 +139,10 @@ function EditorHeader({ project }) {
             {editStoryOpen
             && (
                 <EditorEditStory onClose={onCloseEditStory} />
+            )}
+            {shareStoryDialogOpen
+            && (
+                <ShareStoryDialog onClose={onCloseShareStory} thumbnailUrl={project.thumbnail.data} project={project} />
             )}
         </>
     );

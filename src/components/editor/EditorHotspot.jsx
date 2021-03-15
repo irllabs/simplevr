@@ -3,8 +3,10 @@ import { makeStyles, Typography } from '@material-ui/core';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { updateHotspot } from '../../redux/actions';
+import getHotspotIconName from '../../util/GetHotspotIconName';
 import { normalizeAbsolutePosition, denormalizePosition } from '../../util/IconPosition';
 import Vector2 from '../../util/Vector2';
+
 import EditorEditHotspot from './EditorEditHotspot';
 
 const styles = makeStyles(() => {
@@ -127,7 +129,7 @@ function EditorHotspot({ hotspot }) {
         <div>
             <div className={classes.hotspotContainer} style={style} onMouseDown={onMouseDown} onMouseUp={onMouseUp} ref={hotspotElementRef}>
                 <div className={classes.hotspotIconContainer}>
-                    <img draggable={false} src={`icons/${hotspot.getIcon('svg')}`} alt="hotspot-icon" />
+                    <img draggable={false} src={`icons/${getHotspotIconName(hotspot, 'svg')}`} alt="hotspot-icon" />
                 </div>
                 <div className={classes.hotspotLabelContainer}>
                     <Typography variant="body2" color="textSecondary">
@@ -137,7 +139,7 @@ function EditorHotspot({ hotspot }) {
             </div>
             {editorOpen
             && (
-                <EditorEditHotspot onClose={closeEditor} />
+                <EditorEditHotspot onClose={closeEditor} hotspot={hotspot} />
             )}
         </div>
     );

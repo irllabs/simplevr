@@ -133,7 +133,7 @@ export default function EditorDoor({ door }) {
             </div>
             {editorOpen
             && (
-                <EditorEditDoor onClose={closeEditor} />
+                <EditorEditDoor onClose={closeEditor} door={door} />
             )}
         </div>
     );

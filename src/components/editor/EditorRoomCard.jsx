@@ -1,23 +1,28 @@
 import { Box, makeStyles, Typography } from '@material-ui/core';
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import EditorEditRoom from './EditorEditRoom';
+
+import { setCurrentRoom } from '../../redux/actions';
 
 const styles = makeStyles(() => {
     return {
         container: {
+            minWidth: '150px',
             width: '150px',
             height: '135px',
             display: 'flex',
             flexDirection: 'column',
             borderRadius: '8px',
             boxSizing: 'border-box',
-            border: '2px solid #E34B78',
+            border: '2px solid',
             marginLeft: '8px',
         },
         roomInfoContainer: {
             display: 'flex',
             alignItems: 'center',
             padding: '12px',
+            cursor: 'pointer',
         },
         roomInfo: {
             display: 'flex',
@@ -50,7 +55,13 @@ const styles = makeStyles(() => {
         },
     };
 });
-export default function EditorRoomCard({ room }) {
+function EditorRoomCard({
+    room,
+    active,
+    setCurrentRoomAction,
+    hotspotCount,
+    doorCount,
+}) {
     const classes = styles();
 
     const [editOptionVisible, setEditOptionVisible] = useState(false);
@@ -73,10 +84,14 @@ export default function EditorRoomCard({ room }) {
         setEditDialogOpen(false);
     };
 
+    const goToRoom = () => {
+        setCurrentRoomAction(room);
+    };
+
     return (
         <>
-            <div className={classes.container}>
-                <div className={classes.roomInfoContainer}>
+            <div className={classes.container} style={{ borderColor: active ? '#E34B78' : '#444444' }}>
+                <div className={classes.roomInfoContainer} onClick={goToRoom}>
                     <div className={classes.roomInfo}>
                         <Typography variant="body2">
                             {room.name}
@@ -85,13 +100,13 @@ export default function EditorRoomCard({ room }) {
                             <img alt="hotspot-count" src="icons/hotspot-count-icon.svg" />
                             <Box m={0.2} />
                             <Typography variant="caption">
-                                {room.hotspots.length}
+                                {hotspotCount}
                             </Typography>
                             <Box m={0.5} />
                             <img alt="hotspot-count" src="icons/door-count-icon.svg" />
                             <Box m={0.2} />
                             <Typography variant="caption">
-                                {room.doors.length}
+                                {doorCount}
                             </Typography>
                         </div>
                     </div>
@@ -100,7 +115,7 @@ export default function EditorRoomCard({ room }) {
                     onMouseEnter={onMouseEnterImage}
                     onMouseLeave={onMouseLeaveImage}
                     className={classes.roomThumbnail}
-                    style={{ backgroundImage: 'url(france-pool.jpg)' }}
+                    style={{ backgroundImage: `url(${room.panoramaUrl.thumbnail.data})` }}
                 >
                     {editOptionVisible
                     && (
@@ -112,8 +127,19 @@ export default function EditorRoomCard({ room }) {
             </div>
             {editDialogOpen
             && (
-                <EditorEditRoom onClose={closeEditDialog} />
+                <EditorEditRoom onClose={closeEditDialog} room={room} />
             )}
         </>
     );
 }
+
+const mapStateToProps = () => {
+    return {};
+};
+
+export default connect(
+    mapStateToProps,
+    {
+        setCurrentRoomAction: setCurrentRoom,
+    },
+)(EditorRoomCard);

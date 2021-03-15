@@ -78,7 +78,7 @@ AFRAME.registerComponent('door', {
         centerDoorwayTrigger.addEventListener('raycaster-intersected', () => {
             this.inTransitionProcess = true;
             // Setting timeout of teleportation
-            hiddenMarker.setAttribute('animation__fade-out', 'dur', this.data.autoTime);
+            hiddenMarker.setAttribute('animation__fade-out', 'dur', DEFAULT_TRANSITION_TIME);
             hiddenMarker.emit('fade-out');
         });
 

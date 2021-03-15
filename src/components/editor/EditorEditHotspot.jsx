@@ -1,4 +1,6 @@
 import React from 'react';
+import mime from 'mime-types';
+import { connect } from 'react-redux';
 import {
     Box,
     Button,
@@ -15,6 +17,13 @@ import { Close } from '@material-ui/icons';
 
 import EditorAudioSelector from './EditorAudioSelector';
 import EditorImageSelector from './EditorImageSelector';
+import {
+    setHotspotName,
+    setHotspotText,
+    setHotspotImage,
+    setHotspotAudio,
+} from '../../redux/actions';
+import resizeImageAsync from '../../util/ResizeImage';
 
 const styles = makeStyles(() => {
     return {
@@ -33,8 +42,43 @@ const styles = makeStyles(() => {
         },
     };
 });
-export default function EditorEditHotspot({ onClose }) {
+function EditorEditHotspot({
+    hotspot,
+    onClose,
+    setHotspotNameAction,
+    setHotspotTextAction,
+    setHotspotImageAction,
+    setHotspotAudioAction,
+}) {
     const classes = styles();
+
+    const onNameChange = (event) => {
+        setHotspotNameAction(hotspot.id, event.target.value);
+    };
+
+    const onTextChange = (event) => {
+        setHotspotTextAction(hotspot.id, event.target.value);
+    };
+
+    const onImageChange = async (imageData, extension) => {
+        const resizedImage = await resizeImageAsync(imageData, 'hotspotImage');
+
+        setHotspotImageAction(hotspot.id, resizedImage, extension);
+    };
+
+    const onImageRemove = () => {
+        setHotspotImageAction(hotspot.id, null, '');
+    };
+
+    const onAudioChange = (data, name, type) => {
+        const extension = mime.extension(type);
+
+        setHotspotAudioAction(hotspot.id, data, extension);
+    };
+
+    const onRemoveAudio = () => {
+        setHotspotAudioAction(hotspot.id, null, '');
+    };
 
     return (
         <Dialog onClose={onClose} open maxWidth="xs" fullWidth>
@@ -56,6 +100,8 @@ export default function EditorEditHotspot({ onClose }) {
                     helperText="Enter a short name for your hotspot"
                     variant="outlined"
                     fullWidth
+                    value={hotspot.label}
+                    onChange={onNameChange}
                 />
                 <Box m={4} />
                 <TextField
@@ -66,19 +112,19 @@ export default function EditorEditHotspot({ onClose }) {
                     label="Add text"
                     helperText="Describe your hotspot"
                     variant="outlined"
+                    value={hotspot.text}
+                    onChange={onTextChange}
                 />
                 <Box m={4} />
-                <Typography variant="body1">
-                    Add image
-                </Typography>
-                <Box m={1} />
-                <EditorImageSelector />
+                <EditorImageSelector
+                    title="Add image"
+                    value={hotspot.image.data}
+                    onChange={onImageChange}
+                    removable
+                    onRemove={onImageRemove}
+                />
                 <Box m={4} />
-                <Typography variant="body1">
-                    Add audio
-                </Typography>
-                <Box m={1} />
-                <EditorAudioSelector />
+                <EditorAudioSelector title="Add audio" data={hotspot.audio.data} onChange={onAudioChange} onRemove={onRemoveAudio} />
             </DialogContent>
             <DialogActions>
                 <Button variant="text" color="primary">
@@ -88,3 +134,17 @@ export default function EditorEditHotspot({ onClose }) {
         </Dialog>
     );
 }
+
+const mapStateToProps = () => {
+    return {};
+};
+
+export default connect(
+    mapStateToProps,
+    {
+        setHotspotNameAction: setHotspotName,
+        setHotspotTextAction: setHotspotText,
+        setHotspotImageAction: setHotspotImage,
+        setHotspotAudioAction: setHotspotAudio,
+    },
+)(EditorEditHotspot);

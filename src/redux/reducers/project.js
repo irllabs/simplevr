@@ -11,6 +11,15 @@ import {
     SET_STORY_TAGS,
     SET_STORY_SOUNDTRACK,
     SET_PROJECT,
+    UPDATE_DOOR,
+    SET_ROOM_NAME,
+    SET_ROOM_BACKGROUND,
+    SET_HOTSPOT_NAME,
+    SET_HOTSPOT_TEXT,
+    SET_HOTSPOT_IMAGE,
+    SET_HOTSPOT_AUDIO,
+    SET_ROOM_BACKGROUND_MUSIC,
+    SET_ROOM_BACKGROUND_NARRATION,
 } from '../actionTypes';
 
 const initialState = null;
@@ -32,8 +41,20 @@ export default function projectReducer(state = initialState, action) {
     case SET_CURRENT_ROOM: {
         return update(state, {
             story: {
-                currentRoom: {
-                    $set: action.payload.value,
+                rooms: {
+                    $set: state.story.rooms.map((room) => {
+                        if (room.id !== action.payload.room.id) {
+                            return {
+                                ...room,
+                                active: false,
+                            };
+                        }
+
+                        return {
+                            ...room,
+                            active: true,
+                        };
+                    }),
                 },
             },
         });
@@ -42,7 +63,7 @@ export default function projectReducer(state = initialState, action) {
         return update(state, {
             story: {
                 rooms: {
-                    $set: state.rooms.map((room) => {
+                    $set: state.story.rooms.map((room) => {
                         if (room.id === action.payload.roomId) {
                             room.hotspots.push(action.payload.hotspot);
                         }
@@ -57,7 +78,7 @@ export default function projectReducer(state = initialState, action) {
         return update(state, {
             story: {
                 rooms: {
-                    $set: state.rooms.map((room) => {
+                    $set: state.story.rooms.map((room) => {
                         if (room.id === action.payload.roomId) {
                             room.doors.push(action.payload.door);
                         }
@@ -81,7 +102,7 @@ export default function projectReducer(state = initialState, action) {
         return update(state, {
             story: {
                 rooms: {
-                    hotspots: state.rooms.hotspots((hotspot) => {
+                    hotspots: state.story.rooms.hotspots((hotspot) => {
                         if (hotspot.id === action.payload.hotspot.id) {
                             return {
                                 ...hotspot,
@@ -118,6 +139,232 @@ export default function projectReducer(state = initialState, action) {
             story: {
                 soundtrack: {
                     $set: action.payload.soundtrack,
+                },
+            },
+        });
+    }
+    case UPDATE_DOOR: {
+        const currentRoom = state.story.getActiveRoom();
+
+        const doorRoom = state.story.rooms.find((room) => {
+            return room.id === currentRoom.id;
+        });
+
+        return update(state, {
+            story: {
+                rooms: {
+                    doors: {
+                        $set: doorRoom.doors.map((door) => {
+                            if (door.id === action.payload.door.id) {
+                                return {
+                                    ...door,
+                                    ...action.payload.door,
+                                };
+                            }
+
+                            return door;
+                        }),
+                    },
+                },
+            },
+        });
+    }
+    case SET_ROOM_NAME: {
+        return update(state, {
+            story: {
+                rooms: {
+                    $set: state.story.rooms.map((room) => {
+                        if (room.id !== action.payload.roomId) {
+                            return room;
+                        }
+
+                        return {
+                            ...room,
+                            name: action.payload.name,
+                        };
+                    }),
+                },
+            },
+        });
+    }
+    case SET_ROOM_BACKGROUND: {
+        const currentRoom = state.story.getActiveRoom();
+
+        return update(state, {
+            story: {
+                rooms: {
+                    $set: state.story.rooms.map((room) => {
+                        if (room.id !== currentRoom.id) {
+                            return room;
+                        }
+
+                        return {
+                            ...room,
+                            panoramaUrl: {
+                                ...room.panoramaUrl,
+                                backgroundImage: {
+                                    ...room.panoramaUrl.backgroundImage,
+                                    data: action.payload.background,
+                                },
+                                thumbnail: {
+                                    ...room.panoramaUrl.thumbnail,
+                                    data: action.payload.thumbnail,
+                                },
+                            },
+                        };
+                    }),
+                },
+            },
+        });
+    }
+    case SET_ROOM_BACKGROUND_MUSIC: {
+        return update(state, {
+            story: {
+                rooms: {
+                    $set: state.story.rooms.map((room) => {
+                        if (room.id !== action.payload.roomId) {
+                            return room;
+                        }
+
+                        return {
+                            ...room,
+                            backgroundMusic: {
+                                ...room.backgroundMusic,
+                                data: action.payload.data,
+                                extension: action.payload.extension,
+                            },
+                        };
+                    }),
+                },
+            },
+        });
+    }
+    case SET_ROOM_BACKGROUND_NARRATION: {
+        return update(state, {
+            story: {
+                rooms: {
+                    $set: state.story.rooms.map((room) => {
+                        if (room.id !== action.payload.roomId) {
+                            return room;
+                        }
+
+                        return {
+                            ...room,
+                            backgroundNarration: {
+                                ...room.backgroundNarration,
+                                data: action.payload.data,
+                                extension: action.payload.extension,
+                            },
+                        };
+                    }),
+                },
+            },
+        });
+    }
+    case SET_HOTSPOT_NAME: {
+        const currentRoom = state.story.getActiveRoom();
+        const currentRoomIndex = state.story.rooms.indexOf(currentRoom);
+
+        return update(state, {
+            story: {
+                rooms: {
+                    [currentRoomIndex]: {
+                        hotspots: {
+                            $set: currentRoom.hotspots.map((hotspot) => {
+                                if (hotspot.id !== action.payload.hotspotId) {
+                                    return hotspot;
+                                }
+
+                                return {
+                                    ...hotspot,
+                                    label: action.payload.name,
+                                };
+                            }),
+                        },
+                    },
+                },
+            },
+        });
+    }
+    case SET_HOTSPOT_TEXT: {
+        const currentRoom = state.story.getActiveRoom();
+        const currentRoomIndex = state.story.rooms.indexOf(currentRoom);
+
+        return update(state, {
+            story: {
+                rooms: {
+                    [currentRoomIndex]: {
+                        hotspots: {
+                            $set: currentRoom.hotspots.map((hotspot) => {
+                                if (hotspot.id !== action.payload.hotspotId) {
+                                    return hotspot;
+                                }
+
+                                return {
+                                    ...hotspot,
+                                    text: action.payload.text,
+                                };
+                            }),
+                        },
+                    },
+                },
+            },
+        });
+    }
+    case SET_HOTSPOT_IMAGE: {
+        const currentRoom = state.story.getActiveRoom();
+        const currentRoomIndex = state.story.rooms.indexOf(currentRoom);
+
+        return update(state, {
+            story: {
+                rooms: {
+                    [currentRoomIndex]: {
+                        hotspots: {
+                            $set: currentRoom.hotspots.map((hotspot) => {
+                                if (hotspot.id !== action.payload.hotspotId) {
+                                    return hotspot;
+                                }
+
+                                return {
+                                    ...hotspot,
+                                    image: {
+                                        ...hotspot.image,
+                                        extension: action.payload.extension,
+                                        data: action.payload.imageData,
+                                    },
+                                };
+                            }),
+                        },
+                    },
+                },
+            },
+        });
+    }
+    case SET_HOTSPOT_AUDIO: {
+        const currentRoom = state.story.getActiveRoom();
+        const currentRoomIndex = state.story.rooms.indexOf(currentRoom);
+
+        return update(state, {
+            story: {
+                rooms: {
+                    [currentRoomIndex]: {
+                        hotspots: {
+                            $set: currentRoom.hotspots.map((hotspot) => {
+                                if (hotspot.id !== action.payload.hotspotId) {
+                                    return hotspot;
+                                }
+
+                                return {
+                                    ...hotspot,
+                                    audio: {
+                                        ...hotspot.audio,
+                                        extension: action.payload.extension,
+                                        data: action.payload.data,
+                                    },
+                                };
+                            }),
+                        },
+                    },
                 },
             },
         });

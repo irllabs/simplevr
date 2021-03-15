@@ -1,5 +1,7 @@
 import { Button, makeStyles, Typography } from '@material-ui/core';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
+import mime from 'mime-types';
+
 import FileLoaderUtil from '../../util/FileLoader';
 
 const styles = makeStyles(() => {
@@ -9,7 +11,6 @@ const styles = makeStyles(() => {
             flexDirection: 'column',
         },
         imageSelectorTitle: {
-            paddingLeft: '16px',
             paddingRight: '16px',
             marginBottom: '8px',
             display: 'flex',
@@ -26,27 +27,41 @@ const styles = makeStyles(() => {
             backgroundPosition: 'center',
             position: 'relative',
         },
-        removeImage: {
-            width: '32px',
-            height: '32px',
+        optionsContainer: {
+            width: '100%',
+            height: '36px',
             position: 'absolute',
             right: '8px',
             top: '8px',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            cursor: 'pointer',
+        },
+        option: {
+            marginLeft: '8px',
+            width: '36px',
+            height: '36px',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             cursor: 'pointer',
             boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.15), 0px 4px 6px rgba(0, 0, 0, 0.15);',
             borderRadius: '32px',
+            backgroundColor: 'white',
         },
     };
 });
-export default function EditorImageSelector({ title }) {
+export default function EditorImageSelector({
+    title,
+    value,
+    onChange,
+    onRemove,
+    removable,
+}) {
     const classes = styles();
 
     const imageInputElement = useRef();
-
-    const [imageData, setImageData] = useState(null);
 
     const selectImage = () => {
         imageInputElement.current.click();
@@ -60,7 +75,13 @@ export default function EditorImageSelector({ title }) {
 
         const fileData = await FileLoaderUtil.getBinaryFileData(file);
 
-        setImageData(fileData);
+        const fileExtension = mime.extension(file.type);
+
+        onChange(fileData, fileExtension);
+    };
+
+    const removeImage = () => {
+        onRemove();
     };
 
     return (
@@ -74,20 +95,27 @@ export default function EditorImageSelector({ title }) {
             />
 
             <div className={classes.imageSelectorTitle}>
-                <Typography variant="body2">
+                <Typography variant="body1">
                     {title}
                 </Typography>
             </div>
-            {!imageData
+            {!value
             && (
                 <Button variant="outlined" fullWidth onClick={selectImage}>
                     Select image
                 </Button>
             )}
-            {imageData && (
-                <div className={classes.imageSelectorImagePreview} style={{ backgroundImage: `url(${imageData})` }}>
-                    <div className={classes.removeImage}>
-                        <img src="icons/cancel.svg" alt="remove" />
+            {value && (
+                <div className={classes.imageSelectorImagePreview} style={{ backgroundImage: `url(${value})` }}>
+                    <div className={classes.optionsContainer}>
+                        <div className={classes.option}>
+                            <img src="icons/pencil-dark.svg" alt="remove" onClick={selectImage} />
+                        </div>
+                        {removable && (
+                            <div className={classes.option}>
+                                <img src="icons/cancel.svg" alt="remove" onClick={removeImage} />
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

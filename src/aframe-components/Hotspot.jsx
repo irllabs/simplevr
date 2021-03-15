@@ -1,22 +1,20 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
 import { Entity } from 'aframe-react';
 import getTextureSizeFromText from '../util/TextMaterialBuilder';
 import { fitToMax } from '../util/ResizeImage';
+import getImageFromData from '../util/GetImageFromData';
 
 export default function Hotspot({ hotspot }) {
-    const assetImage = useRef();
     const assetsInitialized = useRef();
 
     const [assets, setAssets] = useState({});
 
-    useEffect(() => {
-        if (hotspot.text) {
-            const imageElement = assetImage.current;
+    const assetImage = useCallback((node) => {
+        assetImage.current = node;
 
-            imageElement.setAttribute('width', assets.image.width);
-            imageElement.setAttribute('height', assets.image.height);
-            imageElement.setAttribute('src', assets.image.src);
+        if (assets.image && node) {
+            initImageData();
         }
     }, []);
 
@@ -28,9 +26,17 @@ export default function Hotspot({ hotspot }) {
         return false;
     };
 
-    const setupAssets = () => {
-        // const hasImageContent: boolean = hotspot.imageContent.hasAsset();
-        const hasTextContent = !!hotspot.text;
+    const initImageData = () => {
+        const imageElement = assetImage.current;
+
+        imageElement.setAttribute('width', assets.image.width);
+        imageElement.setAttribute('height', assets.image.height);
+        imageElement.setAttribute('src', assets.image.src);
+    };
+
+    const setupAssets = async () => {
+        const hasImageContent = Boolean(hotspot.image.data);
+        const hasTextContent = Boolean(hotspot.text);
         // const hasAudio: boolean = !!hotspot.audioContent.hasAsset();
         // const location = hotspot.getLocation();
         // const position = getCoordinatePosition(location.getX(), location.getY(), 250);
@@ -38,7 +44,7 @@ export default function Hotspot({ hotspot }) {
         let width = 0;
         let height = 0;
         let textSize = null;
-        const adjustedHeight = 0;
+        let adjustedHeight = 0;
 
         if (hasTextContent) {
             textSize = getTextureSizeFromText(hotspot.text);
@@ -54,6 +60,23 @@ export default function Hotspot({ hotspot }) {
         canvas.width = width;
         canvas.height = height;
 
+        if (hasImageContent) {
+            const image = await getImageFromData(hotspot.image.data);
+            const imgWidth = image.width;
+            const imgHeight = image.height;
+
+            const adjustedWidth = imgWidth >= imgHeight && width > 0 ? width : imgWidth;
+
+            adjustedHeight = imgHeight * (adjustedWidth / imgWidth);
+            width = image.width > width ? image.width : width;
+
+            height += adjustedHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            canvasContext.drawImage(image, width / 2 - adjustedWidth / 2, 0, adjustedWidth, adjustedHeight);
+        }
+
         if (textSize !== null) {
             const textCanvas = document.createElement('canvas');
             const textCanvasContext = textCanvas.getContext('2d');
@@ -65,7 +88,7 @@ export default function Hotspot({ hotspot }) {
             canvasContext.drawImage(textCanvas, 0, adjustedHeight, width, textSize.height);
         }
 
-        if (hasTextContent) {
+        if (hasTextContent || hasImageContent) {
             const imageSize = fitToMax(canvas.width, canvas.height, 3);
             assets.image = {
                 src: canvas.toDataURL('png'),
@@ -75,6 +98,11 @@ export default function Hotspot({ hotspot }) {
         }
 
         setAssets(assets);
+
+        if (assetImage.current) {
+            initImageData();
+        }
+
         assetsInitialized.current = true;
     };
 
@@ -228,11 +256,11 @@ export default function Hotspot({ hotspot }) {
                 height="2"
                 position="0 0 -.3"
             >
-                {hotspot.text
+                {(hotspot.text || hotspot.audio.data)
                 && (
-                    <a-image ref={assetImage} visible="true" />
+                    <a-image ref={assetImage} />
                 )}
-                {hotspot.audio
+                {hotspot.audio.data
                 && (
                     <a-sound
                         volume={hotspot.volume}

@@ -14,6 +14,15 @@ import {
     SET_STORY_TAGS,
     SET_STORY_SOUNDTRACK,
     SET_PROJECT,
+    UPDATE_DOOR,
+    SET_ROOM_NAME,
+    SET_ROOM_BACKGROUND,
+    SET_HOTSPOT_NAME,
+    SET_HOTSPOT_TEXT,
+    SET_HOTSPOT_IMAGE,
+    SET_HOTSPOT_AUDIO,
+    SET_ROOM_BACKGROUND_MUSIC,
+    SET_ROOM_BACKGROUND_NARRATION,
 } from './actionTypes';
 
 // User
@@ -81,11 +90,11 @@ export const setStory = (value) => {
         },
     };
 };
-export const setCurrentRoom = (value) => {
+export const setCurrentRoom = (room) => {
     return {
         type: SET_CURRENT_ROOM,
         payload: {
-            value: value,
+            room: room,
         },
     };
 };
@@ -144,6 +153,91 @@ export const setStorySoundtrack = (soundtrack) => {
         type: SET_STORY_SOUNDTRACK,
         payload: {
             soundtrack: soundtrack,
+        },
+    };
+};
+export const updateDoor = (door) => {
+    return {
+        type: UPDATE_DOOR,
+        payload: {
+            door: door,
+        },
+    };
+};
+export const setRoomName = (roomId, name) => {
+    return {
+        type: SET_ROOM_NAME,
+        payload: {
+            roomId: roomId,
+            name: name,
+        },
+    };
+};
+export const setRoomBackground = (roomId, background, thumbnail) => {
+    return {
+        type: SET_ROOM_BACKGROUND,
+        payload: {
+            roomId: roomId,
+            background: background,
+            thumbnail: thumbnail,
+        },
+    };
+};
+export const setHotspotName = (hotspotId, name) => {
+    return {
+        type: SET_HOTSPOT_NAME,
+        payload: {
+            hotspotId: hotspotId,
+            name: name,
+        },
+    };
+};
+export const setHotspotText = (hotspotId, text) => {
+    return {
+        type: SET_HOTSPOT_TEXT,
+        payload: {
+            hotspotId: hotspotId,
+            text: text,
+        },
+    };
+};
+export const setHotspotImage = (hotspotId, imageData, extension) => {
+    return {
+        type: SET_HOTSPOT_IMAGE,
+        payload: {
+            hotspotId: hotspotId,
+            imageData: imageData,
+            extension: extension,
+        },
+    };
+};
+export const setHotspotAudio = (hotspotId, data, extension) => {
+    return {
+        type: SET_HOTSPOT_AUDIO,
+        payload: {
+            hotspotId: hotspotId,
+            data: data,
+            extension: extension,
+        },
+    };
+};
+export const setRoomBackgroundMusic = (roomId, data, extension) => {
+    return {
+        type: SET_ROOM_BACKGROUND_MUSIC,
+        payload: {
+            roomId: roomId,
+            data: data,
+            extension: extension,
+        },
+    };
+};
+export const setRoomBackgroundNarration = (roomId, data, extension) => {
+    return {
+        type: SET_ROOM_BACKGROUND_NARRATION,
+        payload: {
+            roomId: roomId,
+            data: data,
+            extension: extension,
         },
     };
 };

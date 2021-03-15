@@ -7,10 +7,6 @@ import SpeedDial from '@material-ui/lab/SpeedDial';
 import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 
-// Icons
-import HotspotIcon from '@material-ui/icons/DonutLarge';
-import DoorIcon from '@material-ui/icons/Input';
-
 // Style
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -41,14 +37,23 @@ function EditorFab({ addHotspotAction, addDoorAction, story }) {
 
     const handleAddHotspot = () => {
         const hotspot = new Hotspot();
-        addHotspotAction(hotspot, story.currentRoom.id);
+        addHotspotAction(hotspot, story.getActiveRoom().id);
 
         handleClose();
     };
 
     const handleAddDoor = () => {
+        const targetRoom = story.rooms.find((room) => {
+            return room.id !== story.getActiveRoom().id;
+        });
+
+        if (!targetRoom) {
+            return;
+        }
+
         const door = new Door();
-        addDoorAction(door, story.currentRoom.id);
+        door.targetRoomId = targetRoom.id;
+        addDoorAction(door, story.getActiveRoom().id);
 
         handleClose();
     };
@@ -58,11 +63,11 @@ function EditorFab({ addHotspotAction, addDoorAction, story }) {
     };
 
     const actions = [{
-        icon: <HotspotIcon onClick={handleAddHotspot} />,
-        name: 'Add hotspot',
-    }, {
-        icon: <DoorIcon onClick={handleAddDoor} />,
+        icon: <img src="/icons/door-icon.svg" onClick={handleAddDoor} alt="add-door" />,
         name: 'Add door',
+    }, {
+        icon: <img src="/icons/icon-add.svg" onClick={handleAddHotspot} alt="add-hotspot" />,
+        name: 'Add hotspot',
     }];
 
     return (

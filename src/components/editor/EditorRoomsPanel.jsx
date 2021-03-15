@@ -5,7 +5,7 @@ import {
     makeStyles,
     Typography,
 } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import EditorRoomCard from './EditorRoomCard';
 import EditorAddNewRoom from './EditorAddNewRoom';
 
@@ -49,16 +49,44 @@ const styles = makeStyles(() => {
             display: 'flex',
             height: '100%',
             alignItems: 'center',
+            overflow: 'hidden',
+            flex: 1,
         },
     };
 });
-function EditorRoomsPanel({ rooms }) {
+function EditorRoomsPanel({ rooms, story }) {
     const classes = styles();
+
+    const scrollPosition = useRef(0);
+
+    const roomCardsRef = useRef();
 
     const [expanded, setExpanded] = useState(false);
 
     const onToggle = () => {
         setExpanded(!expanded);
+    };
+
+    const scrollRight = () => {
+        scrollPosition.current += 250;
+
+        scrollPosition.current = Math.min(roomCardsRef.current.scrollWidth - roomCardsRef.current.clientWidth, scrollPosition.current);
+
+        roomCardsRef.current.scroll({
+            left: scrollPosition.current,
+            behavior: 'smooth',
+        });
+    };
+
+    const scrollLeft = () => {
+        scrollPosition.current -= 250;
+
+        scrollPosition.current = Math.max(0, scrollPosition.current);
+
+        roomCardsRef.current.scroll({
+            left: scrollPosition.current,
+            behavior: 'smooth',
+        });
     };
 
     return (
@@ -68,17 +96,23 @@ function EditorRoomsPanel({ rooms }) {
                 <div className={classes.body}>
                     <Divider style={{ width: '100%' }} />
                     <div className={classes.paginationControls}>
-                        <IconButton>
+                        <IconButton onClick={scrollRight}>
                             <img alt="move-right" src="icons/chevron-right.svg" />
                         </IconButton>
-                        <IconButton>
+                        <IconButton onClick={scrollLeft}>
                             <img alt="move-right" src="icons/chevron-left.svg" />
                         </IconButton>
                     </div>
-                    <div className={classes.roomCards}>
+                    <div className={classes.roomCards} ref={roomCardsRef}>
                         {rooms.map((room) => {
                             return (
-                                <EditorRoomCard key={room.id} room={room} />
+                                <EditorRoomCard
+                                    key={room.id}
+                                    room={room}
+                                    active={story.getActiveRoom().id === room.id}
+                                    hotspotCount={room.hotspots.length}
+                                    doorCount={room.doors.length}
+                                />
                             );
                         })}
                         <EditorAddNewRoom />
@@ -90,7 +124,7 @@ function EditorRoomsPanel({ rooms }) {
                     <img alt="toggle-rooms-panel" src={`icons/chevron-${expanded ? 'bottom' : 'top'}.svg`} />
                 </IconButton>
                 <Typography variant="body2">
-                    Rooms (4)
+                    Rooms ({rooms.length})
                 </Typography>
             </div>
         </div>
@@ -99,6 +133,7 @@ function EditorRoomsPanel({ rooms }) {
 
 const mapStateToProps = (state) => {
     return {
+        story: state.project.story,
         rooms: state.project.story.rooms,
     };
 };

@@ -18,7 +18,6 @@ const styles = makeStyles(() => {
             flexDirection: 'column',
         },
         audioSelectorTitle: {
-            paddingLeft: '16px',
             paddingRight: '16px',
             marginBottom: '8px',
             display: 'flex',

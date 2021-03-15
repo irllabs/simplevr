@@ -8,7 +8,6 @@ export default class Story {
         this.soundtrack = new Soundtrack();
         this.tags = [];
         this.rooms = [];
-        this.currentRoom = null;
     }
 
     toJSON(projectId) {
@@ -43,5 +42,11 @@ export default class Story {
 
     getStoryTagsString() {
         return this.tags.join(',');
+    }
+
+    getActiveRoom() {
+        return this.rooms.find((room) => {
+            return room.active;
+        });
     }
 }

@@ -2,10 +2,10 @@ import React from 'react';
 
 export default function Door({ door }) {
     const params = () => {
-        const { location, id } = door;
+        const { location, targetRoomId } = door;
 
         return `coordinates: ${location.x} ${location.y};
-                roomId: ${id};
+                roomId: ${targetRoomId};
                 autoTime: ${false}`;
     };
 
@@ -93,14 +93,16 @@ export default function Door({ door }) {
                     to: 1;
                     dur: 500;
                     pauseEvents: stop-fade-in;
-                    startEvents: start-fade-in;"
+                    startEvents: start-fade-in;
+                "
                 animation__fade-out="
                     property: opacity;
                     from: 1;
                     to: 0;
                     dur: 500;
                     pauseEvents: stop-fade-out;
-                    startEvents: start-fade-out;"
+                    startEvents: start-fade-out;
+                "
                 position="0 0 .1"
                 hidden-marker
                 width=".5"
