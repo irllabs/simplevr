@@ -20,9 +20,19 @@ export default class Project {
         return {
             id: this.id,
             isPublic: this.isPublic,
-            thumbnailUrl: this.thumbnail.getRemoteFilePath(this.id),
-            story: this.story.toJSON(),
+            thumbnail: this.thumbnail.toJSON(this.id),
+            story: this.story.toJSON(this.id),
             userId: userId,
         };
+    }
+
+    /**
+     * Create new project from data stored in Firebase Firestore.
+     */
+    fromJSON(data) {
+        this.id = data.id;
+        this.isPublic = data.isPublic;
+        this.thumbnail.fromJSON(data.thumbnail);
+        this.story.fromJSON(data.story);
     }
 }

@@ -1,5 +1,7 @@
 // External libraries
 import React, { useContext, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 // External UI Components
 import { IconButton, makeStyles, Typography } from '@material-ui/core';
@@ -7,9 +9,8 @@ import { IconButton, makeStyles, Typography } from '@material-ui/core';
 // Firebase
 import { FirebaseContext } from '../../firebase';
 import ShareStoryDialog from './ShareStoryDialog';
-
-// Components
-// import ShareStoryDialog from '../../share-story-dialog/share-story-dialog';
+import Project from '../../models/project';
+import { setCurrentRoom, setProject, setStory } from '../../redux/actions';
 
 const styles = makeStyles(() => {
     return {
@@ -52,17 +53,24 @@ const styles = makeStyles(() => {
         },
     };
 });
-export default function ProjectCard({ project }) {
+function ProjectCard({
+    project,
+    setProjectAction,
+    setStoryAction,
+    setCurrentRoomAction,
+}) {
     const classes = styles();
 
     const firebaseContext = useContext(FirebaseContext);
+
+    const history = useHistory();
 
     const [optionsVisible, setOptionsVisible] = useState(false);
     const [thumbnailUrl, setThumbnailUrl] = useState('');
     const [shareStoryDialogOpen, setShareStoryDialogOpen] = useState(false);
 
     useEffect(async () => {
-        const url = await firebaseContext.getDownloadUrl(project.thumbnailUrl);
+        const url = await firebaseContext.getDownloadUrl(project.thumbnail.remotePath);
 
         setThumbnailUrl(url);
     }, []);
@@ -84,9 +92,28 @@ export default function ProjectCard({ project }) {
         setShareStoryDialogOpen(false);
     };
 
-    /* const onEditStory = () => {
-        // Open story for editing
-    }; */
+    const onEditStory = async () => {
+        // Get project thumbnail download URL
+        project.thumbnail.data = await firebaseContext.getDownloadUrl(project.thumbnail.remotePath);
+
+        // Get room image download URL
+        for (let i = 0; i < project.story.rooms.length; i += 1) {
+            const room = project.story.rooms[i];
+
+            room.panoramaUrl.backgroundImage.data = await firebaseContext.getDownloadUrl(room.panoramaUrl.backgroundImage.remotePath);
+        }
+
+        const projectModel = new Project();
+        projectModel.fromJSON(project);
+
+        // Set newly created story (and first room) as active story in redux
+        setProjectAction(projectModel);
+        setStoryAction(projectModel.story);
+        setCurrentRoomAction(projectModel.story.rooms[0]);
+
+        // Navigate to editor for further story edits
+        history.push('/editor');
+    };
 
     return (
         <div className={classes.projectCardContainer} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
@@ -114,7 +141,7 @@ export default function ProjectCard({ project }) {
                 {optionsVisible && thumbnailUrl && !project.publicStory
                 && (
                     <div className={classes.storyCardOptions}>
-                        <IconButton>
+                        <IconButton onClick={onEditStory}>
                             <img src="/icons/edit-icon.svg" alt="edit" />
                         </IconButton>
                         <IconButton onClick={onOpenShareStory}>
@@ -127,3 +154,16 @@ export default function ProjectCard({ project }) {
         </div>
     );
 }
+
+const mapStateToProps = () => {
+    return {};
+};
+
+export default connect(
+    mapStateToProps,
+    {
+        setProjectAction: setProject,
+        setStoryAction: setStory,
+        setCurrentRoomAction: setCurrentRoom,
+    },
+)(ProjectCard);

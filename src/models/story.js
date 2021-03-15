@@ -1,4 +1,5 @@
 // Models
+import Room from './room';
 import Soundtrack from './soundtrack';
 
 export default class Story {
@@ -10,11 +11,30 @@ export default class Story {
         this.currentRoom = null;
     }
 
-    toJSON() {
-        return {
-            name: this.name,
-            tags: this.getStoryTagsString(),
-        };
+    toJSON(projectId) {
+        const json = {};
+
+        json.name = this.name;
+        json.tags = this.getStoryTagsString();
+
+        json.rooms = [];
+        this.rooms.forEach((room) => {
+            json.rooms.push(room.toJSON(projectId));
+        });
+
+        return json;
+    }
+
+    fromJSON(json) {
+        this.name = json.name;
+        this.tags = json.tags ? json.tags.split(',') : [];
+
+        json.rooms.forEach((jsonRoom) => {
+            const room = new Room();
+            room.fromJSON(jsonRoom);
+
+            this.rooms.push(room);
+        });
     }
 
     addRoom(room) {

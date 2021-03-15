@@ -120,6 +120,13 @@ class Firebase {
         if (project.story.soundtrack.data) {
             await this.uploadFileFromDataUrl(project.story.soundtrack.getRemoteFilePath(project.id), project.story.soundtrack.data);
         }
+
+        // Save story room image data in Firebase Storage
+        for (let i = 0; i < project.story.rooms.length; i += 1) {
+            const room = project.story.rooms[i];
+
+            await this.uploadFileFromDataUrl(room.panoramaUrl.backgroundImage.getRemoteFilePath(project.id), room.panoramaUrl.backgroundImage.data);
+        }
     }
 
     updateProjectPublicFlag = async (projectId, isPublic) => {

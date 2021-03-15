@@ -48,7 +48,10 @@ function EditorAddNewRoom({ addRoomAction }) {
 
         // Create new room
         const room = new Room();
-        room.panoramaUrl = resizedImage;
+        room.panoramaUrl.backgroundImage.data = resizedImage.backgroundImage;
+        room.panoramaUrl.backgroundImage.extension = 'jpeg';
+        room.panoramaUrl.thumbnail.data = resizedImage.thumbnail;
+        room.panoramaUrl.thumbnail.extension = 'jpeg';
 
         addRoomAction(room);
 

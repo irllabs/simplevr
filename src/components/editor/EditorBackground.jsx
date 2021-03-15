@@ -23,7 +23,7 @@ function EditBackground({ story }) {
 
     return (
         <div>
-            <img src={story.currentRoom.panoramaUrl.backgroundImage} alt="room-background" className={classes.backgroundImage} draggable={false} />
+            <img src={story.currentRoom.panoramaUrl.backgroundImage.data} alt="room-background" className={classes.backgroundImage} draggable={false} />
             {story.currentRoom.hotspots.map((hotspot) => {
                 return (
                     <EditorHotspot key={hotspot.id} hotspot={hotspot} />

@@ -35,7 +35,7 @@ function Scene({ story }) {
                 );
             })}
 
-            <Entity primitive="a-sky" radius="512" src={story.currentRoom.panoramaUrl.backgroundImage} />
+            <Entity primitive="a-sky" radius="512" src={story.currentRoom.panoramaUrl.backgroundImage.data} />
 
         </AframeScene>
     );
