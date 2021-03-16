@@ -1,40 +1,31 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Entity } from 'aframe-react';
 import getTextureSizeFromText from '../util/TextMaterialBuilder';
 import { fitToMax } from '../util/ResizeImage';
 import getImageFromData from '../util/GetImageFromData';
 
-export default function Hotspot({ hotspot }) {
-    const assetsInitialized = useRef();
+export default ({ hotspot }) => {
+    const [imageSrc, setImageSrc] = useState('');
+    const [imageWidth, setImageWidth] = useState(0);
+    const [imageHeight, setImageHeight] = useState(0);
 
-    const [assets, setAssets] = useState({});
-
-    const assetImage = useCallback((node) => {
-        assetImage.current = node;
-
-        if (assets.image && node) {
-            initImageData();
-        }
+    useEffect(() => {
+        setupAssets();
     }, []);
 
     const params = () => {
-        return `coordinates: ${hotspot.location.getX()} ${hotspot.location.getY()};`;
+        return `coordinates: ${hotspot.location.getX()} ${hotspot.location.getY()};
+            isAudioOnly: ${isAudioOnly()}`;
     };
 
     const isAudioOnly = () => {
         return !hotspot.image.data && !hotspot.text;
     };
 
-    const initImageData = () => {
-        const imageElement = assetImage.current;
-
-        imageElement.setAttribute('width', assets.image.width);
-        imageElement.setAttribute('height', assets.image.height);
-        imageElement.setAttribute('src', assets.image.src);
-    };
-
     const setupAssets = async () => {
+        const assets = {};
+
         const hasImageContent = Boolean(hotspot.image.data);
         const hasTextContent = Boolean(hotspot.text);
         // const hasAudio: boolean = !!hotspot.audioContent.hasAsset();
@@ -97,18 +88,12 @@ export default function Hotspot({ hotspot }) {
             };
         }
 
-        setAssets(assets);
-
-        if (assetImage.current) {
-            initImageData();
+        if (assets.image) {
+            setImageSrc(assets.image.src);
+            setImageWidth(assets.image.width);
+            setImageHeight(assets.image.height);
         }
-
-        assetsInitialized.current = true;
     };
-
-    if (!assetsInitialized.current) {
-        setupAssets();
-    }
 
     return (
         <Entity
@@ -222,31 +207,21 @@ export default function Hotspot({ hotspot }) {
                     opacity="0"
                     alpha-test=".5"
                     animation__fade-in="
-                    property: opacity;
-                    from: 0;
-                    to: 1;
-                    dur: 500;
-                    pauseEvents: stop-fade-in;
-                    startEvents: start-fade-in;"
+                        property: opacity;
+                        from: 0;
+                        to: 1;
+                        dur: 500;
+                        pauseEvents: stop-fade-in;
+                        startEvents: start-fade-in;"
                     animation__fade-out="
                         property: opacity;
                         from: 1;
                         to: 0;
                         dur: 500;
                         pauseEvents: stop-fade-out;
-                        startEvents: start-fade-out;
-                        "
+                        startEvents: start-fade-out;"
                 />
             )}
-
-            <a-text
-                value="test-name-text"
-                class="hotspot-name"
-                align="center"
-                visible="false"
-                position="0 -.5 0"
-                alpha-test=".5"
-            />
 
             <a-entity
                 hotspot-content
@@ -256,9 +231,13 @@ export default function Hotspot({ hotspot }) {
                 height="2"
                 position="0 0 -.3"
             >
-                {(hotspot.text || hotspot.audio.data)
+                {(hotspot.text || hotspot.image.data)
                 && (
-                    <a-image ref={assetImage} />
+                    <a-image
+                        src={imageSrc}
+                        width={imageWidth}
+                        height={imageHeight}
+                    />
                 )}
                 {hotspot.audio.data
                 && (
