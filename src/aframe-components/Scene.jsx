@@ -26,6 +26,13 @@ function Scene({ story, setCurrentRoomAction }) {
         sceneRef.current.emit('reset-camera');
     };
 
+    const getRoomName = (roomId) => {
+        const room = story.rooms.find((room) => {
+            return room.id === roomId;
+        });
+        return room.name;
+    }
+
     const activeRoom = story.rooms.find((room) => {
         return room.active;
     });
@@ -58,7 +65,7 @@ function Scene({ story, setCurrentRoomAction }) {
 
             {activeRoom.doors.map((door) => {
                 return (
-                    <Door key={door.id} door={door} />
+                    <Door key={door.id} door={door} targetRoomName={getRoomName(door.targetRoomId)} />
                 );
             })}
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Door({ door }) {
+export default function Door({ door, targetRoomName }) {
     const params = () => {
         const { location, targetRoomId } = door;
 
@@ -47,7 +47,7 @@ export default function Door({ door }) {
             />
 
             <a-text
-                value={door.label}
+                value={targetRoomName}
                 class="hotspot-name"
                 align="center"
                 position="0 -.5 0"
