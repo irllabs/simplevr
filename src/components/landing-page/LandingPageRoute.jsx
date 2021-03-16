@@ -79,8 +79,6 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
         room.panoramaUrl.thumbnail.extension = 'jpeg';
 
         project.story.addRoom(room);
-        project.thumbnail.data = resizedImage.thumbnail;
-        project.thumbnail.extension = 'jpeg';
 
         // Set newly created story (and first room) as active story in redux
         setProjectAction(project);

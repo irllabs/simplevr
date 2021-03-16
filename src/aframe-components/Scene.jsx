@@ -62,6 +62,28 @@ function Scene({ story, setCurrentRoomAction }) {
                 );
             })}
 
+            {activeRoom &&
+            <a-entity>
+                {activeRoom.backgroundNarration.data &&
+                <a-sound
+                    src={activeRoom.backgroundNarration.data}
+                    autoplay={true}
+                    volume={activeRoom.backgroundNarration.volume}
+                    class="narration-audio"
+                    sound="positional: false"
+                >
+                </a-sound>}
+                {activeRoom.backgroundMusic.data &&
+                <a-sound
+                    src={activeRoom.backgroundMusic.data}
+                    autoplay={true}
+                    volume={activeRoom.backgroundMusic.volume}
+                    loop="true"
+                    sound="positional: false"
+                >
+                </a-sound>}
+            </a-entity>}
+
             <a-sky src={activeRoom.panoramaUrl.backgroundImage.data} radius="512" />
 
         </a-scene>

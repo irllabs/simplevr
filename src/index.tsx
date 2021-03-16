@@ -23,6 +23,7 @@ import './aframe-components/aframe/HotspotContent';
 import './aframe-components/aframe/DoorPulsatingMarker';
 import './aframe-components/aframe/Door';
 import './aframe-components/aframe/PreviewSpace';
+import './aframe-components/aframe/PlayOnce';
 
 ReactDOM.render(
     <React.StrictMode>

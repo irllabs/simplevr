@@ -142,7 +142,7 @@ function EditorHeader({ project }) {
             )}
             {shareStoryDialogOpen
             && (
-                <ShareStoryDialog onClose={onCloseShareStory} thumbnailUrl={project.thumbnail.data} project={project} />
+                <ShareStoryDialog onClose={onCloseShareStory} thumbnailUrl={project.story.rooms[0].panoramaUrl.thumbnail.data} project={project} />
             )}
         </>
     );
