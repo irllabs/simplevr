@@ -70,7 +70,9 @@ function ProjectCard({
     const [shareStoryDialogOpen, setShareStoryDialogOpen] = useState(false);
 
     useEffect(async () => {
-        const url = await firebaseContext.getDownloadUrl(project.thumbnail);
+        const firstRoom = project.story.rooms[0];
+
+        const url = await firebaseContext.getDownloadUrl(firstRoom.thumbnail.remoteFilePath);
 
         setThumbnailUrl(url);
     }, []);
@@ -93,20 +95,9 @@ function ProjectCard({
     };
 
     const onEditStory = async () => {
-        // Get project thumbnail download URL
-        project.thumbnail.data = await firebaseContext.getDownloadUrl(project.thumbnail);
+        const projectModel = await firebaseContext.loadProject(project);
 
-        // Get room image download URL
-        for (let i = 0; i < project.story.rooms.length; i += 1) {
-            const room = project.story.rooms[i];
-
-            room.panoramaUrl.backgroundImage.data = await firebaseContext.getDownloadUrl(room.panoramaUrl.backgroundImage.remotePath);
-        }
-
-        const projectModel = new Project();
-        projectModel.fromJSON(project);
-
-        // Set newly created story (and first room) as active story in redux
+        // Set newly loaded story (and first room) as active story in redux
         setProjectAction(projectModel);
         setStoryAction(projectModel.story);
         setCurrentRoomAction(projectModel.story.rooms[0]);

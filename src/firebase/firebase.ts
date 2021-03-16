@@ -7,6 +7,7 @@ import _ from 'lodash';
 import Project from '../models/project';
 import StorageProject from '../models/storage/StorageProject';
 import User from '../models/user';
+import ProjectDeserializer from '../service/ProjectDeserializer';
 import ProjectSerializer from '../service/ProjectSerializer';
 
 const firebaseConfig = {
@@ -144,6 +145,12 @@ class Firebase {
                 await this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(hotspot.audio), hotspot.audio.data);
             }
         }
+    }
+
+    loadProject = async (storageProject: StorageProject): Promise<Project> => {
+        const projectDeserializer = new ProjectDeserializer();
+
+        return await projectDeserializer.deserialize(storageProject);
     }
 
     updateProjectPublicFlag = async (projectId: string, isPublic: boolean) => {

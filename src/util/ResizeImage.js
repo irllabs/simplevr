@@ -61,6 +61,7 @@ function getResizedImage(imageUrl, sizeOption) {
         try {
             const canvas = (document.createElement('canvas'));
             const img = new Image();
+            img.crossOrigin = 'anonymous';
 
             img.onload = () => {
                 const resizeDimensions = SIZE_OPTIONS[sizeOption](img.width, img.height);
