@@ -5,7 +5,7 @@ import Room from '../../models/room';
 import FileLoaderUtil from '../../util/FileLoader';
 import resizeImageAsync from '../../util/ResizeImage';
 
-import { addRoom } from '../../redux/actions';
+import { addRoom, setCurrentRoom } from '../../redux/actions';
 
 const styles = makeStyles(() => {
     return {
@@ -29,7 +29,7 @@ const styles = makeStyles(() => {
         },
     };
 });
-function EditorAddNewRoom({ addRoomAction }) {
+function EditorAddNewRoom({ addRoomAction, setCurrentRoomAction }) {
     const classes = styles();
 
     const fileInput = useRef();
@@ -55,6 +55,8 @@ function EditorAddNewRoom({ addRoomAction }) {
         room.panoramaUrl.thumbnail.extension = 'jpeg';
 
         addRoomAction(room);
+
+        setCurrentRoomAction(room);
 
         // In order to allow user to upload multiple times, we need to reset input target value
         // eslint-disable-next-line no-param-reassign
@@ -85,5 +87,6 @@ export default connect(
     mapStateToProps,
     {
         addRoomAction: addRoom,
+        setCurrentRoomAction: setCurrentRoom,
     },
 )(EditorAddNewRoom);
