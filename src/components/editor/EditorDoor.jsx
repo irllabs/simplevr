@@ -37,7 +37,7 @@ const styles = makeStyles(() => {
         },
     };
 });
-export default function EditorDoor({ door }) {
+export default function EditorDoor({ door, targetRoomName }) {
     const classes = styles();
 
     const [position, setPosition] = useState({
@@ -127,7 +127,7 @@ export default function EditorDoor({ door }) {
                 </div>
                 <div className={classes.doorLabelContainer}>
                     <Typography variant="body2" color="textSecondary">
-                        {door.label}
+                        {targetRoomName}
                     </Typography>
                 </div>
             </div>

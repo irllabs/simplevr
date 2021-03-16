@@ -21,6 +21,13 @@ const styles = makeStyles(() => {
 function EditBackground({ story }) {
     const classes = styles();
 
+    const getRoomName = (roomId) => {
+        const room = story.rooms.find((room) => {
+            return room.id === roomId;
+        });
+        return room.name;
+    }
+
     const activeRoom = story.rooms.find((room) => {
         return room.active;
     });
@@ -35,7 +42,7 @@ function EditBackground({ story }) {
             })}
             {activeRoom.doors.map((door) => {
                 return (
-                    <EditorDoor key={door.id} door={door} />
+                    <EditorDoor key={door.id} door={door} targetRoomName={getRoomName(door.targetRoomId)} />
                 );
             })}
         </div>
