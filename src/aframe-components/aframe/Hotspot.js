@@ -33,6 +33,14 @@ AFRAME.registerComponent('hotspot', {
                 return el !== this.el && el.emit('hide');
             });
     },
+    showHotspotName: function showHotspotName() {
+        this.hotspotName.setAttribute('visible', true);
+        console.log('show');
+    },
+    hideHotspotName: function hideHotspotName() {
+        this.hotspotName.setAttribute('visible', false);
+        console.log('hide')
+    },
     init: function init() {
         const { x, y, z } = this.data.coordinates;
 
@@ -52,6 +60,7 @@ AFRAME.registerComponent('hotspot', {
         this.hotspotContent = this.el.querySelector('[hotspot-content]');
         this.hiddenMarker = this.el.querySelector('[hidden-marker]');
         this.pulsatingMarker = this.el.querySelector('[pulsating-marker]');
+        this.hotspotName = this.el.querySelector('.hotspot-name');
 
         // Binding current scope to event`s callbacks
         this.hideHotspot = this.hideHotspot.bind(this);
@@ -64,11 +73,13 @@ AFRAME.registerComponent('hotspot', {
         this.outerTrigger.addEventListener('raycaster-intersected', () => {
             this.pulsatingMarker.emit('scale-out');
             this.hiddenMarker.emit('fade-in');
+            this.showHotspotName();
         });
 
         this.outerTrigger.addEventListener('raycaster-intersected-cleared', () => {
             this.pulsatingMarker.emit('scale-in');
             this.hiddenMarker.emit('fade-out');
+            this.hideHotspotName();
         });
 
         this.centerTrigger.addEventListener('raycaster-intersected', () => {
@@ -83,6 +94,7 @@ AFRAME.registerComponent('hotspot', {
             this.pulsatingMarker.emit('scale-out');
             this.hotspotContent.emit('show-content');
             this.hideOtherHotspots();
+            this.hideHotspotName();
         });
 
         this.contentZoneTrigger.addEventListener('raycaster-intersected-cleared', () => {
@@ -91,6 +103,7 @@ AFRAME.registerComponent('hotspot', {
             }
             this.hotspotContent.emit('hide-content');
             this.showOtherHotspots();
+            this.showHotspotName();
             this.contentIsActive = false;
         });
         this.el.emit('hide');

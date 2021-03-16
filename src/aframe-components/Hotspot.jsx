@@ -223,6 +223,15 @@ export default ({ hotspot }) => {
                 />
             )}
 
+            <a-text
+                value={hotspot.label}
+                class="hotspot-name"
+                align="center"
+                visible="false"
+                position="0 -.5 0"
+                alpha-test=".5"
+            />
+
             <a-entity
                 hotspot-content
                 class="hotspot-content"
