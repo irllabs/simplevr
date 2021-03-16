@@ -1,8 +1,10 @@
-import { Button, makeStyles, Typography } from '@material-ui/core';
-import React, { useRef } from 'react';
+import { makeStyles, Typography } from '@material-ui/core';
 import mime from 'mime-types';
+import { useRef } from 'react';
 
 import FileLoaderUtil from '../../util/FileLoader';
+
+import EditorFileSelector from './EditorFileSelector.tsx';
 
 const styles = makeStyles(() => {
     return {
@@ -63,13 +65,7 @@ export default function EditorImageSelector({
 
     const imageInputElement = useRef();
 
-    const selectImage = () => {
-        imageInputElement.current.click();
-    };
-
-    const onImageSelected = async (event) => {
-        const file = event.target.files && event.target.files[0];
-
+    const processSelectedImage = async (file) => {
         // Verify if input file is of valid type and format
         await FileLoaderUtil.validateFileLoadEvent(file, 'image');
 
@@ -78,6 +74,15 @@ export default function EditorImageSelector({
         const fileExtension = mime.extension(file.type);
 
         onChange(fileData, fileExtension);
+    }
+
+    const selectImage = () => {
+        imageInputElement.current.click();
+    };
+
+    const onImageSelected = (event) => {
+        const file = event.target.files && event.target.files[0];
+        processSelectedImage(file);
     };
 
     const removeImage = () => {
@@ -88,12 +93,10 @@ export default function EditorImageSelector({
         <div className={classes.imageSelectorContainer}>
             <input
                 type="file"
-                className={classes.input}
                 ref={imageInputElement}
                 onChange={onImageSelected}
                 style={{ display: 'none' }}
             />
-
             <div className={classes.imageSelectorTitle}>
                 <Typography variant="body1">
                     {title}
@@ -101,9 +104,7 @@ export default function EditorImageSelector({
             </div>
             {!value
             && (
-                <Button variant="outlined" fullWidth onClick={selectImage}>
-                    Select image
-                </Button>
+                <EditorFileSelector onChange={processSelectedImage} />
             )}
             {value && (
                 <div className={classes.imageSelectorImagePreview} style={{ backgroundImage: `url(${value})` }}>

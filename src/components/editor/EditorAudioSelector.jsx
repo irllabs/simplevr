@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
-    Button,
     IconButton,
     Typography,
     makeStyles,
@@ -10,6 +9,8 @@ import {
     Switch,
 } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
+
+import EditorFileSelector from './EditorFileSelector';
 
 const styles = makeStyles(() => {
     return {
@@ -82,7 +83,6 @@ export default function EditorAudioSelector({
     const classes = styles();
 
     const audioElement = useRef();
-    const audioInput = useRef();
 
     const [audioData, setAudioData] = useState(data || null);
     const [playInLoop, setPlayInLoop] = useState(false);
@@ -121,6 +121,10 @@ export default function EditorAudioSelector({
     const onAudioSelected = (event) => {
         const file = event.target.files[0];
 
+        processSelectedFile(file);
+    };
+
+    const processSelectedFile = (file) => {
         const fileReader = new FileReader();
         fileReader.onloadend = () => {
             setAudioData(fileReader.result);
@@ -129,7 +133,7 @@ export default function EditorAudioSelector({
             onChange(fileReader.result, file.name, file.type);
         };
         fileReader.readAsDataURL(file);
-    };
+    }
 
     const removeAudio = () => {
         setAudioData(null);
@@ -156,10 +160,6 @@ export default function EditorAudioSelector({
         setPlayInLoop(!playInLoop);
     };
 
-    const selectAudio = () => {
-        audioInput.current.click();
-    };
-
     return (
         <div className={classes.audioSelectorContainer}>
             <audio
@@ -173,12 +173,10 @@ export default function EditorAudioSelector({
                     {title}
                 </Typography>
             </div>
-            <input type="file" id="audio-selector-input" style={{ display: 'none' }} onChange={onAudioSelected} ref={audioInput} />
+            <input type="file" id="audio-selector-input" style={{ display: 'none' }} onChange={onAudioSelected} />
             {!audioData
             && (
-                <Button variant="outlined" fullWidth onClick={selectAudio}>
-                    Select audio
-                </Button>
+                <EditorFileSelector onChange={processSelectedFile} />
             )}
             {audioData
             && (
