@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { Box, Divider } from '@material-ui/core';
+import { Box, CircularProgress, Divider } from '@material-ui/core';
 import React, { useContext, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import BackArrowIcon from '@material-ui/icons/KeyboardBackspace';
@@ -86,13 +86,16 @@ function EditorHeader({ project }) {
 
     const [editStoryOpen, setEditStoryOpen] = useState(false);
     const [shareStoryDialogOpen, setShareStoryDialogOpen] = useState(false);
+    const [saving, setSaving] = useState(false);
 
     const onEditStory = () => {
         setEditStoryOpen(true);
     };
 
-    const onSaveStory = () => {
-        firebaseContext.saveProject(project);
+    const onSaveStory = async () => {
+        setSaving(true);
+        await firebaseContext.saveProject(project);
+        setSaving(false);
     };
 
     const onCloseEditStory = () => {
@@ -122,7 +125,7 @@ function EditorHeader({ project }) {
                         <img alt="edit-story" src="/icons/pencil.svg" />
                     </IconButton>
                     <IconButton className={classes.toolBarIcon} onClick={onSaveStory}>
-                        <SaveIcon />
+                        {saving ? <CircularProgress size={24} /> : <SaveIcon />}
                     </IconButton>
                     <IconButton className={classes.toolBarIcon} onClick={onShareStory}>
                         <img alt="share-story" src="/icons/share-icon-light.svg" />

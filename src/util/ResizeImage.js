@@ -70,7 +70,7 @@ function getResizedImage(imageUrl, sizeOption) {
                 canvas.height = resizeDimensions.getY();
                 canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, 0, 0, resizeDimensions.getX(), resizeDimensions.getY());
 
-                resolve(canvas.toDataURL(MIME_TYPE_JPEG, 1));
+                resolve(canvas.toDataURL(MIME_TYPE_JPEG, 0.8));
             };
 
             img.src = imageUrl;

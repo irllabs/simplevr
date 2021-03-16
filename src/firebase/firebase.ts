@@ -123,28 +123,32 @@ class Firebase {
             // Firestore does not accept custom objects, so we need to use this method to get pure JS object
             .set(JSON.parse(JSON.stringify(storageProject)), { merge: true });
 
+        const uploadPromises = [];
+
         // Save story soundtrack data in Firebase Storage
         if (project.story.soundtrack.data) {
-            await this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(project.story.soundtrack), project.story.soundtrack.data);
+            uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(project.story.soundtrack), project.story.soundtrack.data));
         }
 
         // Save story rooms data in Firebase Storage
         for (let i = 0; i < project.story.rooms.length; i += 1) {
             const room = project.story.rooms[i];
 
-            await this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.panoramaUrl.backgroundImage), room.panoramaUrl.backgroundImage.data);
-            await this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.panoramaUrl.thumbnail), room.panoramaUrl.thumbnail.data);
-            await this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.backgroundMusic), room.backgroundMusic.data);
-            await this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.backgroundNarration), room.backgroundNarration.data);
+            uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.panoramaUrl.backgroundImage), room.panoramaUrl.backgroundImage.data));
+            uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.panoramaUrl.thumbnail), room.panoramaUrl.thumbnail.data));
+            uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.backgroundMusic), room.backgroundMusic.data));
+            uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.backgroundNarration), room.backgroundNarration.data));
 
             // Save room hotspots data in Firebase storage
             for (let j = 0; j < room.hotspots.length; j++) {
                 const hotspot = room.hotspots[j];
 
-                await this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(hotspot.image), hotspot.image.data);
-                await this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(hotspot.audio), hotspot.audio.data);
+                uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(hotspot.image), hotspot.image.data));
+                uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(hotspot.audio), hotspot.audio.data));
             }
         }
+
+        await Promise.all(uploadPromises);
     }
 
     loadProject = async (storageProject: StorageProject): Promise<Project> => {
