@@ -70,7 +70,7 @@ function ProjectCard({
     const [shareStoryDialogOpen, setShareStoryDialogOpen] = useState(false);
 
     useEffect(async () => {
-        const url = await firebaseContext.getDownloadUrl(project.thumbnail.remotePath);
+        const url = await firebaseContext.getDownloadUrl(project.thumbnail);
 
         setThumbnailUrl(url);
     }, []);
@@ -94,7 +94,7 @@ function ProjectCard({
 
     const onEditStory = async () => {
         // Get project thumbnail download URL
-        project.thumbnail.data = await firebaseContext.getDownloadUrl(project.thumbnail.remotePath);
+        project.thumbnail.data = await firebaseContext.getDownloadUrl(project.thumbnail);
 
         // Get room image download URL
         for (let i = 0; i < project.story.rooms.length; i += 1) {

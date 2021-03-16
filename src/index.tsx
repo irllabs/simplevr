@@ -13,7 +13,7 @@ import App from './app';
 import store from './redux/store';
 
 // Database
-import { FirebaseContext, Firebase } from './firebase/index';
+import { FirebaseContext, firebase } from './firebase/index';
 
 // AFrame Components
 import './aframe-components/aframe/Hotspot';
@@ -27,7 +27,7 @@ import './aframe-components/aframe/PreviewSpace';
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
-            <FirebaseContext.Provider value={new Firebase()}>
+            <FirebaseContext.Provider value={firebase}>
                 <App />
             </FirebaseContext.Provider>
         </Provider>

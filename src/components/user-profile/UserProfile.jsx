@@ -30,7 +30,7 @@ import {
 import { setIsShowingSignInDialog, setUser } from '../../redux/actions';
 
 // Database
-import FirebaseContext from '../../firebase/context';
+import FirebaseContext from '../../firebase/context.ts';
 
 const styles = makeStyles(() => {
     return {
