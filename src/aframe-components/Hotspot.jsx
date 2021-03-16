@@ -18,17 +18,6 @@ export default function Hotspot({ hotspot }) {
         }
     }, []);
 
-    const assetAudio = useCallback((node) => {
-        assetAudio.current = node;
-
-        if (hotspot.audio.data) {
-            const audioElement = assetAudio.current;
-
-            audioElement.setAttribute('loop', hotspot.audio.loop);
-            audioElement.setAttribute('src', hotspot.audio.data);
-        }
-    })
-
     const params = () => {
         return `coordinates: ${hotspot.location.getX()} ${hotspot.location.getY()};`;
     };
@@ -274,7 +263,7 @@ export default function Hotspot({ hotspot }) {
                 {hotspot.audio.data
                 && (
                     <a-sound
-                        ref={assetAudio}
+                        src={hotspot.audio.data}
                         volume={hotspot.volume}
                         loop={hotspot.loop}
                         sound="positional: false"
