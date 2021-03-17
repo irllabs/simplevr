@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 import { IconButton, makeStyles, Typography } from '@material-ui/core';
 
 // Firebase
-import { FirebaseContext } from '../../firebase';
+import FirebaseContext from '../../firebase/context.ts';
 import ShareStoryDialog from '../dialogs/ShareStoryDialog';
 import Project from '../../models/project';
 import { setCurrentRoom, setProject, setStory } from '../../redux/actions';
@@ -55,6 +55,7 @@ const styles = makeStyles(() => {
 });
 function ProjectCard({
     project,
+    isPublic,
     setProjectAction,
     setStoryAction,
     setCurrentRoomAction,
@@ -78,12 +79,22 @@ function ProjectCard({
     }, []);
 
     const onMouseEnter = () => {
-        setOptionsVisible(true);
+        if (!isPublic) {
+            setOptionsVisible(true);
+        }
     };
 
     const onMouseLeave = () => {
-        setOptionsVisible(false);
+        if (!isPublic) {
+            setOptionsVisible(false);
+        }
     };
+
+    const onClick = () => {
+        if (isPublic) {
+            onViewStory();
+        }
+    }
 
     const onOpenShareStory = () => {
         setShareStoryDialogOpen(true);
@@ -106,8 +117,21 @@ function ProjectCard({
         history.push('/editor');
     };
 
+    const onViewStory = async () => {
+        const projectModel = await firebaseContext.loadProject(project);
+
+        // Set newly loaded story (and first room) as active story in redux
+        setProjectAction(projectModel);
+        setStoryAction(projectModel.story);
+        setCurrentRoomAction(projectModel.story.rooms[0]);
+
+        history.push(`/view/${project.id}`);
+    }
+
     return (
-        <div className={classes.projectCardContainer} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+        <div className={classes.projectCardContainer} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={onClick} style={{
+            cursor: isPublic ? 'pointer' : 'default'
+        }}>
             <div className={classes.projectCardTitle}>
                 <Typography variant="body2">
                     {project.story.name}
@@ -132,12 +156,14 @@ function ProjectCard({
                 {optionsVisible && thumbnailUrl && !project.publicStory
                 && (
                     <div className={classes.storyCardOptions}>
+                        {!isPublic &&
                         <IconButton onClick={onEditStory}>
                             <img src="/icons/edit-icon.svg" alt="edit" />
-                        </IconButton>
+                        </IconButton>}
+                        {!isPublic &&
                         <IconButton onClick={onOpenShareStory}>
                             <img src="/icons/share-icon.svg" alt="share" />
-                        </IconButton>
+                        </IconButton>}
                     </div>
                 )}
             </div>

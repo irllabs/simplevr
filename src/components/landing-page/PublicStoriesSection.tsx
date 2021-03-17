@@ -1,14 +1,16 @@
-import React, { useContext, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { useContext, useEffect, FC } from 'react';
+import { connect, ConnectedProps } from 'react-redux';
 
 import {
-    Button,
     Container,
     makeStyles,
     Typography,
 } from '@material-ui/core';
-import { FirebaseContext } from '../../firebase';
+import FirebaseContext from '../../firebase/context';
 import { setPublicStories } from '../../redux/actions';
+
+import ProjectCard from './ProjectCard';
+import StorageProject from '../../models/storage/StorageProject';
 
 const styles = makeStyles(() => {
     return {
@@ -25,19 +27,42 @@ const styles = makeStyles(() => {
             borderRadius: '24px',
             height: '48px',
         },
+        userStoriesSignedInContent: {
+            marginTop: '12px',
+            marginBottom: '24px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridGap: '12px',
+            width: '100%',
+        },
     };
 });
-function PublicStoriesSection({ publicStories }) {
+
+const mapStateToProps = (state: any) => {
+    return {
+        publicStories: state.publicStories,
+    };
+};
+
+const mapDispatch = {
+    setPublicStoriesAction: setPublicStories
+}
+
+const connector = connect(
+    mapStateToProps,
+    mapDispatch,
+);
+
+type ReduxProps = ConnectedProps<typeof connector>
+
+const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesAction }) => {
     const firebaseContext = useContext(FirebaseContext);
 
     const classes = styles();
 
     useEffect(() => {
         firebaseContext.loadPublicStories().then((stories) => {
-            setPublicStories([
-                ...publicStories,
-                ...stories,
-            ]);
+            setPublicStoriesAction(stories);
         });
     }, []);
 
@@ -51,31 +76,15 @@ function PublicStoriesSection({ publicStories }) {
                 <Typography variant="body2" className="light-text-70">
                     Explore public stories
                 </Typography>
-                <div className="user-stories-signed-in-content">
-                    {publicStories.map(() => {
+                <div className={classes.userStoriesSignedInContent}>
+                    {publicStories.map((project: StorageProject) => {
                         return (
-                            <p>story</p>
+                            <ProjectCard key={project.id} project={project} isPublic />
                         );
                     })}
                 </div>
             </div>
-            {/* Show a 'See more' button to load more stories public stories */}
-            <div className={classes.showMoreContainer}>
-                <Button variant="outlined" color="primary" size="large" className={classes.seeMoreButton}>
-                    See more
-                </Button>
-            </div>
         </Container>
     );
 }
-
-const mapStateToProps = (state) => {
-    return {
-        publicStories: state.publicStories,
-    };
-};
-
-export default connect(
-    mapStateToProps,
-    {},
-)(PublicStoriesSection);
+export default connector(PublicStoriesSection);

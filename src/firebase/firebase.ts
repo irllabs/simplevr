@@ -157,6 +157,15 @@ class Firebase {
         return await projectDeserializer.deserialize(storageProject);
     }
 
+    loadProjectWithId = async (projectId: string) => {
+        const project = await this.firestore
+            .collection('projects')
+            .doc(projectId)
+            .get();
+
+        return project.data() as StorageProject;
+    }
+
     updateProjectPublicFlag = async (projectId: string, isPublic: boolean) => {
         await this.firestore.collection('projects')
             .doc(projectId)

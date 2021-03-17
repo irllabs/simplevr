@@ -16,7 +16,7 @@ import {
 import { setIsShowingSignInDialog, setUserStories } from '../../redux/actions';
 
 // Firebase
-import { FirebaseContext } from '../../firebase';
+import FirebaseContext from '../../firebase/context.ts';
 import ProjectCard from './ProjectCard';
 
 const styles = makeStyles(() => {

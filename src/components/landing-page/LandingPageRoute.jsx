@@ -16,7 +16,7 @@ import {
 import Header from '../header/Header';
 import SignInDialog from '../dialogs/SignInDialog';
 import UserStoriesSection from './UserStoriesSection';
-import PublicStoriesSection from './PublicStoriesSection';
+import PublicStoriesSection from './PublicStoriesSection.tsx';
 import EditorFileSelector from '../editor/EditorFileSelector';
 
 // Redux Actions

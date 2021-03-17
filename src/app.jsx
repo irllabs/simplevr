@@ -82,7 +82,7 @@ export default function App() {
                 <Router>
                     <Switch>
                         <Route path="/editor" component={EditorRoute} />
-                        <Route path="/view" component={ViewerRoute} />
+                        <Route path="/view/:projectId" component={ViewerRoute} />
                         <Route path="/" component={LandingPageRoute} />
                     </Switch>
                 </Router>

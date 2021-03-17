@@ -8,7 +8,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import SaveIcon from '@material-ui/icons/SaveOutlined';
 import EditorEditStory from './EditorEditStory';
 import UserProfile from '../user-profile/UserProfile';
-import { FirebaseContext } from '../../firebase';
+import FirebaseContext from '../../firebase/context.ts';
 import ShareStoryDialog from '../dialogs/ShareStoryDialog';
 
 const styles = makeStyles((theme) => {

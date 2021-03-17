@@ -20,7 +20,7 @@ import {
 } from '@material-ui/core';
 
 import { Close } from '@material-ui/icons';
-import { FirebaseContext } from '../../firebase';
+import FirebaseContext from '../../firebase/context.ts';
 
 const styles = makeStyles(() => {
     return {

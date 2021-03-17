@@ -11,7 +11,7 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { setIsShowingSignInDialog, setUser } from '../../redux/actions';
-import { FirebaseContext } from '../../firebase';
+import FirebaseContext from '../../firebase/context.ts';
 
 const styles = makeStyles({
     title: {
