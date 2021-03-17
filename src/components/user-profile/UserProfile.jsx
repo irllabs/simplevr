@@ -103,25 +103,6 @@ function UserProfile({
         });
     };
 
-    const getInitials = (name) => {
-        let initials = '??';
-        if (!_.isNil(name)) {
-            const nameParts = name.split(' ');
-            if (nameParts.length > 1) {
-                initials = nameParts[0][0] + nameParts[1][0];
-            } else {
-                initials = [
-                    ...initials,
-                    name[0],
-                ];
-                if (name.length > 1) {
-                    initials += name[1];
-                }
-            }
-        }
-        return initials;
-    };
-
     const handleClose = (event) => {
         if (anchorRef.current && anchorRef.current.contains(event.target)) {
             return;
@@ -165,7 +146,7 @@ function UserProfile({
                         }
                         {
                             _.isNil(userProp.avatar)
-                            && <Avatar className={classes.avatarInitialsOnly} alt={userProp.displayName}>{getInitials(userProp.displayName)}</Avatar>
+                            && <Avatar className={classes.avatarInitialsOnly} alt={userProp.displayName} />
                         }
                     </IconButton>
 
