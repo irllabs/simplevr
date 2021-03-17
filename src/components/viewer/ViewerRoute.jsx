@@ -2,7 +2,7 @@ import { useHistory } from 'react-router-dom';
 
 import { IconButton, makeStyles } from '@material-ui/core';
 
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import ArrowBackIcon from '@material-ui/icons/KeyboardBackspace';
 
 import 'aframe';
 import 'aframe-look-at-component';
