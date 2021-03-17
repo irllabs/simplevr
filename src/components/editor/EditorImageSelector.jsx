@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from '@material-ui/core';
+import { Button, makeStyles, Typography } from '@material-ui/core';
 import mime from 'mime-types';
 import { useRef } from 'react';
 
@@ -104,7 +104,11 @@ export default function EditorImageSelector({
             </div>
             {!value
             && (
-                <EditorFileSelector onChange={processSelectedImage} />
+                <EditorFileSelector onChange={processSelectedImage}>
+                    <Button variant="outlined" fullWidth >
+                        Select image
+                    </Button>
+                </EditorFileSelector>
             )}
             {value && (
                 <div className={classes.imageSelectorImagePreview} style={{ backgroundImage: `url(${value})` }}>

@@ -20,16 +20,15 @@ const styles = makeStyles(() => {
             left: 0,
             right: 0,
             top: 0,
-            bottom: 0
+            bottom: 0,
+            cursor: 'pointer'
         }
     };
 });
-const EditorFileSelector: FC<EditorFileSelectorProps> = ({onChange}) => {
+const EditorFileSelector: FC<EditorFileSelectorProps> = ({children, onChange}) => {
     const classes = styles();
 
     const imageInputElement = useRef<HTMLInputElement>();
-
-    const [draggingOver, setDraggingOver] = useState(false);
 
     const selectImage = () => {
         imageInputElement.current.click();
@@ -45,18 +44,10 @@ const EditorFileSelector: FC<EditorFileSelectorProps> = ({onChange}) => {
 
         const file = event.dataTransfer.files && event.dataTransfer.files[0];
         onChange(file);
-
-        setDraggingOver(false);
     }
 
     const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-
-        setDraggingOver(true);
-    }
-
-    const onDragLeave = () => {
-        setDraggingOver(false);
     }
 
     return (
@@ -69,10 +60,13 @@ const EditorFileSelector: FC<EditorFileSelectorProps> = ({onChange}) => {
                 style={{ display: 'none' }}
             />
             <div className={classes.container}>
-                <Button variant="outlined" fullWidth style={{borderColor: draggingOver ? 'black' : ''}}>
-                    Select image
-                </Button>
-                <div onClick={selectImage} onDragOver={onDragOver} onDrop={onImageDropped} onDragLeave={onDragLeave} className={classes.dropZone} />
+                {children}
+                <div
+                    onClick={selectImage}
+                    onDragOver={onDragOver}
+                    onDrop={onImageDropped}
+                    className={classes.dropZone}
+                />
             </div>
         </>
     );

@@ -7,6 +7,7 @@ import {
     Box,
     Slider,
     Switch,
+    Button,
 } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 
@@ -176,7 +177,11 @@ export default function EditorAudioSelector({
             <input type="file" id="audio-selector-input" style={{ display: 'none' }} onChange={onAudioSelected} />
             {!audioData
             && (
-                <EditorFileSelector onChange={processSelectedFile} />
+                <EditorFileSelector onChange={processSelectedFile}>
+                    <Button variant="outlined" fullWidth >
+                        Select image
+                    </Button>
+                </EditorFileSelector>
             )}
             {audioData
             && (

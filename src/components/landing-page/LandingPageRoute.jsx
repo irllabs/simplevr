@@ -17,6 +17,7 @@ import Header from '../header/Header';
 import SignInDialog from '../dialogs/SignInDialog';
 import UserStoriesSection from './UserStoriesSection';
 import PublicStoriesSection from './PublicStoriesSection';
+import EditorFileSelector from '../editor/EditorFileSelector';
 
 // Redux Actions
 import { setCurrentRoom, setProject, setStory } from '../../redux/actions';
@@ -60,9 +61,13 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
     const fileInput = useRef();
     const history = useHistory();
 
-    const onStoryPanoramaSelected = async (event) => {
+    const onStoryPanoramaSelected = (event) => {
         const file = event.target.files && event.target.files[0];
 
+        processSelectedFile(file);
+    };
+
+    const processSelectedFile = async (file) => {
         // Verify if input file is of valid type and format
         await FileLoaderUtil.validateFileLoadEvent(file, 'image');
 
@@ -87,7 +92,7 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
 
         // Navigate to editor for further story edits
         history.push('/editor');
-    };
+    }
 
     const onCreateStoryClick = () => {
         fileInput.current.click();
@@ -108,21 +113,23 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
                         ref={fileInput}
                         onChange={onStoryPanoramaSelected}
                     />
-                    <Button
-                        className={classes.uploadButton}
-                        size="large"
-                        color="primary"
-                        onClick={onCreateStoryClick}
-                    >
-                        <div className={classes.uploadButtonContent}>
-                            <Typography variant="h1">
-                                Upload 360° panorama image
-                            </Typography>
-                            <Typography variant="h2">
-                                or a story .zip
-                            </Typography>
-                        </div>
-                    </Button>
+                    <EditorFileSelector onChange={processSelectedFile}>
+                        <Button
+                            className={classes.uploadButton}
+                            size="large"
+                            color="primary"
+                            onClick={onCreateStoryClick}
+                        >
+                            <div className={classes.uploadButtonContent}>
+                                <Typography variant="h1">
+                                    Upload 360° panorama image
+                                </Typography>
+                                <Typography variant="h2">
+                                    or a story .zip
+                                </Typography>
+                            </div>
+                        </Button>
+                    </EditorFileSelector>
                 </Box>
             </Container>
             <UserStoriesSection />
