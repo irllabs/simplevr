@@ -51,6 +51,16 @@ function Scene({ story, setCurrentRoomAction }) {
                 zoom="1"
                 near="1"
             >
+                {story.soundtrack.data &&
+                <a-sound
+                    src={story.soundtrack.data}
+                    autoplay={true}
+                    volume={story.soundtrack.volume}
+                    loop="true"
+                    class="soundtrack-audio"
+                >
+                </a-sound>}
+
                 <a-cursor
                     id="cursor"
                     animation__scale-out="property: scale; from: 1 1 1; to: .2 .2 .2; startEvents: start-scale-out;"
