@@ -58,7 +58,13 @@ export default function EditorDoor({ door, targetRoomName }) {
 
     function getMousePositionOnScreen(event) {
         const mousePosition = new Vector2(event.clientX, event.clientY);
-        if ((!mousePosition.x || !mousePosition.y) && event.touches[0]) {
+        if (event.clientX && event.clientY) {
+            mousePosition.setPosition(
+                event.clientX,
+                event.clientY,
+            )
+        }
+        else if (event.touches[0]) {
             mousePosition.setPosition(
                 event.touches[0].clientX,
                 event.touches[0].clientY,
