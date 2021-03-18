@@ -9,7 +9,7 @@ const styles = makeStyles(() => {
     return {
         container: {
             minWidth: '150px',
-            width: '150px',
+            width: '175px',
             height: '135px',
             display: 'flex',
             flexDirection: 'column',
@@ -22,12 +22,16 @@ const styles = makeStyles(() => {
             display: 'flex',
             alignItems: 'center',
             padding: '12px',
-            cursor: 'pointer',
             justifyContent: 'space-between'
+        },
+        roomActionsContainer: {
+            display: 'flex',
+            alignItems: 'center'
         },
         roomInfo: {
             display: 'flex',
             flexDirection: 'column',
+            cursor: 'pointer',
         },
         roomItemsInfo: {
             display: 'flex',
@@ -53,10 +57,13 @@ const styles = makeStyles(() => {
         },
         editIcon: {
             cursor: 'pointer',
+            width: '17px',
+            height: '17px'
         },
-        homeIcon: {
-            width: '32px',
-            height: '32px'
+        icon: {
+            width: '25px',
+            height: '25px',
+            marginRight: '5px'
         }
     };
 });
@@ -69,19 +76,9 @@ function EditorRoomCard({
 }) {
     const classes = styles();
 
-    const [editOptionVisible, setEditOptionVisible] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-    const onMouseEnterImage = () => {
-        setEditOptionVisible(true);
-    };
-
-    const onMouseLeaveImage = () => {
-        setEditOptionVisible(false);
-    };
-
     const onEditRoom = () => {
-        setEditOptionVisible(false);
         setEditDialogOpen(true);
     };
 
@@ -96,8 +93,8 @@ function EditorRoomCard({
     return (
         <>
             <div className={classes.container} style={{ borderColor: active ? '#E34B78' : '#444444' }}>
-                <div className={classes.roomInfoContainer} onClick={goToRoom}>
-                    <div className={classes.roomInfo}>
+                <div className={classes.roomInfoContainer}>
+                    <div className={classes.roomInfo} onClick={goToRoom}>
                         <Typography variant="body2">
                             {room.name}
                         </Typography>
@@ -115,22 +112,16 @@ function EditorRoomCard({
                             </Typography>
                         </div>
                     </div>
-                    {room.isHome &&
-                    <img src='/icons/home-icon.svg' className={classes.homeIcon} />}
+                    <div className={classes.roomActionsContainer}>
+                        {room.isHome &&
+                        <img src='/icons/home-icon.svg' className={classes.icon} />}
+                        <img alt="edit-room" src="icons/pencil-dark.svg" className={classes.editIcon} onClick={onEditRoom} />
+                    </div>
                 </div>
                 <div
-                    onMouseEnter={onMouseEnterImage}
-                    onMouseLeave={onMouseLeaveImage}
                     className={classes.roomThumbnail}
                     style={{ backgroundImage: `url(${room.panoramaUrl.thumbnail.data})` }}
-                >
-                    {editOptionVisible
-                    && (
-                        <div className={classes.editRoomContainer}>
-                            <img alt="edit-room" src="icons/pencil-dark.svg" className={classes.editIcon} onClick={onEditRoom} />
-                        </div>
-                    )}
-                </div>
+                />
             </div>
             {editDialogOpen
             && (

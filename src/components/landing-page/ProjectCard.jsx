@@ -21,20 +21,37 @@ const styles = makeStyles(() => {
             flexDirection: 'column',
             boxShadow: '0px 1px 1px rgba(0, 0, 0, 0.08), -1px 0px 1px rgba(0, 0, 0, 0.08), 1px 0px 1px rgba(0, 0, 0, 0.08), 0px -1px 1px rgba(0, 0, 0, 0.08)',
             borderRadius: '12px',
+            height: '200px'
+        },
+        projectCardHeader: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
         },
         projectCardTitle: {
             display: 'flex',
             flexDirection: 'column',
             padding: '12px',
         },
+        title: {
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            width: '95px',
+            overflow: 'hidden',
+        },
+        cardActionsContainer: {
+            display: 'flex',
+            height: '48px'
+        },
         storyCardImageContainer: {
             borderRadius: '0px 0px 12px 12px',
             display: 'flex',
             position: 'relative',
+            height: '100%'
         },
         storyCardImage: {
             width: '100%',
-            height: '140px',
+            height: '100%',
             borderRadius: '0px 0px 12px 12px',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -142,16 +159,28 @@ function ProjectCard({
         <div className={classes.projectCardContainer} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={onClick} style={{
             cursor: isPublic ? 'pointer' : 'default'
         }}>
-            <div className={classes.projectCardTitle}>
-                <Typography variant="body2">
-                    {project.story.name}
-                </Typography>
-                <Typography variant="caption">
-                    Tags:
-                    {
-                        project.story.tags || 'n/a'
-                    }
-                </Typography>
+            <div className={classes.projectCardHeader}>
+                <div className={classes.projectCardTitle}>
+                    <Typography variant="body2" className={classes.title}>
+                        {project.story.name}
+                    </Typography>
+                    <Typography variant="caption">
+                        Tags:
+                        {
+                            project.story.tags || 'n/a'
+                        }
+                    </Typography>
+                </div>
+                <div className={classes.cardActionsContainer}>
+                {!isPublic &&
+                    <IconButton onClick={onEditStory}>
+                        <img src="/icons/edit-icon.svg" alt="edit" />
+                    </IconButton>}
+                    {!isPublic &&
+                    <IconButton onClick={onOpenShareStory}>
+                        <img src="/icons/share-icon.svg" alt="share" />
+                    </IconButton>}
+                </div>
             </div>
             <div className={classes.storyCardImageContainer}>
                 {thumbnailUrl
@@ -162,19 +191,6 @@ function ProjectCard({
                             backgroundImage: `url(${thumbnailUrl})`,
                         }}
                     />
-                )}
-                {optionsVisible && thumbnailUrl && !project.publicStory
-                && (
-                    <div className={classes.storyCardOptions}>
-                        {!isPublic &&
-                        <IconButton onClick={onEditStory}>
-                            <img src="/icons/edit-icon.svg" alt="edit" />
-                        </IconButton>}
-                        {!isPublic &&
-                        <IconButton onClick={onOpenShareStory}>
-                            <img src="/icons/share-icon.svg" alt="share" />
-                        </IconButton>}
-                    </div>
                 )}
             </div>
             {shareStoryDialogOpen && <ShareStoryDialog onClose={onCloseShareStory} thumbnailUrl={thumbnailUrl} project={project} />}
