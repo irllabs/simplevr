@@ -57,6 +57,7 @@ export default class ProjectDeserializer {
 
         room.id = storageRoom.id;
         room.name = storageRoom.name;
+        room.isHome = storageRoom.isHome;
         room.panoramaUrl.backgroundImage = this.deserializeImageAssetData(storageRoom.panorama);
         room.panoramaUrl.thumbnail = this.deserializeImageAssetData(storageRoom.thumbnail);
         if (storageRoom.music) {

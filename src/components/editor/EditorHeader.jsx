@@ -111,6 +111,16 @@ function EditorHeader({ project }) {
         setShareStoryDialogOpen(false);
     };
 
+    const getHomeRoom = (rooms) => {
+        let homeRoom = rooms.find((room) => {
+            return room.isHome;
+        });
+        if (!homeRoom) {
+            homeRoom = rooms[0];
+        }
+        return homeRoom;
+    }
+
     return (
         <>
             <Box className={classes.root}>
@@ -136,7 +146,7 @@ function EditorHeader({ project }) {
                 <UserProfile />
             </Box>
             <div className={classes.previewContainer}>
-                <IconButton className={classes.vrButton} variant="contained" color="primary" component={RouterLink} to="/view/123-123-123-123">
+                <IconButton className={classes.vrButton} variant="contained" color="primary" component={RouterLink} to={`/view/${project.id}`}>
                     <img className={classes.vrButtonLogo} src="/icons/vr.svg" alt="preview-story" />
                 </IconButton>
             </div>
@@ -146,7 +156,7 @@ function EditorHeader({ project }) {
             )}
             {shareStoryDialogOpen
             && (
-                <ShareStoryDialog onClose={onCloseShareStory} thumbnailUrl={project.story.rooms[0].panoramaUrl.thumbnail.data} project={project} />
+                <ShareStoryDialog onClose={onCloseShareStory} thumbnailUrl={getHomeRoom(project.story.rooms).panoramaUrl.thumbnail.data} project={project} />
             )}
         </>
     );

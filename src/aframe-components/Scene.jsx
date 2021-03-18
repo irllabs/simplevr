@@ -38,7 +38,7 @@ function Scene({ story, setCurrentRoomAction }) {
     });
 
     return (
-        <a-scene ref={sceneRef} preview-space device-orientation-permission-ui="enabled: true">
+        <a-scene ref={sceneRef} preview-space device-orientation-permission-ui="enabled: true" loading-screen="enabled: false">
             <a-camera
                 wasd-controls-enabled="false"
                 look-controls-enabled="true"
@@ -91,8 +91,11 @@ function Scene({ story, setCurrentRoomAction }) {
                 </a-sound>}
             </a-entity>}
 
-            <a-sky src={activeRoom.panoramaUrl.backgroundImage.data} radius="512" />
+            <a-assets>
+                <img id='skybox' src={activeRoom.panoramaUrl.backgroundImage.data} crossOrigin='anonymous' />
+            </a-assets>
 
+            <a-sky src="#skybox" radius="512" />
         </a-scene>
     );
 }

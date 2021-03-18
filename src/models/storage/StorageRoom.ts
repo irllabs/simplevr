@@ -7,6 +7,7 @@ import StorageDoor from "./StorageDoor";
 export default class StorageRoom {
     public id: string;
     public name: string;
+    public isHome: boolean;
     public panorama: StorageImageAsset;
     public thumbnail: StorageImageAsset;
     public music: StorageSoundtrack;

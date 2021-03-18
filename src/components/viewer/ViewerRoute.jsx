@@ -57,11 +57,25 @@ function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomA
             // Set newly loaded story (and first room) as active story in redux
             setProjectAction(projectModel);
             setStoryAction(projectModel.story);
-            setCurrentRoomAction(projectModel.story.rooms[0]);
+
+            setHomeRoomAsCurrent(projectModel.story.rooms);
 
             setProjectLoaded(true);
         }
+        else {
+            setHomeRoomAsCurrent(project.story.rooms);
+        }
     }, []);
+
+    const setHomeRoomAsCurrent = (rooms) => {
+        let homeRoom = rooms.find((room) => {
+            return room.isHome;
+        });
+        if (!homeRoom) {
+            homeRoom = rooms[0];
+        }
+        setCurrentRoomAction(homeRoom);
+    }
 
     return (
         projectLoaded &&

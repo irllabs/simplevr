@@ -71,7 +71,7 @@ function ProjectCard({
     const [shareStoryDialogOpen, setShareStoryDialogOpen] = useState(false);
 
     useEffect(async () => {
-        const firstRoom = project.story.rooms[0];
+        const firstRoom = getHomeRoom(project.story.rooms);
 
         const url = await firebaseContext.getDownloadUrl(firstRoom.thumbnail.remoteFilePath);
 
@@ -126,6 +126,16 @@ function ProjectCard({
         setCurrentRoomAction(projectModel.story.rooms[0]);
 
         history.push(`/view/${project.id}`);
+    }
+
+    const getHomeRoom = (rooms) => {
+        let homeRoom = rooms.find((room) => {
+            return room.isHome;
+        });
+        if (!homeRoom) {
+            homeRoom = rooms[0];
+        }
+        return homeRoom;
     }
 
     return (

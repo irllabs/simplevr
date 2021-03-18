@@ -68,6 +68,7 @@ export default class ProjectSerializer {
 
         storageRoom.id = room.id;
         storageRoom.name = room.name;
+        storageRoom.isHome = room.isHome;
         storageRoom.panorama = this.serializeImageAssetData(room.panoramaUrl.backgroundImage);
         storageRoom.thumbnail = this.serializeImageAssetData(room.panoramaUrl.thumbnail);
         if (room.backgroundMusic.data) {

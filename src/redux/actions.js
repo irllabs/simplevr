@@ -23,6 +23,7 @@ import {
     SET_HOTSPOT_AUDIO,
     SET_ROOM_BACKGROUND_MUSIC,
     SET_ROOM_BACKGROUND_NARRATION,
+    SET_ROOM_IS_HOME,
 } from './actionTypes';
 
 // User
@@ -241,3 +242,12 @@ export const setRoomBackgroundNarration = (roomId, data, extension) => {
         },
     };
 };
+export const setRoomIsHome = (roomId, isHome) => {
+    return {
+        type: SET_ROOM_IS_HOME,
+        payload: {
+            roomId: roomId,
+            isHome: isHome,
+        }
+    }
+}

@@ -1,5 +1,5 @@
-import firebase from 'firebase';
-import app from 'firebase/app';
+
+import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 import 'firebase/storage';
@@ -25,19 +25,19 @@ class Firebase {
     private firestore: firebase.firestore.Firestore;
     private storage: firebase.storage.Storage;
 
-    private currentUser: app.User;
+    private currentUser: firebase.User;
     private onUserUpdatedObservers: Array<(user: firebase.User) => void> = [];
 
     constructor() {
         if (!firebase.apps.length) {
-            app.initializeApp(firebaseConfig);
+            firebase.initializeApp(firebaseConfig);
         }
 
-        this.auth = app.auth();
-        this.firestore = app.firestore();
-        this.storage = app.storage();
+        this.auth = firebase.auth();
+        this.firestore = firebase.firestore();
+        this.storage = firebase.storage();
 
-        app.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged((user) => {
             // console.log('onAuthStateChanged', user);
             if (user) {
                 this.currentUser = user;

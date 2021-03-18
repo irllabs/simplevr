@@ -10,6 +10,7 @@ import {
     DialogTitle,
     IconButton,
     makeStyles,
+    Switch,
     TextField,
     Typography,
 } from '@material-ui/core';
@@ -17,6 +18,7 @@ import { Close } from '@material-ui/icons';
 
 import {
     setRoomName,
+    setRoomIsHome,
     setRoomBackground,
     setRoomBackgroundMusic,
     setRoomBackgroundNarration,
@@ -41,11 +43,19 @@ const styles = makeStyles(() => {
         closeIcon: {
             position: 'absolute',
         },
+        homeInfoContainer: {
+            height: '48px',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        },
     };
 });
 function EditorEditRoom({
     onClose,
     setRoomNameAction,
+    setRoomIsHomeAction,
     setRoomBackgroundAction,
     setRoomBackgroundMusicAction,
     setRoomBackgroundNarrationAction,
@@ -83,6 +93,10 @@ function EditorEditRoom({
         setRoomBackgroundNarrationAction(room.id, null, '');
     };
 
+    const onHomeChange = () => {
+        setRoomIsHomeAction(room.id, !room.isHome);
+    }
+
     return (
         <Dialog onClose={onClose} open maxWidth="xs" fullWidth>
             <DialogTitle className={classes.root}>
@@ -106,7 +120,20 @@ function EditorEditRoom({
                     value={room.name}
                     onChange={onNameChange}
                 />
-                <Box m={4} />
+                <Box m={2} />
+                <div className={classes.homeInfoContainer}>
+                    <div style={{ display: 'flex' }}>
+                        <img src="icons/home-icon.svg" alt="mark-room-as-home" />
+                        <Box m={1} />
+                        <Typography variant="body1">
+                            Set as home
+                        </Typography>
+                    </div>
+                    <div>
+                        <Switch checked={room.isHome} onChange={onHomeChange} />
+                    </div>
+                </div>
+                <Box m={2} />
                 <EditorImageSelector
                     title="Background Image"
                     value={room.panoramaUrl.thumbnail.data}
@@ -144,6 +171,7 @@ export default connect(
     mapStateToProps,
     {
         setRoomNameAction: setRoomName,
+        setRoomIsHomeAction: setRoomIsHome,
         setRoomBackgroundAction: setRoomBackground,
         setRoomBackgroundMusicAction: setRoomBackgroundMusic,
         setRoomBackgroundNarrationAction: setRoomBackgroundNarration,

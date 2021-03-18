@@ -23,6 +23,7 @@ const styles = makeStyles(() => {
             alignItems: 'center',
             padding: '12px',
             cursor: 'pointer',
+            justifyContent: 'space-between'
         },
         roomInfo: {
             display: 'flex',
@@ -53,6 +54,10 @@ const styles = makeStyles(() => {
         editIcon: {
             cursor: 'pointer',
         },
+        homeIcon: {
+            width: '32px',
+            height: '32px'
+        }
     };
 });
 function EditorRoomCard({
@@ -110,6 +115,8 @@ function EditorRoomCard({
                             </Typography>
                         </div>
                     </div>
+                    {room.isHome &&
+                    <img src='/icons/home-icon.svg' className={classes.homeIcon} />}
                 </div>
                 <div
                     onMouseEnter={onMouseEnterImage}
