@@ -73,12 +73,16 @@ function EditorEditHotspot({
     const onAudioChange = (data, name, type) => {
         const extension = mime.extension(type);
 
-        setHotspotAudioAction(hotspot.id, data, extension);
+        setHotspotAudioAction(hotspot.id, data, name, extension, hotspot.audio.loop);
     };
 
     const onRemoveAudio = () => {
         setHotspotAudioAction(hotspot.id, null, '');
     };
+
+    const onLoopChange = (loop) => {
+        setHotspotAudioAction(hotspot.id, hotspot.audio.data, hotspot.audio.fileName, hotspot.audio.extension, loop);
+    }
 
     return (
         <Dialog onClose={onClose} open maxWidth="xs" fullWidth>
@@ -124,7 +128,15 @@ function EditorEditHotspot({
                     onRemove={onImageRemove}
                 />
                 <Box m={4} />
-                <EditorAudioSelector title="Add audio" data={hotspot.audio.data} onChange={onAudioChange} onRemove={onRemoveAudio} />
+                <EditorAudioSelector
+                    title="Add audio"
+                    name={hotspot.audio.fileName}
+                    data={hotspot.audio.data}
+                    loop={hotspot.audio.loop}
+                    onPlayInLoopChange={onLoopChange}
+                    onChange={onAudioChange}
+                    onRemove={onRemoveAudio}
+                />
             </DialogContent>
             <DialogActions>
                 <Button variant="text" color="primary">

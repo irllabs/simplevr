@@ -380,8 +380,10 @@ export default function projectReducer(state = initialState, action) {
                                     ...hotspot,
                                     audio: {
                                         ...hotspot.audio,
+                                        fileName: action.payload.name,
                                         extension: action.payload.extension,
                                         data: action.payload.data,
+                                        loop: action.payload.loop,
                                     },
                                 };
                             }),

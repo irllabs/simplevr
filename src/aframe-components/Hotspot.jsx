@@ -253,7 +253,7 @@ export default ({ hotspot }) => {
                     <a-sound
                         src={hotspot.audio.data}
                         volume={hotspot.volume}
-                        loop={hotspot.loop}
+                        loop={hotspot.audio.loop}
                         sound="positional: false"
                     />
                 )}

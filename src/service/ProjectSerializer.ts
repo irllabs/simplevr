@@ -131,6 +131,7 @@ export default class ProjectSerializer {
         const storageSoundtrack = new StorageSoundtrack();
 
         storageSoundtrack.id = soundtrack.id;
+        storageSoundtrack.fileName = soundtrack.fileName;
         storageSoundtrack.extension = soundtrack.extension;
         storageSoundtrack.volume = soundtrack.volume;
         storageSoundtrack.remoteFilePath = this.getAssetRemoteFilePath(soundtrack);

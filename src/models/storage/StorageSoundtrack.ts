@@ -4,4 +4,5 @@ export default class StorageSoundtrack {
     public fileName: string;
     public extension: string;
     public volume: number;
+    public loop: boolean;
 }

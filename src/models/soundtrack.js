@@ -7,9 +7,6 @@ export default class Soundtrack {
         this.fileName = name;
         this.extension = '';
         this.volume = 0.5;
-    }
-
-    getRemoteFilePath(projectId) {
-        return `projects/${projectId}/asset-${this.id}.${this.extension}`;
+        this.loop = false;
     }
 }

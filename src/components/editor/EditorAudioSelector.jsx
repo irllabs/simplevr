@@ -77,8 +77,10 @@ const styles = makeStyles(() => {
 export default function EditorAudioSelector({
     title,
     name,
+    loop,
     data,
     onChange,
+    onPlayInLoopChange,
     onRemove,
 }) {
     const classes = styles();
@@ -86,7 +88,6 @@ export default function EditorAudioSelector({
     const audioElement = useRef();
 
     const [audioData, setAudioData] = useState(data || null);
-    const [playInLoop, setPlayInLoop] = useState(false);
     const [fileName, setFileName] = useState(name || '');
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -94,13 +95,8 @@ export default function EditorAudioSelector({
     const [volume, setVolume] = useState(50);
 
     useEffect(() => {
-        audioElement.current.addEventListener('canplaythrough', () => {
-            setDuration(audioElement.current.duration);
-        });
-
-        audioElement.current.addEventListener('timeupdate', () => {
-            setCurrentTime(audioElement.current.currentTime);
-        });
+        audioElement.current.addEventListener('canplaythrough', setDurationCallback);
+        audioElement.current.addEventListener('timeupdate', setCurrentTimeCallback);
     }, []);
 
     useEffect(() => {
@@ -114,10 +110,6 @@ export default function EditorAudioSelector({
     useEffect(() => {
         audioElement.current.volume = Math.max(0, volume / 100);
     }, [volume]);
-
-    useEffect(() => {
-        audioElement.current.loop = playInLoop;
-    }, [playInLoop]);
 
     const onAudioSelected = (event) => {
         const file = event.target.files[0];
@@ -158,15 +150,29 @@ export default function EditorAudioSelector({
     };
 
     const togglePlayInLoop = () => {
-        setPlayInLoop(!playInLoop);
+        onPlayInLoopChange(!loop);
     };
+
+    const setCurrentTimeCallback = () => {
+        if (!audioElement.current) {
+            return;
+        }
+        setCurrentTime(audioElement.current.currentTime);
+    }
+
+    const setDurationCallback = () => {
+        if (!audioElement.current) {
+            return;
+        }
+        setDuration(audioElement.current.duration);
+    }
 
     return (
         <div className={classes.audioSelectorContainer}>
             <audio
                 ref={audioElement}
                 src={audioData}
-                loop={playInLoop}
+                loop={loop}
             />
 
             <div className={classes.audioSelectorTitle}>
@@ -179,7 +185,7 @@ export default function EditorAudioSelector({
             && (
                 <EditorFileSelector onChange={processSelectedFile}>
                     <Button variant="outlined" fullWidth >
-                        Select image
+                        Select audio
                     </Button>
                 </EditorFileSelector>
             )}
@@ -217,7 +223,7 @@ export default function EditorAudioSelector({
                             </Typography>
                         </div>
                         <div>
-                            <Switch checked={playInLoop} onChange={togglePlayInLoop} />
+                            <Switch checked={loop || false} onChange={togglePlayInLoop} />
                         </div>
                     </div>
                 </div>
