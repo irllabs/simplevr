@@ -6,6 +6,7 @@ import FileLoaderUtil from '../../util/FileLoader';
 import resizeImageAsync from '../../util/ResizeImage';
 
 import { addRoom, setCurrentRoom } from '../../redux/actions';
+import EditorFileSelector from './EditorFileSelector';
 
 const styles = makeStyles(() => {
     return {
@@ -41,6 +42,14 @@ function EditorAddNewRoom({ addRoomAction, setCurrentRoomAction }) {
     const onRoomPanoramaSelected = async (event) => {
         const file = event.target.files && event.target.files[0];
 
+        processSelectedFile(file);
+
+        // In order to allow user to upload multiple times, we need to reset input target value
+        // eslint-disable-next-line no-param-reassign
+        event.target.value = null;
+    };
+
+    const processSelectedFile = async (file) => {
         // Verify if input file is of valid type and format
         await FileLoaderUtil.validateFileLoadEvent(file, 'image');
 
@@ -57,17 +66,15 @@ function EditorAddNewRoom({ addRoomAction, setCurrentRoomAction }) {
         addRoomAction(room);
 
         setCurrentRoomAction(room);
-
-        // In order to allow user to upload multiple times, we need to reset input target value
-        // eslint-disable-next-line no-param-reassign
-        event.target.value = null;
-    };
+    }
 
     return (
         <>
-            <div className={classes.container}>
-                <img alt="add-new-room" src="icons/plus.svg" className={classes.icon} onClick={onAddNewRoom} />
-            </div>
+            <EditorFileSelector onChange={processSelectedFile}>
+                <div className={classes.container}>
+                    <img alt="add-new-room" src="icons/plus.svg" className={classes.icon} onClick={onAddNewRoom} />
+                </div>
+            </EditorFileSelector>
             <input
                 id="welcome-message-input"
                 type="file"
