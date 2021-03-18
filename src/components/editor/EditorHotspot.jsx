@@ -60,24 +60,46 @@ function EditorHotspot({ hotspot }) {
         top: `${position.y}px`,
     };
 
+    function getMousePositionOnScreen(event) {
+        const mousePosition = new Vector2(event.clientX, event.clientY);
+        if ((!mousePosition.x || !mousePosition.y) && event.touches[0]) {
+            mousePosition.setPosition(
+                event.touches[0].clientX,
+                event.touches[0].clientY,
+            )
+        }
+        else if (event.changedTouches[0]) {
+            mousePosition.setPosition(
+                event.changedTouches[0].clientX,
+                event.changedTouches[0].clientY,
+            )
+        }
+
+        return mousePosition;
+    }
+
     function onMouseDown(event) {
         const hotspotContainerRect = hotspotElementRef.current.getBoundingClientRect();
 
+        const mousePosition = getMousePositionOnScreen(event);
+
         grabbed.current = true;
         mouseOffset.current.setPosition(
-            event.clientX - hotspotContainerRect.left,
-            event.clientY - hotspotContainerRect.top,
+            mousePosition.x - hotspotContainerRect.left,
+            mousePosition.y - hotspotContainerRect.top,
         );
         mouseDownPosition.current.setPosition(
-            event.clientX,
-            event.clientY,
+            mousePosition.x,
+            mousePosition.y,
         );
     }
 
     function onMouseMove(event) {
         if (grabbed.current) {
-            const x = event.clientX - mouseOffset.current.getX();
-            const y = event.clientY - mouseOffset.current.getY();
+            const mousePosition = getMousePositionOnScreen(event);
+
+            const x = mousePosition.x - mouseOffset.current.getX();
+            const y = mousePosition.y - mouseOffset.current.getY();
 
             setPosition({
                 x: x,
@@ -95,7 +117,9 @@ function EditorHotspot({ hotspot }) {
             hotspotContainerRect.top + hotspotContainerRect.height / 2,
         );
 
-        const mouseUpPosition = new Vector2(event.clientX, event.clientY);
+        const mousePosition = getMousePositionOnScreen(event);
+
+        const mouseUpPosition = new Vector2(mousePosition.x, mousePosition.y);
 
         if (mouseDownPosition.current.distanceTo(mouseUpPosition) < 5) {
             setEditorOpen(true);
@@ -113,6 +137,7 @@ function EditorHotspot({ hotspot }) {
 
     useEffect(() => {
         window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('touchmove', onMouseMove);
 
         const absolutePosition = denormalizePosition(hotspot.location.x, hotspot.location.y);
         setPosition({
@@ -122,12 +147,21 @@ function EditorHotspot({ hotspot }) {
 
         return () => {
             window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('touchmove', onMouseMove);
         };
     }, []);
 
     return (
         <div>
-            <div className={classes.hotspotContainer} style={style} onMouseDown={onMouseDown} onMouseUp={onMouseUp} ref={hotspotElementRef}>
+            <div
+                className={classes.hotspotContainer}
+                style={style}
+                onTouchStart={onMouseDown}
+                onTouchEnd={onMouseUp}
+                onMouseDown={onMouseDown}
+                onMouseUp={onMouseUp}
+                ref={hotspotElementRef}
+            >
                 <div className={classes.hotspotIconContainer}>
                     <img draggable={false} src={`icons/${getHotspotIconName(hotspot, 'svg')}`} alt="hotspot-icon" />
                 </div>
