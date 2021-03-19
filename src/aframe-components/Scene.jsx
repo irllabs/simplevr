@@ -7,8 +7,30 @@ import Hotspot from './Hotspot';
 import Door from './Door';
 import { setCurrentRoom } from '../redux/actions';
 
+import loadImageForRoom from '../util/ImageLoader';
+import { IconButton, makeStyles, Typography } from '@material-ui/core';
+
+const styles = makeStyles(() => {
+    return {
+        enterVRContainer: {
+            position: 'fixed',
+            right: '24px',
+            bottom: '24px',
+            width: '48px',
+            height: '48px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            borderRadius: 24,
+        }
+    };
+});
 function Scene({ story, setCurrentRoomAction }) {
+    const classes = styles();
+
     const sceneRef = useRef();
+    const skyRef = useRef();
 
     useEffect(() => {
         sceneRef.current.addEventListener('switch-room', (e) => {
@@ -16,15 +38,23 @@ function Scene({ story, setCurrentRoomAction }) {
         });
     }, []);
 
-    const goToRoom = (roomId) => {
+    const goToRoom = async (roomId) => {
         const targetRoom = story.rooms.find((room) => {
             return room.id === roomId;
         });
 
+        await loadImageForRoom(targetRoom);
+
         setCurrentRoomAction(targetRoom);
 
-        sceneRef.current.emit('reset-camera');
+        skyRef.current.addEventListener('materialtextureloaded', function () {
+            sceneRef.current.emit('reset-camera');
+        });
     };
+
+    const onEnterVR = () => {
+        sceneRef.current.enterVR();
+    }
 
     const getRoomName = (roomId) => {
         const room = story.rooms.find((room) => {
@@ -38,75 +68,80 @@ function Scene({ story, setCurrentRoomAction }) {
     });
 
     return (
-        <a-scene ref={sceneRef} preview-space device-orientation-permission-ui="enabled: true" loading-screen="enabled: false">
-            <a-camera
-                wasd-controls-enabled="false"
-                look-controls-enabled="true"
-                fov="65"
-                animation__zoom-in="
-                    property: zoom;
-                    from: 1;
-                    startEvents: start-zoom-in;
-                    to: 5;"
-                zoom="1"
-                near="1"
-            >
-                {story.soundtrack.data &&
-                <a-sound
-                    src={story.soundtrack.data}
-                    autoplay={true}
-                    volume={story.soundtrack.volume}
-                    loop="true"
-                    class="soundtrack-audio"
+        <>
+            <a-scene ref={sceneRef} preview-space device-orientation-permission-ui="enabled: true" loading-screen="enabled: false">
+                <a-camera
+                    wasd-controls-enabled="false"
+                    look-controls-enabled="true"
+                    fov="65"
+                    animation__zoom-in="
+                        property: zoom;
+                        from: 1;
+                        startEvents: start-zoom-in;
+                        to: 5;"
+                    zoom="1"
+                    near="1"
                 >
-                </a-sound>}
+                    {story.soundtrack.data &&
+                    <a-sound
+                        src={story.soundtrack.data}
+                        autoplay={true}
+                        volume={story.soundtrack.volume}
+                        loop="true"
+                        class="soundtrack-audio"
+                    >
+                    </a-sound>}
 
-                <a-cursor
-                    id="cursor"
-                    animation__scale-out="property: scale; from: 1 1 1; to: .2 .2 .2; startEvents: start-scale-out;"
-                />
-            </a-camera>
+                    <a-cursor
+                        id="cursor"
+                        animation__scale-out="property: scale; from: 1 1 1; to: .2 .2 .2; startEvents: start-scale-out;"
+                    />
+                </a-camera>
 
-            {activeRoom.hotspots.map((hotspot) => {
-                return (
-                    <Hotspot key={hotspot.id} hotspot={hotspot} />
-                );
-            })}
+                {activeRoom.hotspots.map((hotspot) => {
+                    return (
+                        <Hotspot key={hotspot.id} hotspot={hotspot} />
+                    );
+                })}
 
-            {activeRoom.doors.map((door) => {
-                return (
-                    <Door key={door.id} door={door} targetRoomName={getRoomName(door.targetRoomId)} />
-                );
-            })}
+                {activeRoom.doors.map((door) => {
+                    return (
+                        <Door key={door.id} door={door} targetRoomName={getRoomName(door.targetRoomId)} />
+                    );
+                })}
 
-            {activeRoom &&
-            <a-entity>
-                {activeRoom.backgroundNarration.data &&
-                <a-sound
-                    src={activeRoom.backgroundNarration.data}
-                    autoplay={true}
-                    volume={activeRoom.backgroundNarration.volume}
-                    class="narration-audio"
-                    sound="positional: false"
-                >
-                </a-sound>}
-                {activeRoom.backgroundMusic.data &&
-                <a-sound
-                    src={activeRoom.backgroundMusic.data}
-                    autoplay={true}
-                    volume={activeRoom.backgroundMusic.volume}
-                    loop="true"
-                    sound="positional: false"
-                >
-                </a-sound>}
-            </a-entity>}
+                {activeRoom &&
+                <a-entity>
+                    {activeRoom.backgroundNarration.data &&
+                    <a-sound
+                        src={activeRoom.backgroundNarration.data}
+                        autoplay={true}
+                        volume={activeRoom.backgroundNarration.volume}
+                        class="narration-audio"
+                        sound="positional: false"
+                    >
+                    </a-sound>}
+                    {activeRoom.backgroundMusic.data &&
+                    <a-sound
+                        src={activeRoom.backgroundMusic.data}
+                        autoplay={true}
+                        volume={activeRoom.backgroundMusic.volume}
+                        loop="true"
+                        sound="positional: false"
+                    >
+                    </a-sound>}
+                </a-entity>}
 
-            <a-assets>
-                <img id='skybox' src={activeRoom.panoramaUrl.backgroundImage.data} crossOrigin='anonymous' />
-            </a-assets>
-
-            <a-sky src="#skybox" radius="512" />
-        </a-scene>
+                <a-sky ref={skyRef} src={activeRoom.panoramaUrl.backgroundImage.data} radius="512" />
+            </a-scene>
+            <div className={classes.enterVRContainer}>
+                <IconButton onClick={onEnterVR}>
+                    <Typography className="light-text-90">
+                        VR
+                    </Typography>
+                </IconButton>
+            </div>
+        </>
     );
 }
 

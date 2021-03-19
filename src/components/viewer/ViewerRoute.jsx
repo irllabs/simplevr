@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
 import { setCurrentRoom, setProject, setStory } from '../../redux/actions';
 import { useContext, useEffect, useState } from 'react';
 import { FirebaseContext } from '../../firebase';
+import loadImageForRoom from '../../util/ImageLoader';
 
 const styles = makeStyles(() => {
     return {
@@ -58,7 +59,7 @@ function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomA
             setProjectAction(projectModel);
             setStoryAction(projectModel.story);
 
-            setHomeRoomAsCurrent(projectModel.story.rooms);
+            await setHomeRoomAsCurrent(projectModel.story.rooms);
 
             setProjectLoaded(true);
         }
@@ -67,13 +68,16 @@ function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomA
         }
     }, []);
 
-    const setHomeRoomAsCurrent = (rooms) => {
+    const setHomeRoomAsCurrent = async (rooms) => {
         let homeRoom = rooms.find((room) => {
             return room.isHome;
         });
         if (!homeRoom) {
             homeRoom = rooms[0];
         }
+
+        await loadImageForRoom(homeRoom);
+
         setCurrentRoomAction(homeRoom);
     }
 

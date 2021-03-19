@@ -5,5 +5,6 @@ export default class ImageAsset {
         this.id = uuid();
         this.data = data;
         this.extension = '';
+        this.preloaded = false;
     }
 }
