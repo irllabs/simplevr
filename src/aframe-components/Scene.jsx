@@ -52,10 +52,6 @@ function Scene({ story, setCurrentRoomAction }) {
         });
     };
 
-    const onEnterVR = () => {
-        sceneRef.current.enterVR();
-    }
-
     const getRoomName = (roomId) => {
         const room = story.rooms.find((room) => {
             return room.id === roomId;
@@ -69,7 +65,7 @@ function Scene({ story, setCurrentRoomAction }) {
 
     return (
         <>
-            <a-scene ref={sceneRef} preview-space device-orientation-permission-ui="enabled: true" loading-screen="enabled: false">
+            <a-scene ref={sceneRef} preview-space device-orientation-permission-ui="enabled: true" loading-screen="enabled: false" vr-mode-ui="enterVRButton: #enterVRButton;">
                 <a-camera
                     wasd-controls-enabled="false"
                     look-controls-enabled="true"
@@ -135,7 +131,7 @@ function Scene({ story, setCurrentRoomAction }) {
                 <a-sky ref={skyRef} src={activeRoom.panoramaUrl.backgroundImage.data} radius="512" />
             </a-scene>
             <div className={classes.enterVRContainer}>
-                <IconButton onClick={onEnterVR}>
+                <IconButton id="enterVRButton">
                     <Typography className="light-text-90">
                         VR
                     </Typography>

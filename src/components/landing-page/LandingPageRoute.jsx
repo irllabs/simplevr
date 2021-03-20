@@ -28,7 +28,7 @@ import resizeImageAsync from '../../util/ResizeImage';
 
 // Models
 import Room from '../../models/room';
-import Project from '../../models/project';
+import Project from '../../models/project.ts';
 
 const styles = makeStyles((theme) => {
     return {
@@ -83,7 +83,7 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
         room.panoramaUrl.thumbnail.data = resizedImage.thumbnail;
         room.panoramaUrl.thumbnail.extension = 'jpeg';
 
-        project.story.addRoom(room);
+        project.story.rooms.push(room);
 
         // Set newly created story (and first room) as active story in redux
         setProjectAction(project);

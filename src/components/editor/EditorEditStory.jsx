@@ -107,7 +107,7 @@ function EditorEditStory({
                     helperText="Use comma to add separate tags"
                     variant="outlined"
                     onChange={onTagsChange}
-                    value={story.getStoryTagsString()}
+                    value={story.tags.join(',')}
                 />
                 <Box m={4} />
                 <EditorAudioSelector

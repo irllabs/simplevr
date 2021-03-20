@@ -15,6 +15,17 @@ export default class FileLoaderUtil {
         });
     }
 
+    static isFileOfType(file, type) {
+        if (!MIME_TYPE_MAP[type]) {
+            return false;
+        }
+        else if(MIME_TYPE_MAP[type].indexOf(file.type) > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
     static getBinaryFileData(file) {
         return new Promise((resolve, reject) => {
             const fileReader = new FileReader();

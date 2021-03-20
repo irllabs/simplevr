@@ -5,9 +5,7 @@ import { v1 as uuid } from 'uuid';
 import Story from './story';
 
 export default class Project {
-    constructor() {
-        this.id = uuid();
-        this.isPublic = false;
-        this.story = new Story();
-    }
+    public id = uuid();
+    public isPublic = false;
+    public story = new Story();
 }

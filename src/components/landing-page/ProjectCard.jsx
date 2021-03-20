@@ -9,7 +9,6 @@ import { IconButton, makeStyles, Typography } from '@material-ui/core';
 // Firebase
 import FirebaseContext from '../../firebase/context.ts';
 import ShareStoryDialog from '../dialogs/ShareStoryDialog';
-import Project from '../../models/project';
 import { setCurrentRoom, setProject, setStory } from '../../redux/actions';
 
 const styles = makeStyles(() => {
