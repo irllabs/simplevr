@@ -1,5 +1,5 @@
 // External libraries
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
@@ -8,8 +8,15 @@ import { IconButton, makeStyles, Typography } from '@material-ui/core';
 
 // Firebase
 import FirebaseContext from '../../firebase/context.ts';
-import ShareStoryDialog from '../dialogs/ShareStoryDialog';
+
+// Redux
 import { setCurrentRoom, setProject, setStory } from '../../redux/actions';
+
+// Service
+import ProjectArchiveCreator from '../../service/ProjectArchiveCreator';
+
+// Components
+import ShareStoryDialog from '../dialogs/ShareStoryDialog';
 
 const styles = makeStyles(() => {
     return {
@@ -154,6 +161,11 @@ function ProjectCard({
         return homeRoom;
     }
 
+    const onDownloadStoryArchive = async () => {
+        const archiver = new ProjectArchiveCreator();
+        archiver.create(project);
+    }
+
     return (
         <div className={classes.projectCardContainer} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={onClick} style={{
             cursor: isPublic ? 'pointer' : 'default'
@@ -171,12 +183,16 @@ function ProjectCard({
                     </Typography>
                 </div>
                 <div className={classes.cardActionsContainer}>
-                {!isPublic &&
+                    {!isPublic &&
                     <IconButton onClick={onEditStory}>
                         <img src="/icons/edit-icon.svg" alt="edit" />
                     </IconButton>}
                     {!isPublic &&
                     <IconButton onClick={onOpenShareStory}>
+                        <img src="/icons/share-icon.svg" alt="share" />
+                    </IconButton>}
+                    {!isPublic &&
+                    <IconButton onClick={onDownloadStoryArchive}>
                         <img src="/icons/share-icon.svg" alt="share" />
                     </IconButton>}
                 </div>

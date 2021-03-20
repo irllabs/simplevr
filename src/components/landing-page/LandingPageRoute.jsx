@@ -30,6 +30,9 @@ import resizeImageAsync from '../../util/ResizeImage';
 import Room from '../../models/room';
 import Project from '../../models/project.ts';
 
+// Services
+import ProjectArchiveLoader from '../../service/ProjectArchiveLoader';
+
 const styles = makeStyles((theme) => {
     return {
         hero: {
@@ -68,6 +71,11 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
     };
 
     const processSelectedFile = async (file) => {
+        if (file.type === 'application/zip') {
+            loadStoryFromArchive(file);
+            return;
+        }
+
         // Verify if input file is of valid type and format
         await FileLoaderUtil.validateFileLoadEvent(file, 'image');
 
@@ -97,6 +105,18 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
     const onCreateStoryClick = () => {
         fileInput.current.click();
     };
+
+    const loadStoryFromArchive = async (file) => {
+        const loader = new ProjectArchiveLoader();
+        const project = await loader.load(file);
+
+        setProjectAction(project);
+        setStoryAction(project.story);
+        setCurrentRoomAction(project.story.rooms[0]);
+
+        // Navigate to editor for further story edits
+        history.push('/editor');
+    }
 
     return (
         <>
