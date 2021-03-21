@@ -37,7 +37,7 @@ class Firebase {
         this.firestore = firebase.firestore();
         this.storage = firebase.storage();
 
-        firebase.auth().onAuthStateChanged((user) => {
+        this.auth.onAuthStateChanged((user) => {
             // console.log('onAuthStateChanged', user);
             if (user) {
                 this.currentUser = user;

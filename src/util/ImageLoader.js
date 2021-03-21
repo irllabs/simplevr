@@ -1,5 +1,8 @@
 export default function loadImageForRoom(room) {
-    if (room.panoramaUrl.backgroundImage.preloaded) {
+    const data = room.panoramaUrl.backgroundImage.data;
+    const preloaded = room.panoramaUrl.backgroundImage.preloaded;
+
+    if (data.startsWith('data:') || preloaded) {
         return room.panoramaUrl.backgroundImage.data;
     }
 
@@ -16,7 +19,7 @@ export default function loadImageForRoom(room) {
             const ctx = canvas.getContext("2d");
             ctx.drawImage(image, 0, 0);
 
-            const dataURL = canvas.toDataURL("image/png");
+            const dataURL = canvas.toDataURL("image/jpeg", 0.8);
 
             room.panoramaUrl.backgroundImage.data = dataURL;
 
