@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-import { Entity } from 'aframe-react';
 import getTextureSizeFromText from '../util/TextMaterialBuilder';
 import { fitToMax } from '../util/ResizeImage';
 import getImageFromData from '../util/GetImageFromData';
@@ -96,7 +95,7 @@ export default ({ hotspot }) => {
     };
 
     return (
-        <Entity
+        <a-entity
             hotspot={params()}
             class="hotspot"
             geometry="primitive: plane"
@@ -107,7 +106,7 @@ export default ({ hotspot }) => {
             scale="100 100"
             look-at="[camera]"
         >
-            <Entity
+            <a-entity
                 class="outer-trigger raycast-trigger"
                 material="
                     opacity: 0;
@@ -119,7 +118,7 @@ export default ({ hotspot }) => {
                     width: 1;"
                 position="0 0 -1"
             />
-            <Entity
+            <a-entity
                 class="center-trigger raycast-trigger"
                 material="
                     opacity: 0;
@@ -131,7 +130,7 @@ export default ({ hotspot }) => {
                     width: .2;"
                 position="0 0 -1"
             />
-            <Entity
+            <a-entity
                 class="content-zone-trigger raycast-trigger"
                 material="
                     opacity: 0;
@@ -143,7 +142,7 @@ export default ({ hotspot }) => {
                     width: .5"
             />
 
-            <Entity
+            <a-entity
                 pulsating-marker
                 animation__pulsation="
                     property: scale;
@@ -169,7 +168,7 @@ export default ({ hotspot }) => {
                         startEvents: start-scale-out;
                         pauseEvents: stop-scale-out;"
                 />
-            </Entity>
+            </a-entity>
 
             {isAudioOnly()
             && (
@@ -258,6 +257,6 @@ export default ({ hotspot }) => {
                     />
                 )}
             </a-entity>
-        </Entity>
+        </a-entity>
     );
 }

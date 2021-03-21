@@ -1,5 +1,5 @@
 // External libraries
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import 'aframe';
 
@@ -9,6 +9,8 @@ import { setCurrentRoom } from '../redux/actions';
 
 import loadImageForRoom from '../util/ImageLoader';
 import { IconButton, makeStyles, Typography } from '@material-ui/core';
+import { useHistory } from 'react-router';
+import ArrowBackIcon from '@material-ui/icons/KeyboardBackspace';
 
 const styles = makeStyles(() => {
     return {
@@ -23,20 +25,59 @@ const styles = makeStyles(() => {
             alignItems: 'center',
             backgroundColor: 'rgba(0,0,0,0.6)',
             borderRadius: 24,
+        },
+        backButtonContainer: {
+            position: 'fixed',
+            left: '24px',
+            top: '24px',
+            width: '48px',
+            height: '48px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            borderRadius: 24,
+        },
+        icon: {
+            color: 'rgba(255, 255, 255, 0.7)'
         }
     };
 });
-function Scene({ story, setCurrentRoomAction }) {
+function Scene({ story, setCurrentRoomAction, viewOpenedFromApplication }) {
     const classes = styles();
 
     const sceneRef = useRef();
     const skyRef = useRef();
 
+    const history = useHistory();
+
+    const [vrEnabled, setVrEnabled] = useState(false);
+
     useEffect(() => {
         sceneRef.current.addEventListener('switch-room', (e) => {
             goToRoom(e.detail);
         });
+
+        sceneRef.current.addEventListener('enter-vr', function () {
+            setVrEnabled(true);
+        });
+
+        sceneRef.current.addEventListener('exit-vr', function () {
+            setVrEnabled(false);
+        });
     }, []);
+
+    const onBack = () => {
+        // Remove CSS styles injected by a-frame when going back to landing page/editor.
+        document.documentElement.classList.remove('a-fullscreen');
+
+        if (viewOpenedFromApplication) {
+            history.goBack();
+        }
+        else {
+            history.push('/')
+        }
+    }
 
     const goToRoom = async (roomId) => {
         const targetRoom = story.rooms.find((room) => {
@@ -131,8 +172,14 @@ function Scene({ story, setCurrentRoomAction }) {
 
                 <a-sky ref={skyRef} src={activeRoom.panoramaUrl.backgroundImage.data} radius="512" />
             </a-scene>
-            <div className={classes.enterVRContainer}>
-                <IconButton id="enterVRButton">
+            {!vrEnabled &&
+            <div className={classes.backButtonContainer}>
+                <IconButton onClick={onBack}>
+                    <ArrowBackIcon className={classes.icon} />
+                </IconButton>
+            </div>}
+            <div id="enterVRButton" className={classes.enterVRContainer}>
+                <IconButton>
                     <Typography className="light-text-90">
                         VR
                     </Typography>
@@ -145,6 +192,7 @@ function Scene({ story, setCurrentRoomAction }) {
 const mapStateToProps = (state) => {
     return {
         story: state.project.story,
+        viewOpenedFromApplication: state.navigation.viewOpenedFromApplication
     };
 };
 

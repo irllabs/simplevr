@@ -1,8 +1,4 @@
-import { useHistory, useParams } from 'react-router-dom';
-
-import { IconButton, makeStyles } from '@material-ui/core';
-
-import ArrowBackIcon from '@material-ui/icons/KeyboardBackspace';
+import { useParams } from 'react-router-dom';
 
 import 'aframe';
 import 'aframe-look-at-component';
@@ -14,46 +10,13 @@ import { useContext, useEffect, useState } from 'react';
 import { FirebaseContext } from '../../firebase';
 import loadImageForRoom from '../../util/ImageLoader';
 
-const styles = makeStyles(() => {
-    return {
-        backButtonContainer: {
-            position: 'fixed',
-            left: '24px',
-            top: '24px',
-            width: '48px',
-            height: '48px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0,0,0,0.6)',
-            borderRadius: 24,
-        },
-        icon: {
-            color: 'rgba(255, 255, 255, 0.7)'
-        }
-    };
-});
-function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomAction, viewOpenedFromApplication}) {
-    const classes = styles();
+function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomAction}) {
 
     const firebaseContext = useContext(FirebaseContext);
 
     const [projectLoaded, setProjectLoaded] = useState(Boolean(project));
 
-    const history = useHistory();
     const { projectId } = useParams();
-
-    const onBack = () => {
-        // Remove CSS styles injected by a-frame when going back to landing page/editor.
-        document.documentElement.classList.remove('a-fullscreen');
-
-        if (viewOpenedFromApplication) {
-            history.goBack();
-        }
-        else {
-            history.push('/')
-        }
-    }
 
     useEffect(async () => {
         if (!projectLoaded) {
@@ -90,11 +53,6 @@ function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomA
         projectLoaded &&
         <>
             <Scene />
-            <div className={classes.backButtonContainer}>
-                <IconButton onClick={onBack}>
-                    <ArrowBackIcon className={classes.icon} />
-                </IconButton>
-            </div>
         </>
     );
 }
