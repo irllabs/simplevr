@@ -253,7 +253,10 @@ export default function projectReducer(state = initialState, action) {
                             backgroundMusic: {
                                 ...room.backgroundMusic,
                                 data: action.payload.data,
+                                fileName: action.payload.name,
                                 extension: action.payload.extension,
+                                loop: action.payload.loop,
+                                volume: action.payload.volume
                             },
                         };
                     }),
@@ -275,7 +278,10 @@ export default function projectReducer(state = initialState, action) {
                             backgroundNarration: {
                                 ...room.backgroundNarration,
                                 data: action.payload.data,
+                                fileName: action.payload.name,
                                 extension: action.payload.extension,
+                                loop: action.payload.loop,
+                                volume: action.payload.volume
                             },
                         };
                     }),

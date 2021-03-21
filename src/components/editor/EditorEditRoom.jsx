@@ -76,25 +76,69 @@ function EditorEditRoom({
     const onBackgroundMusicChange = (data, name, type) => {
         const extension = mime.extension(type);
 
-        setRoomBackgroundMusicAction(room.id, data, extension);
+        setRoomBackgroundMusicAction(room.id, data, name, extension, room.backgroundMusic.loop, room.backgroundMusic.volume);
     };
 
     const onBackgroundMusicRemove = () => {
-        setRoomBackgroundMusicAction(room.id, null, '');
+        setRoomBackgroundMusicAction(room.id, null, '', '', false, 0.5);
     };
 
     const onBackgroundNarrationChange = (data, name, type) => {
         const extension = mime.extension(type);
 
-        setRoomBackgroundNarrationAction(room.id, data, extension);
+        setRoomBackgroundNarrationAction(room.id, data, name, extension, room.backgroundNarration.loop, room.backgroundNarration.volume);
     };
 
     const onBackgroundNarrationRemove = () => {
-        setRoomBackgroundNarrationAction(room.id, null, '');
+        setRoomBackgroundNarrationAction(room.id, null, '', '', false, 0.5);
     };
 
     const onHomeChange = () => {
         setRoomIsHomeAction(room.id, !room.isHome);
+    }
+
+    const onBackgroundMusicLoopChange = (loop) => {
+        setRoomBackgroundMusicAction(
+            room.id,
+            room.backgroundMusic.data,
+            room.backgroundMusic.fileName,
+            room.backgroundMusic.extension,
+            loop,
+            room.backgroundMusic.volume
+        );
+    }
+
+    const onBackgroundMusicVolumeChange = (volume) => {
+        setRoomBackgroundMusicAction(
+            room.id,
+            room.backgroundMusic.data,
+            room.backgroundMusic.fileName,
+            room.backgroundMusic.extension,
+            room.backgroundMusic.loop,
+            volume
+        );
+    }
+
+    const onBackgroundNarrationLoopChange = (loop) => {
+        setRoomBackgroundNarrationAction(
+            room.id,
+            room.backgroundNarration.data,
+            room.backgroundNarration.fileName,
+            room.backgroundNarration.extension,
+            loop,
+            room.backgroundNarration.volume
+        );
+    }
+
+    const onBackgroundNarrationVolumeChange = (volume) => {
+        setRoomBackgroundNarrationAction(
+            room.id,
+            room.backgroundNarration.data,
+            room.backgroundNarration.fileName,
+            room.backgroundNarration.extension,
+            room.backgroundNarration.loop,
+            volume
+        );
     }
 
     return (
@@ -143,6 +187,11 @@ function EditorEditRoom({
                 <EditorAudioSelector
                     title="Room background music"
                     data={room.backgroundMusic.data}
+                    name={room.backgroundMusic.fileName}
+                    loop={room.backgroundMusic.loop}
+                    volume={room.backgroundMusic.volume}
+                    onPlayInLoopChange={onBackgroundMusicLoopChange}
+                    onVolumeChange={onBackgroundMusicVolumeChange}
                     onChange={onBackgroundMusicChange}
                     onRemove={onBackgroundMusicRemove}
                 />
@@ -150,6 +199,11 @@ function EditorEditRoom({
                 <EditorAudioSelector
                     title="Room background narration"
                     data={room.backgroundNarration.data}
+                    name={room.backgroundNarration.fileName}
+                    loop={room.backgroundNarration.loop}
+                    volume={room.backgroundNarration.volume}
+                    onPlayInLoopChange={onBackgroundNarrationLoopChange}
+                    onVolumeChange={onBackgroundNarrationVolumeChange}
                     onChange={onBackgroundNarrationChange}
                     onRemove={onBackgroundNarrationRemove}
                 />

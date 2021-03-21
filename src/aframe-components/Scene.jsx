@@ -83,7 +83,7 @@ function Scene({ story, setCurrentRoomAction }) {
                         src={story.soundtrack.data}
                         autoplay={true}
                         volume={story.soundtrack.volume}
-                        loop="true"
+                        loop={story.soundtrack.loop}
                         class="soundtrack-audio"
                     >
                     </a-sound>}
@@ -113,6 +113,7 @@ function Scene({ story, setCurrentRoomAction }) {
                         src={activeRoom.backgroundNarration.data}
                         autoplay={true}
                         volume={activeRoom.backgroundNarration.volume}
+                        loop={activeRoom.backgroundNarration.loop}
                         class="narration-audio"
                         sound="positional: false"
                     >
@@ -122,7 +123,7 @@ function Scene({ story, setCurrentRoomAction }) {
                         src={activeRoom.backgroundMusic.data}
                         autoplay={true}
                         volume={activeRoom.backgroundMusic.volume}
-                        loop="true"
+                        loop={activeRoom.backgroundMusic.loop}
                         sound="positional: false"
                     >
                     </a-sound>}

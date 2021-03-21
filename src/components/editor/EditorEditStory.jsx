@@ -75,6 +75,28 @@ function EditorEditStory({
         setStorySoundtrackAction(soundtrack);
     };
 
+    const onPlayInLoopChange = (loop) => {
+        const soundtrack = new Soundtrack();
+        soundtrack.fileName = story.soundtrack.fileName;
+        soundtrack.data = story.soundtrack.data;
+        soundtrack.extension = story.soundtrack.extension;
+        soundtrack.loop = loop;
+        soundtrack.volume = story.soundtrack.volume;
+
+        setStorySoundtrackAction(soundtrack);
+    }
+
+    const onVolumeChange = (volume) => {
+        const soundtrack = new Soundtrack();
+        soundtrack.fileName = story.soundtrack.fileName;
+        soundtrack.data = story.soundtrack.data;
+        soundtrack.extension = story.soundtrack.extension;
+        soundtrack.loop = story.soundtrack.loop;
+        soundtrack.volume = volume;
+
+        setStorySoundtrackAction(soundtrack);
+    }
+
     return (
         <Dialog onClose={onClose} open maxWidth="xs" fullWidth>
             <DialogTitle className={classes.root}>
@@ -114,6 +136,10 @@ function EditorEditStory({
                     title="Story soundtrack"
                     data={story.soundtrack.data}
                     name={story.soundtrack.fileName}
+                    loop={story.soundtrack.loop}
+                    volume={story.soundtrack.volume}
+                    onPlayInLoopChange={onPlayInLoopChange}
+                    onVolumeChange={onVolumeChange}
                     onChange={onSoundtrackChange}
                     onRemove={onSoundtrackRemove}
                 />

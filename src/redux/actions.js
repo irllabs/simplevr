@@ -225,23 +225,29 @@ export const setHotspotAudio = (hotspotId, data, name, extension, loop, volume) 
         },
     };
 };
-export const setRoomBackgroundMusic = (roomId, data, extension) => {
+export const setRoomBackgroundMusic = (roomId, data, name, extension, loop, volume) => {
     return {
         type: SET_ROOM_BACKGROUND_MUSIC,
         payload: {
             roomId: roomId,
             data: data,
+            name: name,
             extension: extension,
+            loop: loop,
+            volume: volume,
         },
     };
 };
-export const setRoomBackgroundNarration = (roomId, data, extension) => {
+export const setRoomBackgroundNarration = (roomId, data, name, extension, loop, volume) => {
     return {
         type: SET_ROOM_BACKGROUND_NARRATION,
         payload: {
             roomId: roomId,
             data: data,
+            name: name,
             extension: extension,
+            loop: loop,
+            volume: volume
         },
     };
 };
