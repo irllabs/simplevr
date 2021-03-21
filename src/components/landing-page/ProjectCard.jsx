@@ -10,7 +10,7 @@ import { IconButton, makeStyles, Typography } from '@material-ui/core';
 import FirebaseContext from '../../firebase/context.ts';
 
 // Redux
-import { setCurrentRoom, setProject, setStory } from '../../redux/actions';
+import { setCurrentRoom, setOpenedPreviewFromApplication, setProject, setStory } from '../../redux/actions';
 
 // Service
 import ProjectArchiveCreator from '../../service/ProjectArchiveCreator';
@@ -82,6 +82,7 @@ function ProjectCard({
     setProjectAction,
     setStoryAction,
     setCurrentRoomAction,
+    setOpenedPreviewFromApplicationAction
 }) {
     const classes = styles();
 
@@ -147,6 +148,8 @@ function ProjectCard({
         setProjectAction(projectModel);
         setStoryAction(projectModel.story);
         setCurrentRoomAction(projectModel.story.rooms[0]);
+
+        setOpenedPreviewFromApplicationAction(true);
 
         history.push(`/view/${project.id}`);
     }
@@ -223,5 +226,6 @@ export default connect(
         setProjectAction: setProject,
         setStoryAction: setStory,
         setCurrentRoomAction: setCurrentRoom,
+        setOpenedPreviewFromApplicationAction: setOpenedPreviewFromApplication
     },
 )(ProjectCard);

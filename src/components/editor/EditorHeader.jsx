@@ -4,12 +4,13 @@ import React, { useContext, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import BackArrowIcon from '@material-ui/icons/KeyboardBackspace';
 import IconButton from '@material-ui/core/IconButton';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useHistory } from 'react-router-dom';
 import SaveIcon from '@material-ui/icons/SaveOutlined';
 import EditorEditStory from './EditorEditStory';
 import UserProfile from '../user-profile/UserProfile';
 import FirebaseContext from '../../firebase/context.ts';
 import ShareStoryDialog from '../dialogs/ShareStoryDialog';
+import { setOpenedPreviewFromApplication } from '../../redux/actions';
 
 const styles = makeStyles((theme) => {
     return {
@@ -80,10 +81,12 @@ const styles = makeStyles((theme) => {
     };
 });
 
-function EditorHeader({ project }) {
+function EditorHeader({ project, setOpenedPreviewFromApplicationAction }) {
     const classes = styles();
 
     const firebaseContext = useContext(FirebaseContext);
+
+    const history = useHistory();
 
     const [editStoryOpen, setEditStoryOpen] = useState(false);
     const [shareStoryDialogOpen, setShareStoryDialogOpen] = useState(false);
@@ -121,6 +124,12 @@ function EditorHeader({ project }) {
         return homeRoom;
     }
 
+    const onOpenPreview = () => {
+        setOpenedPreviewFromApplicationAction(true);
+
+        history.push(`/view/${project.id}`);
+    }
+
     return (
         <>
             <Box className={classes.root}>
@@ -146,7 +155,7 @@ function EditorHeader({ project }) {
                 <UserProfile />
             </Box>
             <div className={classes.previewContainer}>
-                <IconButton className={classes.vrButton} variant="contained" color="primary" component={RouterLink} to={`/view/${project.id}`}>
+                <IconButton className={classes.vrButton} variant="contained" color="primary" onClick={onOpenPreview}>
                     <img className={classes.vrButtonLogo} src="/icons/vr.svg" alt="preview-story" />
                 </IconButton>
             </div>
@@ -170,5 +179,7 @@ const mapStateToProps = (state) => {
 
 export default connect(
     mapStateToProps,
-    {},
+    {
+        setOpenedPreviewFromApplicationAction: setOpenedPreviewFromApplication
+    },
 )(EditorHeader);

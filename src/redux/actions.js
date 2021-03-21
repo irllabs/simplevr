@@ -24,6 +24,7 @@ import {
     SET_ROOM_BACKGROUND_MUSIC,
     SET_ROOM_BACKGROUND_NARRATION,
     SET_ROOM_IS_HOME,
+    SET_OPENED_PREVIEW_FROM_APPLICATION,
 } from './actionTypes';
 
 // User
@@ -73,6 +74,16 @@ export const setIsShowingSignInDialog = (value) => {
         },
     };
 };
+
+// Navigation
+export const setOpenedPreviewFromApplication = (value) => {
+    return {
+        type: SET_OPENED_PREVIEW_FROM_APPLICATION,
+        payload: {
+            value: value
+        }
+    }
+}
 
 // Project
 export const setProject = (project) => {

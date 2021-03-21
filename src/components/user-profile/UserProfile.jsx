@@ -30,7 +30,7 @@ import {
 import { setIsShowingSignInDialog, setUser } from '../../redux/actions';
 
 // Database
-import FirebaseContext from '../../firebase/context.ts';
+import firebase from '../../firebase/firebase.ts';
 
 const styles = makeStyles(() => {
     return {
@@ -76,16 +76,14 @@ function UserProfile({
 }) {
     const classes = styles();
 
-    const firebaseContext = useContext(FirebaseContext);
-
     const anchorRef = useRef();
 
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        firebaseContext.onUserUpdatedObservers.push(async (authUser) => {
+        firebase.auth.onAuthStateChanged(async (authUser) => {
             if (!_.isNil(authUser)) {
-                const user = await firebaseContext.loadUser(authUser.uid);
+                const user = await firebase.loadUser(authUser.uid);
                 if (!_.isNil(user)) {
                     setUserProp(user);
                 }
@@ -119,7 +117,7 @@ function UserProfile({
     }
 
     const onSignOutClick = () => {
-        firebaseContext.signOut();
+        firebase.signOut();
         setUserProp(null);
     };
 

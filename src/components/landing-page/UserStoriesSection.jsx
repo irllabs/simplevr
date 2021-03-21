@@ -16,7 +16,7 @@ import {
 import { setIsShowingSignInDialog, setUserStories } from '../../redux/actions';
 
 // Firebase
-import FirebaseContext from '../../firebase/context.ts';
+import firebase from '../../firebase/firebase.ts';
 import ProjectCard from './ProjectCard';
 
 const styles = makeStyles(() => {
@@ -53,14 +53,12 @@ function UserStoriesSection({
     setUserStoriesAction,
     setIsShowingSignInDialogAction,
 }) {
-    const firebaseContext = useContext(FirebaseContext);
-
     const classes = styles();
 
     useEffect(() => {
-        firebaseContext.onUserUpdatedObservers.push(async (authUser) => {
+        firebase.auth.onAuthStateChanged((authUser) => {
             if (!_.isNil(authUser)) {
-                firebaseContext.loadUserStories(authUser.uid).then((stories) => {
+                firebase.loadUserStories(authUser.uid).then((stories) => {
                     setUserStoriesAction(stories);
                 });
             }

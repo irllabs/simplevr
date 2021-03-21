@@ -33,7 +33,7 @@ const styles = makeStyles(() => {
         }
     };
 });
-function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomAction}) {
+function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomAction, viewOpenedFromApplication}) {
     const classes = styles();
 
     const firebaseContext = useContext(FirebaseContext);
@@ -47,7 +47,12 @@ function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomA
         // Remove CSS styles injected by a-frame when going back to landing page/editor.
         document.documentElement.classList.remove('a-fullscreen');
 
-        history.goBack();
+        if (viewOpenedFromApplication) {
+            history.goBack();
+        }
+        else {
+            history.push('/')
+        }
     }
 
     useEffect(async () => {
@@ -97,6 +102,7 @@ function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomA
 const mapStateToProps = (state) => {
     return {
         project: state.project,
+        viewOpenedFromApplication: state.navigation.viewOpenedFromApplication,
     };
 };
 

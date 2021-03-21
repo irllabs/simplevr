@@ -8,6 +8,7 @@ import project from './project';
 import User from '../../models/user';
 import Story from '../../models/story';
 import Project from '../../models/project';
+import navigation from './navigation';
 
 export interface RootState {
     user: User;
@@ -17,6 +18,9 @@ export interface RootState {
     userStories: Story[];
     publicStories: Story[];
     project: Project;
+    navigation: {
+        viewOpenedFromApplication: boolean
+    };
 }
 
 export default combineReducers<RootState>({
@@ -25,4 +29,5 @@ export default combineReducers<RootState>({
     userStories: userStories,
     publicStories: publicStories,
     project: project,
+    navigation: navigation,
 });
