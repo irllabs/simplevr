@@ -79,8 +79,10 @@ export default function EditorAudioSelector({
     name,
     loop,
     data,
+    volume,
     onChange,
     onPlayInLoopChange,
+    onVolumeChange,
     onRemove,
 }) {
     const classes = styles();
@@ -92,7 +94,6 @@ export default function EditorAudioSelector({
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(50);
 
     useEffect(() => {
         audioElement.current.addEventListener('canplaythrough', setDurationCallback);
@@ -106,10 +107,6 @@ export default function EditorAudioSelector({
             audioElement.current.play();
         }
     }, [isPlaying]);
-
-    useEffect(() => {
-        audioElement.current.volume = Math.max(0, volume / 100);
-    }, [volume]);
 
     const onAudioSelected = (event) => {
         const file = event.target.files[0];
@@ -145,13 +142,15 @@ export default function EditorAudioSelector({
         audioElement.current.currentTime = time;
     };
 
-    const onVolumeChange = (event, value) => {
-        setVolume(Math.max(0.01, value));
-    };
-
     const togglePlayInLoop = () => {
         onPlayInLoopChange(!loop);
     };
+
+    const handleVolumeChange = (event, value) => {
+        audioElement.current.volume = value / 100;
+
+        onVolumeChange(Math.max(0.01, value / 100));
+    }
 
     const setCurrentTimeCallback = () => {
         if (!audioElement.current) {
@@ -212,7 +211,7 @@ export default function EditorAudioSelector({
                             Playback volume
                         </Typography>
                         <Box m={1} />
-                        <Slider value={volume} max={100} min={0} onChange={onVolumeChange} />
+                        <Slider value={volume * 100} max={100} min={0} onChange={handleVolumeChange} />
                     </div>
                     <div className={classes.audioSelectorLoopControl}>
                         <div style={{ display: 'flex' }}>

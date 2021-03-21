@@ -212,7 +212,7 @@ export const setHotspotImage = (hotspotId, imageData, extension) => {
         },
     };
 };
-export const setHotspotAudio = (hotspotId, data, name, extension, loop) => {
+export const setHotspotAudio = (hotspotId, data, name, extension, loop, volume) => {
     return {
         type: SET_HOTSPOT_AUDIO,
         payload: {
@@ -221,6 +221,7 @@ export const setHotspotAudio = (hotspotId, data, name, extension, loop) => {
             name: name,
             extension: extension,
             loop: loop,
+            volume: volume,
         },
     };
 };

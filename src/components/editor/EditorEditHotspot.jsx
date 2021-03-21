@@ -73,15 +73,19 @@ function EditorEditHotspot({
     const onAudioChange = (data, name, type) => {
         const extension = mime.extension(type);
 
-        setHotspotAudioAction(hotspot.id, data, name, extension, hotspot.audio.loop);
+        setHotspotAudioAction(hotspot.id, data, name, extension, hotspot.audio.loop, hotspot.audio.volume);
     };
 
     const onRemoveAudio = () => {
-        setHotspotAudioAction(hotspot.id, null, '');
+        setHotspotAudioAction(hotspot.id, null, '', '', false, 0.5);
     };
 
     const onLoopChange = (loop) => {
-        setHotspotAudioAction(hotspot.id, hotspot.audio.data, hotspot.audio.fileName, hotspot.audio.extension, loop);
+        setHotspotAudioAction(hotspot.id, hotspot.audio.data, hotspot.audio.fileName, hotspot.audio.extension, loop, hotspot.audio.volume);
+    }
+
+    const onVolumeChange = (volume) => {
+        setHotspotAudioAction(hotspot.id, hotspot.audio.data, hotspot.audio.fileName, hotspot.audio.extension, hotspot.audio.loop, volume);
     }
 
     return (
@@ -133,7 +137,9 @@ function EditorEditHotspot({
                     name={hotspot.audio.fileName}
                     data={hotspot.audio.data}
                     loop={hotspot.audio.loop}
+                    volume={hotspot.audio.volume}
                     onPlayInLoopChange={onLoopChange}
+                    onVolumeChange={onVolumeChange}
                     onChange={onAudioChange}
                     onRemove={onRemoveAudio}
                 />

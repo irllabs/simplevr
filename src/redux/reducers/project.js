@@ -384,6 +384,7 @@ export default function projectReducer(state = initialState, action) {
                                         extension: action.payload.extension,
                                         data: action.payload.data,
                                         loop: action.payload.loop,
+                                        volume: action.payload.volume
                                     },
                                 };
                             }),
