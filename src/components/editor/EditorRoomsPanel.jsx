@@ -29,6 +29,7 @@ const styles = makeStyles(() => {
             display: 'flex',
             alignItems: 'center',
             pointerEvents: 'all',
+            cursor: 'pointer'
         },
         body: {
             backgroundColor: 'white',
@@ -119,7 +120,7 @@ function EditorRoomsPanel({ rooms, story }) {
                     </div>
                 </div>
             )}
-            <div className={classes.header}>
+            <div className={classes.header} onClick={onToggle}>
                 <IconButton onClick={onToggle}>
                     <img alt="toggle-rooms-panel" src={`icons/chevron-${expanded ? 'bottom' : 'top'}.svg`} />
                 </IconButton>
