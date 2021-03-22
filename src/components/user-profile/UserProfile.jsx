@@ -1,8 +1,6 @@
 // External libraries
 import _ from 'lodash';
 import {
-    React,
-    useContext,
     useEffect,
     useRef,
     useState,
@@ -31,6 +29,7 @@ import { setIsShowingSignInDialog, setUser } from '../../redux/actions';
 
 // Database
 import firebase from '../../firebase/firebase.ts';
+import { useHistory } from 'react-router';
 
 const styles = makeStyles(() => {
     return {
@@ -76,6 +75,8 @@ function UserProfile({
 }) {
     const classes = styles();
 
+    const history = useHistory();
+
     const anchorRef = useRef();
 
     const [open, setOpen] = useState(false);
@@ -119,6 +120,8 @@ function UserProfile({
     const onSignOutClick = () => {
         firebase.signOut();
         setUserProp(null);
+
+        history.replace('/');
     };
 
     return (
@@ -148,7 +151,7 @@ function UserProfile({
                         }
                     </IconButton>
 
-                    <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+                    <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal style={{zIndex: 100}}>
                         {({ TransitionProps, placement }) => {
                             return (
                                 <Grow
