@@ -14,6 +14,8 @@ export interface RootState {
     user: User;
     display: {
         isShowingSignInDialog: boolean;
+        isShowingSnackbar: boolean;
+        snackbarMessage: string;
     };
     userStories: Story[];
     publicStories: Story[];

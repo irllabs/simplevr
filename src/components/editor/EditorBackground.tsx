@@ -12,7 +12,7 @@ import EditorDoor from './EditorDoor';
 
 // Redux
 import { RootState } from '../../redux/reducers/index';
-import { addHotspot } from '../../redux/actions';
+import { addHotspot, showSnackbar } from '../../redux/actions';
 
 // Models
 import Hotspot from '../../models/hotspot';
@@ -41,13 +41,14 @@ const mapStateToProps = (state: RootState) => {
 const connector = connect(
     mapStateToProps,
     {
-        addHotspotAction: addHotspot
+        addHotspotAction: addHotspot,
+        showSnackbarAction: showSnackbar
     },
 );
 
 type ReduxProps = ConnectedProps<typeof connector>
 
-const EditorBackground: FC<ReduxProps> = ({ story, addHotspotAction }) => {
+const EditorBackground: FC<ReduxProps> = ({ story, addHotspotAction, showSnackbarAction }) => {
     const classes = styles();
 
     const getRoomName = (roomId: string) => {
@@ -80,7 +81,7 @@ const EditorBackground: FC<ReduxProps> = ({ story, addHotspotAction }) => {
 
             addHotspotAction(hotspot, story.getActiveRoom().id);
         }
-        if (FileLoaderUtil.isFileOfType(file, 'audio')) {
+        else if (FileLoaderUtil.isFileOfType(file, 'audio')) {
             const fileData = await FileLoaderUtil.getBinaryFileData(file);
             const extension = mime.extension(file.type);
 
@@ -94,6 +95,9 @@ const EditorBackground: FC<ReduxProps> = ({ story, addHotspotAction }) => {
             hotspot.location = location;
 
             addHotspotAction(hotspot, story.getActiveRoom().id);
+        }
+        else {
+            showSnackbarAction('Invalid file type.\nSupported hotspot file types are: png, jpeg, jpg, mp3, wav, mpeg, x-wav, aac, x-m4a.');
         }
     }
 

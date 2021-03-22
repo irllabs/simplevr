@@ -5,6 +5,7 @@ import React, { FC, useRef, useState } from "react";
 import { Button, makeStyles } from "@material-ui/core";
 
 interface EditorFileSelectorProps {
+    accept: string;
     onChange: (file: File) => void;
 }
 const styles = makeStyles(() => {
@@ -25,7 +26,7 @@ const styles = makeStyles(() => {
         }
     };
 });
-const EditorFileSelector: FC<EditorFileSelectorProps> = ({children, onChange}) => {
+const EditorFileSelector: FC<EditorFileSelectorProps> = ({children, accept, onChange}) => {
     const classes = styles();
 
     const imageInputElement = useRef<HTMLInputElement>();
@@ -58,6 +59,7 @@ const EditorFileSelector: FC<EditorFileSelectorProps> = ({children, onChange}) =
                 ref={imageInputElement}
                 onChange={onImageSelected}
                 style={{ display: 'none' }}
+                accept={accept}
             />
             <div className={classes.container}>
                 {children}

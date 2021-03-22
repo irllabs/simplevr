@@ -7,8 +7,7 @@ export default class FileLoaderUtil {
                 reject(new Error('Accepted file type not valid'));
             }
             if (MIME_TYPE_MAP[acceptedFileType].indexOf(file.type) < 0) {
-                const errorMessage = `File is not a valid type, must be of type: ${acceptedFileType}.\n`
-                + `Accepted file types: ${MIME_TYPE_MAP[acceptedFileType].join(', ')}`;
+                const errorMessage = `Invalid file type. Supported file types: ${MIME_TYPE_MAP[acceptedFileType].join(', ')}.`;
                 reject(errorMessage);
             }
             resolve(file);

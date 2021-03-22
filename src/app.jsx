@@ -16,6 +16,7 @@ import { unstable_createMuiStrictModeTheme as createMuiTheme, ThemeProvider } fr
 import LandingPageRoute from './components/landing-page/LandingPageRoute';
 import EditorRoute from './components/editor/EditorRoute';
 import ViewerRoute from './components/viewer/ViewerRoute';
+import SnackbarNotification from './components/shared/SnackbarNotification';
 
 export default function App() {
     const theme = React.useMemo(
@@ -79,6 +80,7 @@ export default function App() {
         <div className="App">
             <ThemeProvider theme={theme}>
                 <CssBaseline />
+                <SnackbarNotification />
                 <Router>
                     <Switch>
                         <Route path="/editor" component={EditorRoute} />

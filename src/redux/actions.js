@@ -25,6 +25,8 @@ import {
     SET_ROOM_BACKGROUND_NARRATION,
     SET_ROOM_IS_HOME,
     SET_OPENED_PREVIEW_FROM_APPLICATION,
+    SHOW_SNACKBAR,
+    HIDE_SNACKBAR,
 } from './actionTypes';
 
 // User
@@ -72,6 +74,20 @@ export const setIsShowingSignInDialog = (value) => {
         payload: {
             value: value,
         },
+    };
+};
+export const showSnackbar = (message) => {
+    return {
+        type: SHOW_SNACKBAR,
+        payload: {
+            message: message,
+        },
+    };
+};
+export const hideSnackbar = () => {
+    return {
+        type: HIDE_SNACKBAR,
+        payload: {},
     };
 };
 

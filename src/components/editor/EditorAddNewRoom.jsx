@@ -5,8 +5,9 @@ import Room from '../../models/room';
 import FileLoaderUtil from '../../util/FileLoader';
 import resizeImageAsync from '../../util/ResizeImage';
 
-import { addRoom, setCurrentRoom } from '../../redux/actions';
+import { addRoom, setCurrentRoom, showSnackbar } from '../../redux/actions';
 import EditorFileSelector from './EditorFileSelector';
+import byteToMegabyte from '../../util/ByteToMegabyte';
 
 const styles = makeStyles(() => {
     return {
@@ -30,7 +31,7 @@ const styles = makeStyles(() => {
         },
     };
 });
-function EditorAddNewRoom({ addRoomAction, setCurrentRoomAction }) {
+function EditorAddNewRoom({ addRoomAction, setCurrentRoomAction, showSnackbarAction }) {
     const classes = styles();
 
     const fileInput = useRef();
@@ -50,8 +51,20 @@ function EditorAddNewRoom({ addRoomAction, setCurrentRoomAction }) {
     };
 
     const processSelectedFile = async (file) => {
+        const fileTooLarge = file.size > 16777216;
+        if (fileTooLarge) {
+            showSnackbarAction(`File is too big. File should be less than ${byteToMegabyte(16777216)} megabytes`);
+            return;
+        }
+
         // Verify if input file is of valid type and format
-        await FileLoaderUtil.validateFileLoadEvent(file, 'image');
+        try {
+            await FileLoaderUtil.validateFileLoadEvent(file, 'image');
+        }
+        catch (error) {
+            showSnackbarAction(error);
+            return;
+        }
 
         const fileData = await FileLoaderUtil.getBinaryFileData(file);
         const resizedImage = await resizeImageAsync(fileData, 'backgroundImage');
@@ -70,14 +83,14 @@ function EditorAddNewRoom({ addRoomAction, setCurrentRoomAction }) {
 
     return (
         <>
-            <EditorFileSelector onChange={processSelectedFile}>
+            <EditorFileSelector accept="image/png, image/jpeg, image/jpg" onChange={processSelectedFile}>
                 <div className={classes.container}>
                     <img alt="add-new-room" src="icons/plus.svg" className={classes.icon} onClick={onAddNewRoom} />
                 </div>
             </EditorFileSelector>
             <input
-                id="welcome-message-input"
                 type="file"
+                accept="image/png, image/jpeg, image/jpg"
                 className="invisible"
                 ref={fileInput}
                 onChange={onRoomPanoramaSelected}
@@ -95,5 +108,6 @@ export default connect(
     {
         addRoomAction: addRoom,
         setCurrentRoomAction: setCurrentRoom,
+        showSnackbarAction: showSnackbar,
     },
 )(EditorAddNewRoom);

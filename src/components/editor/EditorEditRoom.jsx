@@ -180,6 +180,7 @@ function EditorEditRoom({
                 <Box m={2} />
                 <EditorImageSelector
                     title="Background Image"
+                    maxSize={16777216}
                     value={room.panoramaUrl.thumbnail.data}
                     onChange={onBackgroundImageChange}
                 />
@@ -190,6 +191,7 @@ function EditorEditRoom({
                     name={room.backgroundMusic.fileName}
                     loop={room.backgroundMusic.loop}
                     volume={room.backgroundMusic.volume}
+                    maxFileSize={2097152}
                     onPlayInLoopChange={onBackgroundMusicLoopChange}
                     onVolumeChange={onBackgroundMusicVolumeChange}
                     onChange={onBackgroundMusicChange}
@@ -202,6 +204,7 @@ function EditorEditRoom({
                     name={room.backgroundNarration.fileName}
                     loop={room.backgroundNarration.loop}
                     volume={room.backgroundNarration.volume}
+                    maxFileSize={1572864}
                     onPlayInLoopChange={onBackgroundNarrationLoopChange}
                     onVolumeChange={onBackgroundNarrationVolumeChange}
                     onChange={onBackgroundNarrationChange}

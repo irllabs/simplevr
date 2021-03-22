@@ -12,6 +12,10 @@ import {
 import { Close } from '@material-ui/icons';
 
 import EditorFileSelector from './EditorFileSelector';
+import { connect } from 'react-redux';
+import { showSnackbar } from '../../redux/actions';
+import byteToMegabyte from '../../util/ByteToMegabyte';
+import FileLoaderUtil from '../../util/FileLoader';
 
 const styles = makeStyles(() => {
     return {
@@ -74,16 +78,18 @@ const styles = makeStyles(() => {
         },
     };
 });
-export default function EditorAudioSelector({
+function EditorAudioSelector({
     title,
     name,
     loop,
     data,
     volume,
+    maxFileSize,
     onChange,
     onPlayInLoopChange,
     onVolumeChange,
     onRemove,
+    showSnackbarAction
 }) {
     const classes = styles();
 
@@ -114,7 +120,22 @@ export default function EditorAudioSelector({
         processSelectedFile(file);
     };
 
-    const processSelectedFile = (file) => {
+    const processSelectedFile = async (file) => {
+        const fileTooLarge = file.size > maxFileSize;
+        if (fileTooLarge) {
+            showSnackbarAction(`File is too big. File should be less than ${byteToMegabyte(maxFileSize)} megabytes`);
+            return;
+        }
+
+        // Verify if input file is of valid type and format
+        try {
+            await FileLoaderUtil.validateFileLoadEvent(file, 'audio');
+        }
+        catch (error) {
+            showSnackbarAction(error);
+            return;
+        }
+
         const fileReader = new FileReader();
         fileReader.onloadend = () => {
             setAudioData(fileReader.result);
@@ -179,10 +200,16 @@ export default function EditorAudioSelector({
                     {title}
                 </Typography>
             </div>
-            <input type="file" id="audio-selector-input" style={{ display: 'none' }} onChange={onAudioSelected} />
+            <input
+                type="file"
+                accept="audio/mp3, audio/wav, audio/mpeg, audio/x-wav, audio/aac, audio/x-m4a"
+                id="audio-selector-input"
+                style={{ display: 'none' }}
+                onChange={onAudioSelected}
+            />
             {!audioData
             && (
-                <EditorFileSelector onChange={processSelectedFile}>
+                <EditorFileSelector accept="audio/mp3, audio/wav, audio/mpeg, audio/x-wav, audio/aac, audio/x-m4a" onChange={processSelectedFile}>
                     <Button variant="outlined" fullWidth >
                         Select audio
                     </Button>
@@ -230,3 +257,14 @@ export default function EditorAudioSelector({
         </div>
     );
 }
+
+const mapStateToProps = () => {
+    return {};
+};
+
+export default connect(
+    mapStateToProps,
+    {
+        showSnackbarAction: showSnackbar,
+    },
+)(EditorAudioSelector);

@@ -35,11 +35,9 @@ AFRAME.registerComponent('hotspot', {
     },
     showHotspotName: function showHotspotName() {
         this.hotspotName.setAttribute('visible', true);
-        console.log('show');
     },
     hideHotspotName: function hideHotspotName() {
         this.hotspotName.setAttribute('visible', false);
-        console.log('hide')
     },
     init: function init() {
         const { x, y, z } = this.data.coordinates;

@@ -138,6 +138,7 @@ function EditorEditStory({
                     name={story.soundtrack.fileName}
                     loop={story.soundtrack.loop}
                     volume={story.soundtrack.volume}
+                    maxFileSize={4194304}
                     onPlayInLoopChange={onPlayInLoopChange}
                     onVolumeChange={onVolumeChange}
                     onChange={onSoundtrackChange}

@@ -20,11 +20,12 @@ import PublicStoriesSection from './PublicStoriesSection.tsx';
 import EditorFileSelector from '../editor/EditorFileSelector';
 
 // Redux Actions
-import { setCurrentRoom, setProject, setStory } from '../../redux/actions';
+import { setCurrentRoom, setProject, setStory, showSnackbar } from '../../redux/actions';
 
 // Util
 import FileLoaderUtil from '../../util/FileLoader';
 import resizeImageAsync from '../../util/ResizeImage';
+import byteToMegabyte from '../../util/ByteToMegabyte';
 
 // Models
 import Room from '../../models/room';
@@ -59,7 +60,7 @@ const styles = makeStyles((theme) => {
         },
     };
 });
-function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomAction }) {
+function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomAction, showSnackbarAction }) {
     const classes = styles();
     const fileInput = useRef();
     const history = useHistory();
@@ -76,8 +77,20 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
             return;
         }
 
+        const fileTooLarge = file.size > 16777216;
+        if (fileTooLarge) {
+            showSnackbarAction(`File is too big. File should be less than ${byteToMegabyte(16777216)} megabytes`);
+            return;
+        }
+
         // Verify if input file is of valid type and format
-        await FileLoaderUtil.validateFileLoadEvent(file, 'image');
+        try {
+            await FileLoaderUtil.validateFileLoadEvent(file, 'image');
+        }
+        catch (error) {
+            showSnackbarAction(error);
+            return;
+        }
 
         const fileData = await FileLoaderUtil.getBinaryFileData(file);
         const resizedImage = await resizeImageAsync(fileData, 'backgroundImage');
@@ -129,11 +142,12 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
                     <input
                         id="welcome-message-input"
                         type="file"
+                        accept="image/png, image/jpeg, image/jpg"
                         className={classes.input}
                         ref={fileInput}
                         onChange={onStoryPanoramaSelected}
                     />
-                    <EditorFileSelector onChange={processSelectedFile}>
+                    <EditorFileSelector accept="image/png, image/jpeg, image/jpg" onChange={processSelectedFile}>
                         <Button
                             className={classes.uploadButton}
                             size="large"
@@ -169,5 +183,6 @@ export default connect(
         setProjectAction: setProject,
         setStoryAction: setStory,
         setCurrentRoomAction: setCurrentRoom,
+        showSnackbarAction: showSnackbar
     },
 )(LandingPageRoute);

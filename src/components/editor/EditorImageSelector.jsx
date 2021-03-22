@@ -1,6 +1,9 @@
 import { Button, makeStyles, Typography } from '@material-ui/core';
 import mime from 'mime-types';
 import { useRef } from 'react';
+import { connect } from 'react-redux';
+import { showSnackbar } from '../../redux/actions';
+import byteToMegabyte from '../../util/ByteToMegabyte';
 
 import FileLoaderUtil from '../../util/FileLoader';
 
@@ -54,20 +57,36 @@ const styles = makeStyles(() => {
         },
     };
 });
-export default function EditorImageSelector({
+function EditorImageSelector({
     title,
     value,
+    maxSize,
     onChange,
     onRemove,
     removable,
+    showSnackbarAction
 }) {
     const classes = styles();
 
     const imageInputElement = useRef();
 
     const processSelectedImage = async (file) => {
+        if (maxSize) {
+            const fileTooLarge = file.size > maxSize;
+            if (fileTooLarge) {
+                showSnackbarAction(`File is too big. File should be less than ${byteToMegabyte(maxSize)} megabytes`);
+                return;
+            }
+        }
+
         // Verify if input file is of valid type and format
-        await FileLoaderUtil.validateFileLoadEvent(file, 'image');
+        try {
+            await FileLoaderUtil.validateFileLoadEvent(file, 'image');
+        }
+        catch (error) {
+            showSnackbarAction(error);
+            return;
+        }
 
         const fileData = await FileLoaderUtil.getBinaryFileData(file);
 
@@ -93,6 +112,7 @@ export default function EditorImageSelector({
         <div className={classes.imageSelectorContainer}>
             <input
                 type="file"
+                accept="image/png, image/jpeg, image/jpg"
                 ref={imageInputElement}
                 onChange={onImageSelected}
                 style={{ display: 'none' }}
@@ -104,7 +124,7 @@ export default function EditorImageSelector({
             </div>
             {!value
             && (
-                <EditorFileSelector onChange={processSelectedImage}>
+                <EditorFileSelector accept="image/png, image/jpeg, image/jpg" onChange={processSelectedImage}>
                     <Button variant="outlined" fullWidth >
                         Select image
                     </Button>
@@ -127,3 +147,14 @@ export default function EditorImageSelector({
         </div>
     );
 }
+
+const mapStateToProps = () => {
+    return {};
+};
+
+export default connect(
+    mapStateToProps,
+    {
+        showSnackbarAction: showSnackbar,
+    },
+)(EditorImageSelector);
