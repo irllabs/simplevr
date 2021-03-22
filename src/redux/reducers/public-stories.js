@@ -1,6 +1,6 @@
 import update from 'immutability-helper';
 
-import { SET_PUBLIC_STORIES } from '../actionTypes';
+import { REMOVE_PUBLIC_STORY, SET_PUBLIC_STORIES } from '../actionTypes';
 
 const initialState = [];
 
@@ -10,6 +10,13 @@ export default function publicStoriesReducer(state = initialState, action) {
         return update(state, {
             $set: action.payload.value,
         });
+    }
+    case REMOVE_PUBLIC_STORY: {
+        return update(state, {
+            $set: state.filter((story) => {
+                return story.id !== action.payload.storyId
+            })
+        })
     }
     default:
         return state;

@@ -1,4 +1,3 @@
-import React from 'react';
 import mime from 'mime-types';
 import { connect } from 'react-redux';
 import {
@@ -17,8 +16,11 @@ import { Close } from '@material-ui/icons';
 
 import EditorAudioSelector from './EditorAudioSelector';
 
-import { setStoryName, setStoryTags, setStorySoundtrack } from '../../redux/actions';
+import { setStoryName, setStoryTags, setStorySoundtrack, removeUserStory, removePublicStory } from '../../redux/actions';
 import Soundtrack from '../../models/soundtrack';
+
+import firebase from '../../firebase/firebase.ts';
+import { useHistory } from 'react-router';
 
 const styles = makeStyles(() => {
     return {
@@ -40,11 +42,16 @@ const styles = makeStyles(() => {
 function EditorEditStory({
     onClose,
     story,
+    projectId,
     setStoryNameAction,
     setStoryTagsAction,
     setStorySoundtrackAction,
+    removeUserStoryAction,
+    removePublicStoryAction
 }) {
     const classes = styles();
+
+    const history = useHistory();
 
     const onNameChange = (event) => {
         setStoryNameAction(event.target.value);
@@ -97,6 +104,15 @@ function EditorEditStory({
         setStorySoundtrackAction(soundtrack);
     }
 
+    const onDelete = async () => {
+        await firebase.deleteProject(projectId);
+
+        removeUserStoryAction(projectId);
+        removePublicStoryAction(projectId);
+
+        history.replace('/');
+    }
+
     return (
         <Dialog onClose={onClose} open maxWidth="xs" fullWidth>
             <DialogTitle className={classes.root}>
@@ -146,7 +162,7 @@ function EditorEditStory({
                 />
             </DialogContent>
             <DialogActions>
-                <Button variant="text" color="primary">
+                <Button variant="text" color="primary" onClick={onDelete}>
                     Delete story
                 </Button>
             </DialogActions>
@@ -166,5 +182,7 @@ export default connect(
         setStoryNameAction: setStoryName,
         setStoryTagsAction: setStoryTags,
         setStorySoundtrackAction: setStorySoundtrack,
+        removeUserStoryAction: removeUserStory,
+        removePublicStoryAction: removePublicStory
     },
 )(EditorEditStory);

@@ -1,6 +1,6 @@
 import update from 'immutability-helper';
 
-import { SET_USER_STORIES } from '../actionTypes';
+import { REMOVE_USER_STORY, SET_USER_STORIES } from '../actionTypes';
 
 const initialState = [];
 
@@ -10,6 +10,13 @@ export default function userStoriesReducer(state = initialState, action) {
         return update(state, {
             $set: action.payload.value,
         });
+    }
+    case REMOVE_USER_STORY: {
+        return update(state, {
+            $set: state.filter((story) => {
+                return story.id !== action.payload.storyId
+            })
+        })
     }
     default:
         return state;

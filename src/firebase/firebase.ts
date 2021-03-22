@@ -156,6 +156,22 @@ class Firebase {
         return await projectDeserializer.deserialize(storageProject);
     }
 
+    deleteProject = async (projectId: string) => {
+        // Delete project from Firestore
+        await this.firestore.collection('projects')
+            .doc(projectId)
+            .delete();
+
+        // Delete project data from Storage
+        const deletePromises: Promise<void>[] = [];
+
+        const projectFiles = await this.storage.ref(`projects/${projectId}`).listAll();
+        projectFiles.items.forEach((item) => {
+            deletePromises.push(item.delete());
+        });
+        await Promise.all(deletePromises);
+    }
+
     loadProjectWithId = async (projectId: string) => {
         const project = await this.firestore
             .collection('projects')

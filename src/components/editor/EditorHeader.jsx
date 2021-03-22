@@ -161,7 +161,7 @@ function EditorHeader({ project, setOpenedPreviewFromApplicationAction }) {
             </div>
             {editStoryOpen
             && (
-                <EditorEditStory onClose={onCloseEditStory} />
+                <EditorEditStory onClose={onCloseEditStory} projectId={project.id} />
             )}
             {shareStoryDialogOpen
             && (

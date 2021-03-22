@@ -27,6 +27,8 @@ import {
     SET_OPENED_PREVIEW_FROM_APPLICATION,
     SHOW_SNACKBAR,
     HIDE_SNACKBAR,
+    REMOVE_USER_STORY,
+    REMOVE_PUBLIC_STORY,
 } from './actionTypes';
 
 // User
@@ -56,6 +58,14 @@ export const setUserStories = (value) => {
         },
     };
 };
+export const removeUserStory = (storyId) => {
+    return {
+        type: REMOVE_USER_STORY,
+        payload: {
+            storyId: storyId,
+        }
+    }
+}
 
 // Public stories
 export const setPublicStories = (value) => {
@@ -66,6 +76,14 @@ export const setPublicStories = (value) => {
         },
     };
 };
+export const removePublicStory = (storyId) => {
+    return {
+        type: REMOVE_PUBLIC_STORY,
+        payload: {
+            storyId: storyId,
+        }
+    }
+}
 
 // Display
 export const setIsShowingSignInDialog = (value) => {
