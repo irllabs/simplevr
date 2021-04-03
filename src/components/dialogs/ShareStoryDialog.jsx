@@ -114,7 +114,7 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
 
     const generateSessionLink = () => {
         // Networked AFrame room name can't contain dashes
-        return `${window.location.origin}/view/${project.id}/${uuid().replace(/-/g, '')}`;
+        return `${window.location.origin}/session/${project.id}/${uuid().replace(/-/g, '')}`;
     }
 
     const setQRCode = (link) => {

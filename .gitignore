@@ -3,6 +3,7 @@ node_modules
 
 # Build output
 public/build
+public/index.html
 
 # Firebase CLI cache files
 .firebase
