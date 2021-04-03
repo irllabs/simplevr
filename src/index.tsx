@@ -19,9 +19,6 @@ import store from './redux/store';
 // Database
 import { FirebaseContext, firebase } from './firebase/index';
 
-/*import Firebase from './firebase/firebase';
-Firebase.migrateLegacyProjects();*/
-
 // AFrame Components
 import './aframe-components/aframe/Hotspot';
 import './aframe-components/aframe/PulsatingMarker';
