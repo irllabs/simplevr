@@ -7,6 +7,7 @@ export default class Story {
     public soundtrack = new Soundtrack();
     public tags: string[] = [];
     public rooms: Room[] = [];
+    public roomHistory: string[] = [];
 
     getActiveRoom(): Room {
         return this.rooms.find((room) => {

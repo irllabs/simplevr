@@ -4,20 +4,27 @@ import 'firebase/auth';
 import 'firebase/firestore';
 import 'firebase/storage';
 import _ from 'lodash';
+import Door from '../models/door';
+import Hotspot from '../models/hotspot';
+import ImageAsset from '../models/image-asset';
 import Project from '../models/project';
+import Room from '../models/room';
+import Soundtrack from '../models/soundtrack';
 import StorageProject from '../models/storage/StorageProject';
+import Story from '../models/story';
 import User from '../models/user';
 import ProjectDeserializer from '../service/ProjectDeserializer';
 import ProjectSerializer from '../service/ProjectSerializer';
+import { v1 as uuid } from 'uuid';
 
 const firebaseConfig = {
-    apiKey: 'AIzaSyDedbwugU4axXQG20TPK63RCBWqMVdc3hA',
-    authDomain: 'simplevr-stage.firebaseapp.com',
-    projectId: 'simplevr-stage',
-    storageBucket: 'simplevr-stage.appspot.com',
-    messagingSenderId: '13689155429',
-    appId: '1:13689155429:web:f362fa80462b5b88e87b8c',
-    measurementId: 'G-9TNR7X5YDJ',
+    apiKey: "AIzaSyDW6z4971LgZRUmcWKCORgce0nRjA68GVs",
+    authDomain: "simple-vr.firebaseapp.com",
+    projectId: "simple-vr",
+    storageBucket: "simple-vr.appspot.com",
+    messagingSenderId: "151085359051",
+    appId: "1:151085359051:web:d91e0383b58a8dae56a04e",
+    measurementId: "G-PS5SVL3CK3"
 };
 
 class Firebase {
@@ -25,8 +32,9 @@ class Firebase {
     private firestore: firebase.firestore.Firestore;
     private storage: firebase.storage.Storage;
 
-    private currentUser: firebase.User;
     private onUserUpdatedObservers: Array<(user: firebase.User) => void> = [];
+
+    public currentUser: firebase.User;
 
     constructor() {
         if (!firebase.apps.length) {

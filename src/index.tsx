@@ -3,6 +3,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
+import io from 'socket.io';
+(window as any).io = io;
+import 'open-easyrtc/api/easyrtc';
+
 // Global style
 import './index.css';
 
@@ -24,6 +28,8 @@ import './aframe-components/aframe/DoorPulsatingMarker';
 import './aframe-components/aframe/Door';
 import './aframe-components/aframe/PreviewSpace';
 import './aframe-components/aframe/PlayOnce';
+import './aframe-components/aframe/PanelButton';
+
 
 ReactDOM.render(
     <React.StrictMode>

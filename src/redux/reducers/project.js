@@ -57,6 +57,9 @@ export default function projectReducer(state = initialState, action) {
                         };
                     }),
                 },
+                roomHistory: {
+                    $push: [action.payload.room.id],
+                }
             },
         });
     }

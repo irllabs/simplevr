@@ -1,4 +1,4 @@
-import React, {
+import {
     useCallback,
     useContext,
     useEffect,
@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 import qrcode from 'qrcode';
 import copy from 'copy-to-clipboard';
+import { v1 as uuid } from 'uuid';
 
 import {
     Box,
@@ -104,11 +105,17 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
     const firebaseContext = useContext(FirebaseContext);
 
     const [publicLink, setPublicLink] = useState('');
+    const [sessionLink, setSessionLink] = useState('');
     const [projectIsPublic, setPublic] = useState(project.isPublic);
 
     const generateSharableLink = () => {
         return `${window.location.origin}/view/${project.id}`;
     };
+
+    const generateSessionLink = () => {
+        // Networked AFrame room name can't contain dashes
+        return `${window.location.origin}/session/${project.id}/${uuid().replace(/-/g, '')}`;
+    }
 
     const setQRCode = (link) => {
         if (!qrCodeCanvas.current) {
@@ -118,12 +125,27 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
         qrcode.toCanvas(qrCodeCanvas.current, link);
     };
 
+    const setSessionQRCode = (link) => {
+        if (!sessionQrCodeCanvas.current) {
+            return;
+        }
+
+        qrcode.toCanvas(sessionQrCodeCanvas.current, link);
+    }
+
     const initPublicLink = async () => {
         const link = generateSharableLink();
 
         setPublicLink(link);
         setQRCode(link);
     };
+
+    const initSessionLink = async () => {
+        const link = generateSessionLink();
+
+        setSessionLink(link);
+        setSessionQRCode(link);
+    }
 
     const qrCodeCanvas = useCallback((node) => {
         qrCodeCanvas.current = node;
@@ -133,9 +155,18 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
         }
     }, []);
 
+    const sessionQrCodeCanvas = useCallback((node) => {
+        sessionQrCodeCanvas.current = node;
+
+        if (node && projectIsPublic) {
+            initSessionLink();
+        }
+    }, []);
+
     useEffect(async () => {
         if (projectIsPublic) {
             initPublicLink();
+            initSessionLink();
         }
 
         await firebaseContext.updateProjectPublicFlag(project.id, projectIsPublic);
@@ -150,6 +181,10 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
     const onCopyLink = () => {
         copy(publicLink);
     };
+
+    const onCopySessionLink = () => {
+        copy(sessionLink);
+    }
 
     const storyInfoIconName = projectIsPublic ? 'public-story-icon.svg' : 'private-story-icon.svg';
 
@@ -205,16 +240,28 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
                 </div>
                 {projectIsPublic
                 && (
-                    <div className={classes.publicDataContainer}>
-                        <canvas ref={qrCodeCanvas} />
-                        <Typography variant="body2" align="center">
-                            {publicLink}
-                        </Typography>
-                        <Box m={2} />
-                        <Button fullWidth variant="outlined" onClick={onCopyLink}>
-                            Copy link
-                        </Button>
-                    </div>
+                    <>
+                        <div className={classes.publicDataContainer}>
+                            <canvas ref={qrCodeCanvas} />
+                            <Typography variant="body2" align="center">
+                                {publicLink}
+                            </Typography>
+                            <Box m={2} />
+                            <Button fullWidth variant="outlined" onClick={onCopyLink}>
+                                Copy link
+                            </Button>
+                        </div>
+                        <div className={classes.publicDataContainer}>
+                            <canvas ref={sessionQrCodeCanvas} />
+                            <Typography variant="body2" align="center">
+                                {sessionLink}
+                            </Typography>
+                            <Box m={2} />
+                            <Button fullWidth variant="outlined" onClick={onCopySessionLink}>
+                                Copy session link
+                            </Button>
+                        </div>
+                    </>
                 )}
             </DialogContent>
         </Dialog>
