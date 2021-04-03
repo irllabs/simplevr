@@ -137,7 +137,7 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
             <Container maxWidth="md">
                 <Box className={classes.hero}>
                     <Typography variant="body1" className="light-text">
-                        Start creating your immersive story by combining 360 photos with audio recordings, images, and text
+                        test creating your immersive story by combining 360 photos with audio recordings, images, and text
                     </Typography>
                     <input
                         id="welcome-message-input"

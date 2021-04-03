@@ -90,6 +90,13 @@ AFRAME.registerComponent('preview-space', {
             this.zoomCamera();
         });
 
+        el.addEventListener('close-vr', () => {
+            this.el.exitVR();
+        });
+        el.addEventListener('enable-vr', () => {
+            this.el.enterVR();
+        });
+
         el.addEventListener('reset-camera', () => {
             this.resetCamera();
         });

@@ -11,7 +11,7 @@ import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import { makeStyles } from '@material-ui/core/styles';
 
 // Redux Actions
-import { addHotspot, addDoor } from '../../redux/actions';
+import { addHotspot, addDoor, showSnackbar } from '../../redux/actions';
 
 // Models
 import Hotspot from '../../models/hotspot';
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => {
     };
 });
 
-function EditorFab({ addHotspotAction, addDoorAction, story }) {
+function EditorFab({ addHotspotAction, addDoorAction, story, showSnackbarAction }) {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
 
@@ -43,6 +43,13 @@ function EditorFab({ addHotspotAction, addDoorAction, story }) {
     };
 
     const handleAddDoor = () => {
+        // If there is only one room - let user know that he needs to add second room before adding a door.
+        if (story.rooms.length < 2) {
+            showSnackbarAction('In order to add door, story needs to have at least two rooms.');
+            handleClose();
+            return;
+        }
+
         const targetRoom = story.rooms.find((room) => {
             return room.id !== story.getActiveRoom().id;
         });
@@ -104,5 +111,6 @@ export default connect(
     {
         addHotspotAction: addHotspot,
         addDoorAction: addDoor,
+        showSnackbarAction: showSnackbar,
     },
 )(EditorFab);

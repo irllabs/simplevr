@@ -1,10 +1,13 @@
 // External libraries
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 // External UI Components
-import { IconButton, makeStyles, Typography } from '@material-ui/core';
+import { Button, IconButton, makeStyles, Menu, MenuItem, Typography } from '@material-ui/core';
+
+// External Icons
+import { MoreHoriz } from '@material-ui/icons';
 
 // Firebase
 import FirebaseContext from '../../firebase/context.ts';
@@ -38,11 +41,18 @@ const styles = makeStyles(() => {
             display: 'flex',
             flexDirection: 'column',
             padding: '12px',
+            cursor: 'pointer'
         },
         title: {
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
-            width: '95px',
+            maxWidth: '150px',
+            overflow: 'hidden',
+        },
+        tags: {
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            maxWidth: '150px',
             overflow: 'hidden',
         },
         cardActionsContainer: {
@@ -53,7 +63,8 @@ const styles = makeStyles(() => {
             borderRadius: '0px 0px 12px 12px',
             display: 'flex',
             position: 'relative',
-            height: '100%'
+            height: '100%',
+            cursor: 'pointer'
         },
         storyCardImage: {
             width: '100%',
@@ -90,7 +101,9 @@ function ProjectCard({
 
     const history = useHistory();
 
-    const [optionsVisible, setOptionsVisible] = useState(false);
+    const menuAnchorRef = useRef();
+
+    const [menuOpen, setMenuOpen] = useState(false);
     const [thumbnailUrl, setThumbnailUrl] = useState('');
     const [shareStoryDialogOpen, setShareStoryDialogOpen] = useState(false);
 
@@ -102,18 +115,6 @@ function ProjectCard({
         setThumbnailUrl(url);
     }, []);
 
-    const onMouseEnter = () => {
-        if (!isPublic) {
-            setOptionsVisible(true);
-        }
-    };
-
-    const onMouseLeave = () => {
-        if (!isPublic) {
-            setOptionsVisible(false);
-        }
-    };
-
     const onClick = () => {
         if (isPublic) {
             onViewStory();
@@ -122,7 +123,7 @@ function ProjectCard({
 
     const onOpenShareStory = () => {
         setShareStoryDialogOpen(true);
-        setOptionsVisible(false);
+        setMenuOpen(false);
     };
 
     const onCloseShareStory = () => {
@@ -130,6 +131,10 @@ function ProjectCard({
     };
 
     const onEditStory = async () => {
+        if (isPublic) {
+            return;
+        }
+
         const projectModel = await firebaseContext.loadProject(project);
 
         // Set newly loaded story (and first room) as active story in redux
@@ -167,18 +172,30 @@ function ProjectCard({
     const onDownloadStoryArchive = async () => {
         const archiver = new ProjectArchiveCreator();
         archiver.create(project);
+
+        setMenuOpen(false);
+    }
+
+    const onOpenMenu = (event) => {
+        event.stopPropagation();
+
+        setMenuOpen(true);
+    }
+
+    const onCloseMenu = () => {
+        setMenuOpen(false);
     }
 
     return (
-        <div className={classes.projectCardContainer} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={onClick} style={{
+        <div className={classes.projectCardContainer} onClick={onClick} style={{
             cursor: isPublic ? 'pointer' : 'default'
         }}>
             <div className={classes.projectCardHeader}>
-                <div className={classes.projectCardTitle}>
+                <div className={classes.projectCardTitle} onClick={onEditStory}>
                     <Typography variant="body2" className={classes.title}>
                         {project.story.name}
                     </Typography>
-                    <Typography variant="caption">
+                    <Typography variant="caption" className={classes.tags}>
                         Tags:
                         {
                             project.story.tags || 'n/a'
@@ -186,21 +203,36 @@ function ProjectCard({
                     </Typography>
                 </div>
                 <div className={classes.cardActionsContainer}>
-                    {!isPublic &&
-                    <IconButton onClick={onEditStory}>
-                        <img src="/icons/edit-icon.svg" alt="edit" />
-                    </IconButton>}
-                    {!isPublic &&
-                    <IconButton onClick={onOpenShareStory}>
-                        <img src="/icons/share-icon.svg" alt="share" />
-                    </IconButton>}
-                    {!isPublic &&
-                    <IconButton onClick={onDownloadStoryArchive}>
-                        <img src="/icons/share-icon.svg" alt="share" />
-                    </IconButton>}
+                    {/* Only show edit options for user stories */}
+                    {!isPublic && (
+                        <>
+                            <IconButton ref={menuAnchorRef} aria-controls="card-menu" aria-haspopup="true" onClick={onOpenMenu}>
+                                <MoreHoriz />
+                            </IconButton>
+                            <Menu
+
+                                id="simple-menu"
+                                anchorEl={menuAnchorRef.current}
+                                keepMounted
+                                open={menuOpen}
+                                onClose={onCloseMenu}
+                            >
+                                <MenuItem onClick={onOpenShareStory}>
+                                    <Typography variant='body2'>
+                                        Share
+                                    </Typography>
+                                </MenuItem>
+                                <MenuItem onClick={onDownloadStoryArchive}>
+                                    <Typography variant='body2'>
+                                        Download (.zip)
+                                    </Typography>
+                                </MenuItem>
+                            </Menu>
+                        </>
+                    )}
                 </div>
             </div>
-            <div className={classes.storyCardImageContainer}>
+            <div className={classes.storyCardImageContainer} onClick={onEditStory}>
                 {thumbnailUrl
                 && (
                     <div

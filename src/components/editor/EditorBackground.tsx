@@ -1,5 +1,5 @@
 // External libraries
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import mime from 'mime-types';
 

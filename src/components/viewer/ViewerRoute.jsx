@@ -16,7 +16,7 @@ function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomA
 
     const [projectLoaded, setProjectLoaded] = useState(Boolean(project));
 
-    const { projectId } = useParams();
+    const { projectId, sessionId } = useParams();
 
     useEffect(async () => {
         if (!projectLoaded) {
@@ -52,7 +52,7 @@ function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomA
     return (
         projectLoaded &&
         <>
-            <Scene />
+            <Scene sessionId={sessionId} />
         </>
     );
 }
