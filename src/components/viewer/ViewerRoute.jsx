@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 
 import 'aframe';
 import 'aframe-look-at-component';
@@ -18,7 +18,14 @@ function ViewerRoute({project, setProjectAction, setStoryAction, setCurrentRoomA
 
     const { projectId, sessionId } = useParams();
 
+    const history = useHistory();
+
     useEffect(async () => {
+        // Someone opened viewer using direct link that does not contain project ID
+        if (!projectLoaded && !projectId) {
+            history.replace('/');
+        }
+
         if (!projectLoaded) {
             const storageProject = await firebaseContext.loadProjectWithId(projectId);
             const projectModel = await firebaseContext.loadProject(storageProject);

@@ -127,7 +127,7 @@ function EditorHeader({ project, setOpenedPreviewFromApplicationAction }) {
     const onOpenPreview = () => {
         setOpenedPreviewFromApplicationAction(true);
 
-        history.push(`/view/${project.id}`);
+        history.push(`/preview`);
     }
 
     return (
