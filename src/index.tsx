@@ -3,15 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
-import io from 'socket.io';
-(window as any).io = io;
-import 'open-easyrtc/api/easyrtc';
-
-// Global style
-import './index.css';
-
 // Components
-import App from './app';
+import App from './components/app';
 
 // Store
 import store from './redux/store';
@@ -30,14 +23,16 @@ import './aframe-components/aframe/PreviewSpace';
 import './aframe-components/aframe/PlayOnce';
 import './aframe-components/aframe/PanelButton';
 
+// Global style
+import './index.scss';
 
 ReactDOM.render(
-    <React.StrictMode>
-        <Provider store={store}>
-            <FirebaseContext.Provider value={firebase}>
-                <App />
-            </FirebaseContext.Provider>
-        </Provider>
-    </React.StrictMode>,
-    document.getElementById('root'),
+	<React.StrictMode>
+		<Provider store={store}>
+			<FirebaseContext.Provider value={firebase}>
+				<App />
+			</FirebaseContext.Provider>
+		</Provider>
+	</React.StrictMode>,
+	document.getElementById('root'),
 );

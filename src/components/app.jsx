@@ -13,10 +13,10 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { unstable_createMuiStrictModeTheme as createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 // Components
-import LandingPageRoute from './components/landing-page/LandingPageRoute';
-import EditorRoute from './components/editor/EditorRoute';
-import ViewerRoute from './components/viewer/ViewerRoute';
-import SnackbarNotification from './components/shared/SnackbarNotification';
+import LandingPageRoute from './landing-page/LandingPageRoute';
+import EditorRoute from './editor/EditorRoute';
+import ViewerRoute from './viewer/ViewerRoute';
+import SnackbarNotification from './shared/SnackbarNotification';
 
 export default function App() {
     const theme = React.useMemo(
