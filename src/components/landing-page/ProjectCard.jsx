@@ -198,7 +198,7 @@ function ProjectCard({
                     <Typography variant="caption" className={classes.tags}>
                         Tags:
                         {
-                            project.story.tags || 'n/a'
+                            project.story.tags || ''
                         }
                     </Typography>
                 </div>
