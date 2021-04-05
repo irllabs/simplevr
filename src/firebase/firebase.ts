@@ -4,209 +4,214 @@ import 'firebase/auth';
 import 'firebase/firestore';
 import 'firebase/storage';
 import _ from 'lodash';
-import Door from '../models/door';
-import Hotspot from '../models/hotspot';
-import ImageAsset from '../models/image-asset';
 import Project from '../models/project';
-import Room from '../models/room';
-import Soundtrack from '../models/soundtrack';
 import StorageProject from '../models/storage/StorageProject';
-import Story from '../models/story';
 import User from '../models/user';
 import ProjectDeserializer from '../service/ProjectDeserializer';
 import ProjectSerializer from '../service/ProjectSerializer';
-import { v1 as uuid } from 'uuid';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDW6z4971LgZRUmcWKCORgce0nRjA68GVs",
-    authDomain: "simple-vr.firebaseapp.com",
-    projectId: "simple-vr",
-    storageBucket: "simple-vr.appspot.com",
-    messagingSenderId: "151085359051",
-    appId: "1:151085359051:web:d91e0383b58a8dae56a04e",
-    measurementId: "G-PS5SVL3CK3"
+	apiKey: "AIzaSyDW6z4971LgZRUmcWKCORgce0nRjA68GVs",
+	authDomain: "simple-vr.firebaseapp.com",
+	projectId: "simple-vr",
+	storageBucket: "simple-vr.appspot.com",
+	messagingSenderId: "151085359051",
+	appId: "1:151085359051:web:d91e0383b58a8dae56a04e",
+	measurementId: "G-PS5SVL3CK3"
 };
 
 class Firebase {
-    private auth: firebase.auth.Auth;
-    private firestore: firebase.firestore.Firestore;
-    private storage: firebase.storage.Storage;
+	private auth: firebase.auth.Auth;
+	private firestore: firebase.firestore.Firestore;
+	private storage: firebase.storage.Storage;
 
-    private onUserUpdatedObservers: Array<(user: firebase.User) => void> = [];
+	private onUserUpdatedObservers: Array<(user: firebase.User) => void> = [];
 
-    public currentUser: firebase.User;
+	public currentUser: firebase.User;
 
-    constructor() {
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+	constructor() {
+		if (!firebase.apps.length) {
+			firebase.initializeApp(firebaseConfig);
+		}
 
-        this.auth = firebase.auth();
-        this.firestore = firebase.firestore();
-        this.storage = firebase.storage();
+		this.auth = firebase.auth();
+		this.firestore = firebase.firestore();
+		this.storage = firebase.storage();
 
-        this.auth.onAuthStateChanged((user) => {
-            if (user) {
-                this.currentUser = user;
-                this.onUserUpdatedObservers.map((observer) => {
-                    return observer(user);
-                });
-            } else {
-                // No user is signed in.
-                this.currentUser = null;
-                this.onUserUpdatedObservers.map((observer) => {
-                    return observer(null);
-                });
-            }
-        });
-    }
+		this.auth.onAuthStateChanged((user) => {
+			if (user) {
+				this.currentUser = user;
+				this.onUserUpdatedObservers.map((observer) => {
+					return observer(user);
+				});
+			} else {
+				// No user is signed in.
+				this.currentUser = null;
+				this.onUserUpdatedObservers.map((observer) => {
+					return observer(null);
+				});
+			}
+		});
+	}
 
-    public signOut = () => {
-        this.auth.signOut();
-    }
+	public signOut = () => {
+		this.auth.signOut();
+	}
 
-    // User
-    public loadUser = async (id: string) => {
-        const userSnapshot = await this.firestore.collection('users').doc(id).get();
-        if (userSnapshot.exists) {
-            return { id: userSnapshot.id, ...userSnapshot.data() };
-        }
-        return null;
-    }
+	// User
+	public loadUser = async (id: string) => {
+		const userSnapshot = await this.firestore.collection('users').doc(id).get();
+		if (userSnapshot.exists) {
+			return { id: userSnapshot.id, ...userSnapshot.data() };
+		}
+		return null;
+	}
 
-    public createUser = async (userData: User) => {
-        const user = _.cloneDeep(userData);
-        delete user.id;
+	public createUser = async (userData: User) => {
+		const user = _.cloneDeep(userData);
+		delete user.id;
 
-        await this.firestore.collection('users')
-            .doc(userData.id)
-            .set(user);
-    }
+		await this.firestore.collection('users')
+			.doc(userData.id)
+			.set(user);
+	}
 
-    private updateUser = async (id: string, userData: User) => {
-        const user = _.cloneDeep(userData);
-        delete user.id;
+	private updateUser = async (id: string, userData: User) => {
+		const user = _.cloneDeep(userData);
+		delete user.id;
 
-        await this.firestore.collection('users')
-            .doc(id)
-            .set(user, { merge: true });
-    }
+		await this.firestore.collection('users')
+			.doc(id)
+			.set(user, { merge: true });
+	}
 
-    loadUserStories = async (userId: string) => {
-        const storiesData: Project[] = [];
+	public async loadUsers() {
+		const users = await this.firestore
+			.collection('users')
+			.get();
 
-        const stories = await this.firestore
-            .collection('projects')
-            .where('userId', '==', userId)
-            .get();
+		const userModels: User[] = [];
+		users.forEach((user) => {
+			userModels.push(user.data() as User);
+		});
+		return userModels;
+	}
 
-        stories.forEach((story) => {
-            storiesData.push(story.data() as Project);
-        });
+	loadUserStories = async (userId: string) => {
+		const storiesData: Project[] = [];
 
-        return storiesData;
-    }
+		const stories = await this.firestore
+			.collection('projects')
+			.where('userId', '==', userId)
+			.get();
 
-    loadPublicStories = async () => {
-        const stories = await this.firestore
-            .collection('projects')
-            .where('isPublic', '==', true)
-            .get();
+		stories.forEach((story) => {
+			storiesData.push(story.data() as Project);
+		});
 
-        const storyModels: Project[] = [];
-        stories.forEach((story) => {
-            storyModels.push(story.data() as Project);
-        });
-        return storyModels;
-    }
+		return storiesData;
+	}
 
-    saveProject = async (project: Project) => {
-        const projectSerializer = new ProjectSerializer();
-        const storageProject = projectSerializer.serialize(project, this.currentUser.uid);
+	loadPublicStories = async () => {
+		const stories = await this.firestore
+			.collection('projects')
+			.where('isPublic', '==', true)
+			.get();
 
-        // Save story data in Firebase Firestore
-        await this.firestore.collection('projects')
-            .doc(project.id)
-            // Firestore does not accept custom objects, so we need to use this method to get pure JS object
-            .set(JSON.parse(JSON.stringify(storageProject)), { merge: true });
+		const storyModels: StorageProject[] = [];
+		stories.forEach((story) => {
+			storyModels.push(story.data() as StorageProject);
+		});
+		return storyModels;
+	}
 
-        const uploadPromises = [];
+	saveProject = async (project: Project) => {
+		const projectSerializer = new ProjectSerializer();
+		const storageProject = projectSerializer.serialize(project, this.currentUser.uid);
 
-        // Save story soundtrack data in Firebase Storage
-        if (project.story.soundtrack.data) {
-            uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(project.story.soundtrack), project.story.soundtrack.data));
-        }
+		// Save story data in Firebase Firestore
+		await this.firestore.collection('projects')
+			.doc(project.id)
+			// Firestore does not accept custom objects, so we need to use this method to get pure JS object
+			.set(JSON.parse(JSON.stringify(storageProject)), { merge: true });
 
-        // Save story rooms data in Firebase Storage
-        for (let i = 0; i < project.story.rooms.length; i += 1) {
-            const room = project.story.rooms[i];
+		const uploadPromises = [];
 
-            uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.panoramaUrl.backgroundImage), room.panoramaUrl.backgroundImage.data));
-            uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.panoramaUrl.thumbnail), room.panoramaUrl.thumbnail.data));
-            uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.backgroundMusic), room.backgroundMusic.data));
-            uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.backgroundNarration), room.backgroundNarration.data));
+		// Save story soundtrack data in Firebase Storage
+		if (project.story.soundtrack.data) {
+			uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(project.story.soundtrack), project.story.soundtrack.data));
+		}
 
-            // Save room hotspots data in Firebase storage
-            for (let j = 0; j < room.hotspots.length; j++) {
-                const hotspot = room.hotspots[j];
+		// Save story rooms data in Firebase Storage
+		for (let i = 0; i < project.story.rooms.length; i += 1) {
+			const room = project.story.rooms[i];
 
-                uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(hotspot.image), hotspot.image.data));
-                uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(hotspot.audio), hotspot.audio.data));
-            }
-        }
+			uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.panoramaUrl.backgroundImage), room.panoramaUrl.backgroundImage.data));
+			uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.panoramaUrl.thumbnail), room.panoramaUrl.thumbnail.data));
+			uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.backgroundMusic), room.backgroundMusic.data));
+			uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(room.backgroundNarration), room.backgroundNarration.data));
 
-        await Promise.all(uploadPromises);
-    }
+			// Save room hotspots data in Firebase storage
+			for (let j = 0; j < room.hotspots.length; j++) {
+				const hotspot = room.hotspots[j];
 
-    loadProject = async (storageProject: StorageProject): Promise<Project> => {
-        const projectDeserializer = new ProjectDeserializer();
+				uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(hotspot.image), hotspot.image.data));
+				uploadPromises.push(this.uploadFileFromDataUrl(projectSerializer.getAssetRemoteFilePath(hotspot.audio), hotspot.audio.data));
+			}
+		}
 
-        return await projectDeserializer.deserialize(storageProject);
-    }
+		await Promise.all(uploadPromises);
+	}
 
-    deleteProject = async (projectId: string) => {
-        // Delete project from Firestore
-        await this.firestore.collection('projects')
-            .doc(projectId)
-            .delete();
+	loadProject = async (storageProject: StorageProject): Promise<Project> => {
+		const projectDeserializer = new ProjectDeserializer();
 
-        // Delete project data from Storage
-        const deletePromises: Promise<void>[] = [];
+		return await projectDeserializer.deserialize(storageProject);
+	}
 
-        const projectFiles = await this.storage.ref(`projects/${projectId}`).listAll();
-        projectFiles.items.forEach((item) => {
-            deletePromises.push(item.delete());
-        });
-        await Promise.all(deletePromises);
-    }
+	deleteProject = async (projectId: string) => {
+		// Delete project from Firestore
+		await this.firestore.collection('projects')
+			.doc(projectId)
+			.delete();
 
-    loadProjectWithId = async (projectId: string) => {
-        const project = await this.firestore
-            .collection('projects')
-            .doc(projectId)
-            .get();
+		// Delete project data from Storage
+		const deletePromises: Promise<void>[] = [];
 
-        return project.data() as StorageProject;
-    }
+		const projectFiles = await this.storage.ref(`projects/${projectId}`).listAll();
+		projectFiles.items.forEach((item) => {
+			deletePromises.push(item.delete());
+		});
+		await Promise.all(deletePromises);
+	}
 
-    updateProjectPublicFlag = async (projectId: string, isPublic: boolean) => {
-        await this.firestore.collection('projects')
-            .doc(projectId)
-            .update({
-                isPublic: isPublic,
-            });
-    }
+	loadProjectWithId = async (projectId: string) => {
+		const project = await this.firestore
+			.collection('projects')
+			.doc(projectId)
+			.get();
 
-    uploadFileFromDataUrl = async (uploadPath: string, fileData: string) => {
-        if (!fileData) {
-            return;
-        }
-        await this.storage.ref(uploadPath).putString(fileData, firebase.storage.StringFormat.DATA_URL);
-    }
+		return project.data() as StorageProject;
+	}
 
-    getDownloadUrl = async (remoteFilePath: string) => {
-        return this.storage.ref(remoteFilePath).getDownloadURL();
-    }
+	updateProjectPublicFlag = async (projectId: string, isPublic: boolean) => {
+		await this.firestore.collection('projects')
+			.doc(projectId)
+			.update({
+				isPublic: isPublic,
+			});
+	}
+
+	uploadFileFromDataUrl = async (uploadPath: string, fileData: string) => {
+		if (!fileData) {
+			return;
+		}
+		await this.storage.ref(uploadPath).putString(fileData, firebase.storage.StringFormat.DATA_URL);
+	}
+
+	getDownloadUrl = async (remoteFilePath: string) => {
+		return this.storage.ref(remoteFilePath).getDownloadURL();
+	}
 }
 
 export default new Firebase();

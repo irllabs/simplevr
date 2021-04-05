@@ -9,6 +9,7 @@ import User from '../../models/user';
 import Story from '../../models/story';
 import Project from '../../models/project';
 import navigation from './navigation';
+import StorageProject from '../../models/storage/StorageProject';
 
 export interface RootState {
     user: User;
@@ -18,7 +19,7 @@ export interface RootState {
         snackbarMessage: string;
     };
     userStories: Story[];
-    publicStories: Story[];
+    publicStories: StorageProject[];
     project: Project;
     navigation: {
         viewOpenedFromApplication: boolean
