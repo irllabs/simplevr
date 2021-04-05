@@ -121,6 +121,7 @@ const SignInDialog = ({ isShowingSignInDialog, setIsShowingSignInDialogAction, s
                     email: email,
                     id: authUser.uid,
                     isGuest: false,
+					favoriteProjects: []
                 };
 
                 await firebaseContext.createUser(user);
@@ -156,6 +157,7 @@ const SignInDialog = ({ isShowingSignInDialog, setIsShowingSignInDialogAction, s
                     isGuest: true,
                     displayName: displayName,
                     id: authUser.uid,
+					favoriteProjects: []
                 };
 
                 await firebaseContext.createUser(user);

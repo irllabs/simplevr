@@ -212,6 +212,37 @@ class Firebase {
 	getDownloadUrl = async (remoteFilePath: string) => {
 		return this.storage.ref(remoteFilePath).getDownloadURL();
 	}
+
+	addProjectAsFavorite = async (user: User, projectId: string) => {
+		const favoriteProjects = [
+			...user.favoriteProjects,
+			projectId
+		];
+
+		user.favoriteProjects = favoriteProjects;
+
+		await this.firestore
+			.collection('users')
+			.doc(user.id)
+			.update({
+				favoriteProjects: favoriteProjects
+			});
+	}
+
+	removeProjectFromFavorites = async (user: User, projectId: string) => {
+		const favoriteProjects = user.favoriteProjects.filter((favoriteProjectId) => {
+			return favoriteProjectId !== projectId;
+		});
+
+		user.favoriteProjects = favoriteProjects;
+
+		await this.firestore
+			.collection('users')
+			.doc(user.id)
+			.update({
+				favoriteProjects: favoriteProjects
+			});
+	}
 }
 
 export default new Firebase();

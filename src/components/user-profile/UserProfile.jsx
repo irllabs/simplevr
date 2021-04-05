@@ -86,6 +86,10 @@ function UserProfile({
             if (!_.isNil(authUser)) {
                 const user = await firebase.loadUser(authUser.uid);
                 if (!_.isNil(user)) {
+					if (!user.favoriteProjects) {
+						user.favoriteProjects = [];
+					}
+
                     setUserProp(user);
                 }
             }

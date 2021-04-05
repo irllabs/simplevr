@@ -4,4 +4,5 @@ export default class User {
     public avatar: string;
     public id: string;
     public isGuest: boolean;
+	public favoriteProjects: string[];
 }
