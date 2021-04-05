@@ -316,13 +316,13 @@ const ProjectCard: FC<ProjectCardProps> = ({
 							</Menu>
 						</>
 					)}
-					{isPublic && user && (
+					{isPublic && (
 						<>
-							{!favorite &&
+							{!favorite && user &&
 							<IconButton onClick={markProjectAsFavorite}>
 								<FavoriteBorder />
 							</IconButton>}
-							{favorite &&
+							{favorite && user &&
 							<IconButton onClick={unmarkProjectAsFavorite}>
 								<Favorite color='primary' />
 							</IconButton>}
