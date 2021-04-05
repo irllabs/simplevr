@@ -29,6 +29,7 @@ import {
     HIDE_SNACKBAR,
     REMOVE_USER_STORY,
     REMOVE_PUBLIC_STORY,
+	SET_USERS,
 } from './actionTypes';
 
 // User
@@ -48,6 +49,16 @@ export const setUserDisplayName = (value) => {
         },
     };
 };
+
+// Users
+export const setUsers = (users) => {
+	return {
+		type: SET_USERS,
+		payload: {
+			value: users
+		}
+	}
+}
 
 // User stories
 export const setUserStories = (value) => {

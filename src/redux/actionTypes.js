@@ -3,6 +3,9 @@ export const SET_USER = 'SET_USER';
 export const CLEAR_USER = 'CLEAR_USER';
 export const SET_USER_DISPLAYNAME = 'SET_USER_DISPLAYNAME';
 
+// Users
+export const SET_USERS = 'SET_USERS';
+
 // User Stories
 export const SET_USER_STORIES = 'SET_USER_STORIES';
 export const REMOVE_USER_STORY = 'REMOVE_USER_STORY';

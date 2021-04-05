@@ -96,6 +96,7 @@ const styles = makeStyles(() => {
 const mapStateToProps = (state: RootState) => {
 	return {
 		user: state.user,
+		users: state.users,
 	};
 };
 
@@ -122,6 +123,7 @@ const ProjectCard: FC<ProjectCardProps> = ({
 	project,
 	isPublic,
 	user,
+	users,
 	setProjectAction,
 	setStoryAction,
 	setCurrentRoomAction,
@@ -234,6 +236,21 @@ const ProjectCard: FC<ProjectCardProps> = ({
 		setFavorite(false);
 	}
 
+	const getNumberOfHotspots = () => {
+		let count = 0;
+		project.story.rooms.forEach((room) => {
+			count += room.hotspots.length;
+		});
+		return count;
+	}
+
+	const getUserEmail = () => {
+		const projectCreator = users.find((userData) => {
+			return userData.id === project.userId;
+		});
+		return projectCreator?.email;
+	}
+
 	return (
 		<div className={classes.projectCardContainer}>
 			<div className={classes.projectCardHeader}>
@@ -241,6 +258,16 @@ const ProjectCard: FC<ProjectCardProps> = ({
 					<Typography variant="body2" className={classes.title}>
 						{project.story.name}
 					</Typography>
+					<Typography variant="caption" className={classes.title}>
+						Rooms: {project.story.rooms.length}
+					</Typography>
+					<Typography variant="caption" className={classes.title}>
+						Hotspots: {getNumberOfHotspots()}
+					</Typography>
+					{isPublic &&
+					<Typography variant="caption" className={classes.title}>
+						Creator: {getUserEmail()}
+					</Typography>}
 					<Typography variant="caption" className={classes.tags}>
 						Tags:
 						{

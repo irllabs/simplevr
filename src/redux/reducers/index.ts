@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 
 import user from './user';
+import users from './users';
 import display from './display';
 import userStories from './user-stories';
 import publicStories from './public-stories';
@@ -13,6 +14,7 @@ import StorageProject from '../../models/storage/StorageProject';
 
 export interface RootState {
     user: User;
+	users: User[];
     display: {
         isShowingSignInDialog: boolean;
         isShowingSnackbar: boolean;
@@ -28,6 +30,7 @@ export interface RootState {
 
 export default combineReducers<RootState>({
     user: user,
+	users: users,
     display: display,
     userStories: userStories,
     publicStories: publicStories,
