@@ -25,6 +25,7 @@ import ShareStoryDialog from '../dialogs/ShareStoryDialog';
 // Models
 import StorageProject from '../../models/storage/StorageProject';
 import StorageRoom from '../../models/storage/StorageRoom';
+import StoryQRCodeDialog from './QRCodeDialog';
 
 const styles = makeStyles(() => {
 	return {
@@ -51,18 +52,18 @@ const styles = makeStyles(() => {
 		title: {
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
-			maxWidth: '150px',
+			maxWidth: '140px',
 			overflow: 'hidden',
 		},
 		tags: {
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
-			maxWidth: '150px',
+			maxWidth: '140px',
 			overflow: 'hidden',
 		},
 		cardActionsContainer: {
 			display: 'flex',
-			height: '48px'
+			flexDirection: 'column',
 		},
 		storyCardImageContainer: {
 			borderRadius: '0px 0px 12px 12px',
@@ -90,6 +91,9 @@ const styles = makeStyles(() => {
 			backgroundColor: 'rgba(255, 255, 255, 0.9)',
 			borderRadius: '0px 0px 12px 12px',
 		},
+		icon: {
+			color: 'rgba(0, 0, 0, 0.54)'
+		}
 	};
 });
 
@@ -139,6 +143,7 @@ const ProjectCard: FC<ProjectCardProps> = ({
 	const [favorite, setFavorite] = useState(false);
 	const [thumbnailUrl, setThumbnailUrl] = useState('');
 	const [shareStoryDialogOpen, setShareStoryDialogOpen] = useState(false);
+	const [qrCodeDialogOpen, setQrCodeDialogOpen] = useState(false);
 
 	useEffect(() => {
 		const fetchProjectThumbnailUrl = async() => {
@@ -251,6 +256,14 @@ const ProjectCard: FC<ProjectCardProps> = ({
 		return projectCreator?.email;
 	}
 
+	const onOpenQRCodeDialog = () => {
+		setQrCodeDialogOpen(true);
+	}
+
+	const onCloseQRCodeDialog = () => {
+		setQrCodeDialogOpen(false);
+	}
+
 	return (
 		<div className={classes.projectCardContainer}>
 			<div className={classes.projectCardHeader}>
@@ -313,6 +326,9 @@ const ProjectCard: FC<ProjectCardProps> = ({
 							<IconButton onClick={unmarkProjectAsFavorite}>
 								<Favorite color='primary' />
 							</IconButton>}
+							<IconButton onClick={onOpenQRCodeDialog}>
+								<img src='/icons/qr-code.svg' className={classes.icon} />
+							</IconButton>
 						</>
 					)}
 				</div>
@@ -329,6 +345,7 @@ const ProjectCard: FC<ProjectCardProps> = ({
 				)}
 			</div>
 			{shareStoryDialogOpen && <ShareStoryDialog onClose={onCloseShareStory} thumbnailUrl={thumbnailUrl} project={project} />}
+			{qrCodeDialogOpen && <StoryQRCodeDialog project={project} onClose={onCloseQRCodeDialog} />}
 		</div>
 	);
 }
