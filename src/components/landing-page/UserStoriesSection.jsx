@@ -7,7 +7,6 @@ import _ from 'lodash';
 import {
 	Typography,
 	Button,
-	Container,
 	makeStyles,
 	Box,
 } from '@material-ui/core';
@@ -23,6 +22,9 @@ const styles = makeStyles(() => {
 	return {
 		container: {
 			paddingTop: '48px',
+			paddingLeft: '48px',
+			paddingRight: '48px',
+			boxSizing: 'border-box'
 		},
 		signInContent: {
 			display: 'flex',
@@ -68,7 +70,7 @@ function UserStoriesSection({
 	}
 
 	return (
-		<Container maxWidth="md" className={classes.container}>
+		<div className={classes.container}>
 			{/* In case user is not logged in, show a prompt asking user to log in to view his/her stories */}
 			{!user
 			&& (
@@ -117,7 +119,7 @@ function UserStoriesSection({
 					<Button label="See more" />
 				</div>
 			)}
-		</Container>
+		</div>
 	);
 }
 

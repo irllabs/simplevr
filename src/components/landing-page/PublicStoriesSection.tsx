@@ -39,6 +39,9 @@ const styles = makeStyles(() => {
 	return {
 		container: {
 			paddingTop: '48px',
+			paddingLeft: '48px',
+			paddingRight: '48px',
+			boxSizing: 'border-box'
 		},
 		showMoreContainer: {
 			display: 'flex',
@@ -214,7 +217,7 @@ const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesA
 
 	return (
 		<>
-			<Container maxWidth="md" className={classes.container}>
+			<div className={classes.container}>
 				{/* Show a list of public stories */}
 				<div>
 					<div className={classes.header}>
@@ -249,7 +252,7 @@ const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesA
 						<Box m={5} />
 					</div>
 				</div>
-			</Container>
+			</div>
 			<Dialog open={filterDialogOpen} onClose={onCloseFilterDialog}>
 				<DialogTitle>
 					<Typography variant='body1'>

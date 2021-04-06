@@ -36,7 +36,7 @@ const styles = makeStyles(() => {
 			flexDirection: 'column',
 			boxShadow: '0px 1px 1px rgba(0, 0, 0, 0.08), -1px 0px 1px rgba(0, 0, 0, 0.08), 1px 0px 1px rgba(0, 0, 0, 0.08), 0px -1px 1px rgba(0, 0, 0, 0.08)',
 			borderRadius: '12px',
-			height: '200px'
+			height: '300px'
 		},
 		projectCardHeader: {
 			display: 'flex',
@@ -52,7 +52,6 @@ const styles = makeStyles(() => {
 		title: {
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
-			maxWidth: '155px',
 			overflow: 'hidden',
 		},
 		cardActionsContainer: {
