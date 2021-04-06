@@ -52,13 +52,7 @@ const styles = makeStyles(() => {
 		title: {
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
-			maxWidth: '140px',
-			overflow: 'hidden',
-		},
-		tags: {
-			whiteSpace: 'nowrap',
-			textOverflow: 'ellipsis',
-			maxWidth: '140px',
+			maxWidth: '155px',
 			overflow: 'hidden',
 		},
 		cardActionsContainer: {
@@ -71,6 +65,26 @@ const styles = makeStyles(() => {
 			position: 'relative',
 			height: '100%',
 			cursor: 'pointer'
+		},
+		storyCardActionsContainer: {
+			position: 'absolute',
+			right: '0px',
+			bottom: '0px',
+			height: '48px',
+			display: 'flex',
+			flexDirection: 'row-reverse',
+			borderRadius: '0px 0px 12px 0px',
+			alignItems: 'center'
+		},
+		storyActionBackground: {
+			width: '30px',
+			height: '30px',
+			borderRadius: '24px',
+			backgroundColor: 'white',
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			marginRight: '8px'
 		},
 		storyCardImage: {
 			width: '100%',
@@ -93,6 +107,9 @@ const styles = makeStyles(() => {
 		},
 		icon: {
 			color: 'rgba(0, 0, 0, 0.54)'
+		},
+		smallFont: {
+			fontSize: '11px'
 		}
 	};
 });
@@ -229,13 +246,17 @@ const ProjectCard: FC<ProjectCardProps> = ({
 		setMenuOpen(false);
 	}
 
-	const markProjectAsFavorite = () => {
+	const markProjectAsFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.stopPropagation();
+
 		firebase.addProjectAsFavorite(user, project.id);
 
 		setFavorite(true);
 	}
 
-	const unmarkProjectAsFavorite = () => {
+	const unmarkProjectAsFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.stopPropagation();
+
 		firebase.removeProjectFromFavorites(user, project.id);
 
 		setFavorite(false);
@@ -256,7 +277,9 @@ const ProjectCard: FC<ProjectCardProps> = ({
 		return projectCreator?.email;
 	}
 
-	const onOpenQRCodeDialog = () => {
+	const onOpenQRCodeDialog = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.stopPropagation();
+
 		setQrCodeDialogOpen(true);
 	}
 
@@ -268,24 +291,18 @@ const ProjectCard: FC<ProjectCardProps> = ({
 		<div className={classes.projectCardContainer}>
 			<div className={classes.projectCardHeader}>
 				<div className={classes.projectCardTitle} onClick={isPublic ? onViewStory : onEditStory}>
-					<Typography variant="body2" className={classes.title}>
+					<Typography variant="h6" className={classes.title}>
 						{project.story.name}
 					</Typography>
-					<Typography variant="caption" className={classes.title}>
-						Rooms: {project.story.rooms.length}
-					</Typography>
-					<Typography variant="caption" className={classes.title}>
-						Hotspots: {getNumberOfHotspots()}
+					<Typography variant="caption" className={`${classes.title} ${classes.smallFont}`}>
+						Rooms | Hotspots: <b>{project.story.rooms.length} | {getNumberOfHotspots()}</b>
 					</Typography>
 					{isPublic &&
-					<Typography variant="caption" className={classes.title}>
-						Creator: {getUserEmail()}
+					<Typography variant="caption" className={`${classes.title} ${classes.smallFont}`}>
+						Creator: <b>{getUserEmail()}</b>
 					</Typography>}
-					<Typography variant="caption" className={classes.tags}>
-						Tags:
-						{
-							project.story.tags || ''
-						}
+					<Typography variant="caption" className={`${classes.title} ${classes.smallFont}`}>
+						Tags: <b>{project.story.tags || ''}</b>
 					</Typography>
 				</div>
 				<div className={classes.cardActionsContainer}>
@@ -316,21 +333,6 @@ const ProjectCard: FC<ProjectCardProps> = ({
 							</Menu>
 						</>
 					)}
-					{isPublic && (
-						<>
-							{!favorite && user &&
-							<IconButton onClick={markProjectAsFavorite}>
-								<FavoriteBorder />
-							</IconButton>}
-							{favorite && user &&
-							<IconButton onClick={unmarkProjectAsFavorite}>
-								<Favorite color='primary' />
-							</IconButton>}
-							<IconButton onClick={onOpenQRCodeDialog}>
-								<img src='/icons/qr-code.svg' className={classes.icon} />
-							</IconButton>
-						</>
-					)}
 				</div>
 			</div>
 			<div className={classes.storyCardImageContainer} onClick={isPublic ? onViewStory : onEditStory}>
@@ -343,6 +345,28 @@ const ProjectCard: FC<ProjectCardProps> = ({
 						}}
 					/>
 				)}
+				{isPublic &&
+				<>
+					<div className={classes.storyCardActionsContainer}>
+						{!favorite && user &&
+						<div className={classes.storyActionBackground}>
+							<IconButton onClick={markProjectAsFavorite} size='small'>
+								<FavoriteBorder />
+							</IconButton>
+						</div>}
+						{favorite && user &&
+						<div className={classes.storyActionBackground}>
+							<IconButton onClick={unmarkProjectAsFavorite} size='small'>
+								<Favorite color='primary' />
+							</IconButton>
+						</div>}
+						<div className={classes.storyActionBackground}>
+							<IconButton onClick={onOpenQRCodeDialog} size='small'>
+								<img src='/icons/qr-code.svg' className={classes.icon} />
+							</IconButton>
+						</div>
+					</div>
+				</>}
 			</div>
 			{shareStoryDialogOpen && <ShareStoryDialog onClose={onCloseShareStory} thumbnailUrl={thumbnailUrl} project={project} />}
 			{qrCodeDialogOpen && <StoryQRCodeDialog project={project} onClose={onCloseQRCodeDialog} />}
