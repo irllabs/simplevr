@@ -138,7 +138,7 @@ function EditorEditHotspot({
                     data={hotspot.audio.data}
                     loop={hotspot.audio.loop}
                     volume={hotspot.audio.volume}
-                    maxFileSize={1048576}
+                    maxFileSize={134217728}
                     onPlayInLoopChange={onLoopChange}
                     onVolumeChange={onVolumeChange}
                     onChange={onAudioChange}

@@ -191,7 +191,7 @@ function EditorEditRoom({
                     name={room.backgroundMusic.fileName}
                     loop={room.backgroundMusic.loop}
                     volume={room.backgroundMusic.volume}
-                    maxFileSize={2097152}
+                    maxFileSize={134217728}
                     onPlayInLoopChange={onBackgroundMusicLoopChange}
                     onVolumeChange={onBackgroundMusicVolumeChange}
                     onChange={onBackgroundMusicChange}
@@ -204,7 +204,7 @@ function EditorEditRoom({
                     name={room.backgroundNarration.fileName}
                     loop={room.backgroundNarration.loop}
                     volume={room.backgroundNarration.volume}
-                    maxFileSize={1572864}
+                    maxFileSize={134217728}
                     onPlayInLoopChange={onBackgroundNarrationLoopChange}
                     onVolumeChange={onBackgroundNarrationVolumeChange}
                     onChange={onBackgroundNarrationChange}

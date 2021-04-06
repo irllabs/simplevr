@@ -4,7 +4,7 @@ import getTextureSizeFromText from '../util/TextMaterialBuilder';
 import { fitToMax } from '../util/ResizeImage';
 import getImageFromData from '../util/GetImageFromData';
 
-export default ({ hotspot }) => {
+export default function Hotspot({ hotspot }) {
     const [imageSrc, setImageSrc] = useState('');
     const [imageWidth, setImageWidth] = useState(0);
     const [imageHeight, setImageHeight] = useState(0);
