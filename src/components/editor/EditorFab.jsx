@@ -18,99 +18,101 @@ import Hotspot from '../../models/hotspot';
 import Door from '../../models/door';
 
 const useStyles = makeStyles((theme) => {
-    return {
-        speedDial: {
-            position: 'absolute',
-            bottom: theme.spacing(4),
-            left: theme.spacing(2),
-        },
-    };
+	return {
+		speedDial: {
+			position: 'absolute',
+			bottom: theme.spacing(4),
+			left: theme.spacing(2),
+		},
+	};
 });
 
 function EditorFab({ addHotspotAction, addDoorAction, story, showSnackbarAction }) {
-    const classes = useStyles();
-    const [open, setOpen] = React.useState(false);
+	const classes = useStyles();
+	const [open, setOpen] = React.useState(false);
 
-    const handleClose = () => {
-        setOpen(false);
-    };
+	const handleClose = () => {
+		setOpen(false);
+	};
 
-    const handleAddHotspot = () => {
-        const hotspot = new Hotspot();
-        addHotspotAction(hotspot, story.getActiveRoom().id);
+	const handleAddHotspot = () => {
+		const hotspot = new Hotspot();
 
-        handleClose();
-    };
+		addHotspotAction(hotspot, story.getActiveRoom().id);
 
-    const handleAddDoor = () => {
-        // If there is only one room - let user know that he needs to add second room before adding a door.
-        if (story.rooms.length < 2) {
-            showSnackbarAction('In order to add door, story needs to have at least two rooms.');
-            handleClose();
-            return;
-        }
+		handleClose();
+	};
 
-        const targetRoom = story.rooms.find((room) => {
-            return room.id !== story.getActiveRoom().id;
-        });
+	const handleAddDoor = () => {
+		// If there is only one room - let user know that he needs to add second room before adding a door.
+		if (story.rooms.length < 2) {
+			showSnackbarAction('In order to add door, story needs to have at least two rooms.');
+			handleClose();
+			return;
+		}
 
-        if (!targetRoom) {
-            return;
-        }
+		const targetRoom = story.rooms.find((room) => {
+			return room.id !== story.getActiveRoom().id;
+		});
 
-        const door = new Door();
-        door.targetRoomId = targetRoom.id;
-        addDoorAction(door, story.getActiveRoom().id);
+		if (!targetRoom) {
+			return;
+		}
 
-        handleClose();
-    };
+		const door = new Door();
+		door.targetRoomId = targetRoom.id;
 
-    const handleOpen = () => {
-        setOpen(true);
-    };
+		addDoorAction(door, story.getActiveRoom().id);
 
-    const actions = [{
-        icon: <img src="/icons/door-icon.svg" onClick={handleAddDoor} alt="add-door" />,
-        name: 'Add door',
-    }, {
-        icon: <img src="/icons/icon-add.svg" onClick={handleAddHotspot} alt="add-hotspot" />,
-        name: 'Add hotspot',
-    }];
+		handleClose();
+	};
 
-    return (
-        <SpeedDial
-            ariaLabel="add-hotspot-menu"
-            className={classes.speedDial}
-            icon={<SpeedDialIcon />}
-            onClose={handleClose}
-            onOpen={handleOpen}
-            open={open}
-            direction="up"
-        >
-            {actions.map((action) => {
-                return (
-                    <SpeedDialAction
-                        key={action.name}
-                        icon={action.icon}
-                        tooltipTitle={action.name}
-                    />
-                );
-            })}
-        </SpeedDial>
-    );
+	const handleOpen = () => {
+		setOpen(true);
+	};
+
+	const actions = [{
+		icon: <img src="/icons/door-icon.svg" onClick={handleAddDoor} alt="add-door" />,
+		name: 'Add door',
+	}, {
+		icon: <img src="/icons/icon-add.svg" onClick={handleAddHotspot} alt="add-hotspot" />,
+		name: 'Add hotspot',
+	}];
+
+	return (
+		<SpeedDial
+			ariaLabel="add-hotspot-menu"
+			className={classes.speedDial}
+			icon={<SpeedDialIcon />}
+			onClose={handleClose}
+			onOpen={handleOpen}
+			open={open}
+			direction="up"
+		>
+			{actions.map((action) => {
+				return (
+					<SpeedDialAction
+						key={action.name}
+						icon={action.icon}
+						tooltipTitle={action.name}
+					/>
+				);
+			})}
+		</SpeedDial>
+	);
 }
 
 const mapStateToProps = (state) => {
-    return {
-        story: state.project.story,
-    };
+	return {
+		story: state.project.story,
+	};
 };
 
 export default connect(
-    mapStateToProps,
-    {
-        addHotspotAction: addHotspot,
-        addDoorAction: addDoor,
-        showSnackbarAction: showSnackbar,
-    },
+	mapStateToProps,
+	{
+		addHotspotAction: addHotspot,
+		addDoorAction: addDoor,
+		showSnackbarAction: showSnackbar,
+	},
 )(EditorFab);

@@ -41,8 +41,8 @@ export default function EditorDoor({ door, targetRoomName }) {
     const classes = styles();
 
     const [position, setPosition] = useState({
-        x: 200,
-        y: 400,
+        x: window.innerWidth / 2 - 35,
+        y: window.innerHeight / 2 - 45,
     });
     const [editorOpen, setEditorOpen] = useState(false);
 
