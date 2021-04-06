@@ -69,7 +69,6 @@ class Firebase {
 
 	public createUser = async (userData: User) => {
 		const user = _.cloneDeep(userData);
-		delete user.id;
 
 		await this.firestore.collection('users')
 			.doc(userData.id)
