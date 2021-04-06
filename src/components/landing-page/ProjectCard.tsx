@@ -47,12 +47,14 @@ const styles = makeStyles(() => {
 			display: 'flex',
 			flexDirection: 'column',
 			padding: '12px',
-			cursor: 'pointer'
+			cursor: 'pointer',
+			maxWidth: '100%'
 		},
 		title: {
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',
+			maxWidth: '100%'
 		},
 		cardActionsContainer: {
 			display: 'flex',
