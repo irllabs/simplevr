@@ -96,6 +96,12 @@ function UserStoriesSection({
 		setIsShowingSignInDialogAction(true);
 	}
 
+	const onProjectDeleted = (projectId) => {
+		setUserStoriesAction(userStories.filter((project) => {
+			return project.id !== projectId;
+		}));
+	}
+
 	return (
 		<div className={classes.container}>
 			{/* In case user is not logged in, show a prompt asking user to log in to view his/her stories */}
@@ -133,7 +139,7 @@ function UserStoriesSection({
 					<div className={classes.userStoriesSignedInContent}>
 						{userStories.map((story) => {
 							return (
-								<ProjectCard key={story.id} project={story} />
+								<ProjectCard key={story.id} project={story} onDelete={onProjectDeleted} />
 							);
 						})}
 					</div>

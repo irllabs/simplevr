@@ -140,6 +140,7 @@ type ReduxProps = ConnectedProps<typeof connector>
 interface ProjectCardProps extends ReduxProps {
 	project: StorageProject;
 	isPublic: boolean;
+	onDelete?: (projectId: string) => void;
 }
 
 const ProjectCard: FC<ProjectCardProps> = ({
@@ -147,6 +148,7 @@ const ProjectCard: FC<ProjectCardProps> = ({
 	isPublic,
 	user,
 	users,
+	onDelete,
 	setProjectAction,
 	setStoryAction,
 	setCurrentRoomAction,
@@ -288,6 +290,12 @@ const ProjectCard: FC<ProjectCardProps> = ({
 		setQrCodeDialogOpen(false);
 	}
 
+	const onDeleteStory = async () => {
+		onDelete(project.id);
+
+		await firebase.deleteProject(project.id);
+	}
+
 	return (
 		<div className={classes.projectCardContainer}>
 			<div className={classes.storyCardImageContainer} onClick={isPublic ? onViewStory : onEditStory}>
@@ -347,6 +355,12 @@ const ProjectCard: FC<ProjectCardProps> = ({
 							<MenuItem onClick={onOpenShareStory}>
 								<Typography variant='body2'>
 									Share
+								</Typography>
+							</MenuItem>}
+							{!isPublic &&
+							<MenuItem onClick={onDeleteStory}>
+								<Typography variant='body2'>
+									Delete
 								</Typography>
 							</MenuItem>}
 							{isPublic &&
