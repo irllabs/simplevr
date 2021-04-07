@@ -1,4 +1,4 @@
-import {
+import React, {
     useCallback,
     useContext,
     useEffect,
@@ -104,26 +104,13 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
 
     const firebaseContext = useContext(FirebaseContext);
 
-    const [publicLink, setPublicLink] = useState('');
     const [sessionLink, setSessionLink] = useState('');
     const [projectIsPublic, setPublic] = useState(project.isPublic);
-
-    const generateSharableLink = () => {
-        return `${window.location.origin}/view/${project.id}`;
-    };
 
     const generateSessionLink = () => {
         // Networked AFrame room name can't contain dashes
         return `${window.location.origin}/session/${project.id}/${uuid().replace(/-/g, '')}`;
     }
-
-    const setQRCode = (link) => {
-        if (!qrCodeCanvas.current) {
-            return;
-        }
-
-        qrcode.toCanvas(qrCodeCanvas.current, link);
-    };
 
     const setSessionQRCode = (link) => {
         if (!sessionQrCodeCanvas.current) {
@@ -133,27 +120,12 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
         qrcode.toCanvas(sessionQrCodeCanvas.current, link);
     }
 
-    const initPublicLink = async () => {
-        const link = generateSharableLink();
-
-        setPublicLink(link);
-        setQRCode(link);
-    };
-
     const initSessionLink = async () => {
         const link = generateSessionLink();
 
         setSessionLink(link);
         setSessionQRCode(link);
     }
-
-    const qrCodeCanvas = useCallback((node) => {
-        qrCodeCanvas.current = node;
-
-        if (node && projectIsPublic) {
-            initPublicLink();
-        }
-    }, []);
 
     const sessionQrCodeCanvas = useCallback((node) => {
         sessionQrCodeCanvas.current = node;
@@ -165,7 +137,6 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
 
     useEffect(async () => {
         if (projectIsPublic) {
-            initPublicLink();
             initSessionLink();
         }
 
@@ -176,10 +147,6 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
 
     const onPublicToggle = async () => {
         setPublic(!projectIsPublic);
-    };
-
-    const onCopyLink = () => {
-        copy(publicLink);
     };
 
     const onCopySessionLink = () => {
@@ -241,16 +208,6 @@ export default function ShareStoryDialog({ thumbnailUrl, project, onClose }) {
                 {projectIsPublic
                 && (
                     <>
-                        <div className={classes.publicDataContainer}>
-                            <canvas ref={qrCodeCanvas} />
-                            <Typography variant="body2" align="center">
-                                {publicLink}
-                            </Typography>
-                            <Box m={2} />
-                            <Button fullWidth variant="outlined" onClick={onCopyLink}>
-                                Copy link
-                            </Button>
-                        </div>
                         <div className={classes.publicDataContainer}>
                             <canvas ref={sessionQrCodeCanvas} />
                             <Typography variant="body2" align="center">
