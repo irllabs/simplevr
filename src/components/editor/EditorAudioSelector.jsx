@@ -327,8 +327,8 @@ function EditorAudioSelector({
 				<div className={classes.audioSelectorOptionsContainer}>
 					<div style={{flexGrow: 1}}>
 						<EditorFileSelector accept="audio/mp3, audio/wav, audio/mpeg, audio/x-wav, audio/aac, audio/x-m4a" onChange={processSelectedFile}>
-							<Button variant="outlined" fullWidth >
-								Select audio <br/>(mp3, wav, mpeg, x-wav, aac, x-m4a)
+							<Button variant="outlined" fullWidth style={{fontSize: '12px'}}>
+								Select audio (mp3, wav, mpeg, x-wav, aac, x-m4a)
 							</Button>
 						</EditorFileSelector>
 					</div>

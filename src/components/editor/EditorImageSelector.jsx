@@ -125,7 +125,7 @@ function EditorImageSelector({
             {!value
             && (
                 <EditorFileSelector accept="image/png, image/jpeg, image/jpg" onChange={processSelectedImage}>
-                    <Button variant="outlined" fullWidth >
+                    <Button variant="outlined" fullWidth style={{fontSize: '12px'}}>
                         Select image (png, jpg)
                     </Button>
                 </EditorFileSelector>

@@ -48,7 +48,7 @@ const styles = makeStyles(() => {
 			flexDirection: 'column',
 			padding: '12px',
 			cursor: 'pointer',
-			maxWidth: '100%'
+			maxWidth: 'calc(100% - 48px)'
 		},
 		title: {
 			whiteSpace: 'nowrap',
