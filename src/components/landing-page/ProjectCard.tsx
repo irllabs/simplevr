@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 import { IconButton, makeStyles, Menu, MenuItem, Typography } from '@material-ui/core';
 
 // External Icons
-import { MoreHoriz, Favorite, FavoriteBorder} from '@material-ui/icons';
+import { MoreHoriz } from '@material-ui/icons';
 
 // Database
 import firebase from '../../firebase/firebase';

@@ -31,6 +31,7 @@ export default class ProjectDeserializer {
 
         project.id = storageProject.id;
         project.isPublic = storageProject.isPublic;
+		project.createdAt = new Date(Date.parse(storageProject.createdAt));
         project.story = this.deserializeStoryData(storageProject.story);
 
         return project;

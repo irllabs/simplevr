@@ -5,7 +5,8 @@ import { v1 as uuid } from 'uuid';
 import Story from './story';
 
 export default class Project {
-    public id = uuid();
-    public isPublic = false;
-    public story = new Story();
+	public id = uuid();
+	public isPublic = false;
+	public story = new Story();
+	public createdAt = new Date();
 }

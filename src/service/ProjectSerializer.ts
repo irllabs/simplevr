@@ -40,6 +40,7 @@ export default class ProjectSerializer {
 
         storageProject.id = project.id;
         storageProject.isPublic = project.isPublic;
+		storageProject.createdAt = project.createdAt.toString();
         storageProject.userId = this.userId;
         storageProject.story = this.serializeStoryData(project.story);
 
