@@ -4,7 +4,6 @@ import { connect, ConnectedProps } from 'react-redux';
 
 // External UI Components
 import {
-	Container,
 	Typography,
 	makeStyles,
 	IconButton,
@@ -72,6 +71,13 @@ const styles = makeStyles(() => {
 			width: '100%',
 			display: 'flex',
 			justifyContent: 'center'
+		},
+		seeMoreContainer: {
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center',
+			width: '100%',
+			margin: '24px'
 		}
 	};
 });
@@ -100,9 +106,10 @@ const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesA
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 	const [filterBy, setFilterBy] = useState('project-name');
 	const [filterValue, setFilterValue] = useState('');
+	const [seeMoreVisible, setSeeMoreVisible] = useState(true);
 
 	useEffect(() => {
-		loadProjects();
+		loadProjects(false);
 	}, []);
 
 	const onOpenFilterDialog = () => {
@@ -124,8 +131,9 @@ const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesA
 	const onFilter = () => {
 		if (!filterValue) {
 			setFilterDialogOpen(false);
+			setSeeMoreVisible(true);
 
-			loadProjects();
+			loadProjects(true);
 			return;
 		}
 
@@ -157,6 +165,7 @@ const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesA
 
 		setPublicStoriesAction(filtered);
 		setStoriesLoading(false);
+		setSeeMoreVisible(false);
 	}
 
 	const filterByProjectTags = async () => {
@@ -172,6 +181,7 @@ const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesA
 
 		setPublicStoriesAction(filtered);
 		setStoriesLoading(false);
+		setSeeMoreVisible(false);
 	}
 
 	const filterByProjectOwnerEmail = async () => {
@@ -197,10 +207,11 @@ const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesA
 
 		setPublicStoriesAction(filtered);
 		setStoriesLoading(false);
+		setSeeMoreVisible(false);
 	}
 
-	const loadProjects = async () => {
-		const projects = await firebase.loadPublicStories();
+	const loadProjects = async (fromStart: boolean) => {
+		const projects = await firebase.loadPublicStories(true, fromStart);
 
 		setPublicStoriesAction(projects);
 		setStoriesLoading(false);
@@ -210,9 +221,28 @@ const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesA
 		setPublicStoriesAction([]);
 		setStoriesLoading(true);
 
-		loadProjects();
+		loadProjects(true);
 
 		setFilterDialogOpen(false);
+		setSeeMoreVisible(true);
+	}
+
+	const loadAdditionalPublicStories = async () => {
+		const publicStoriesPage = await firebase.loadPublicStories(true);
+
+		if (publicStoriesPage.length === 0) {
+			setSeeMoreVisible(false);
+			return;
+		}
+
+		if (publicStoriesPage.length < 8) {
+			setSeeMoreVisible(false);
+		}
+
+		setPublicStoriesAction([
+			...publicStories,
+			...publicStoriesPage
+		]);
 	}
 
 	return (
@@ -249,8 +279,14 @@ const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesA
 						</Typography>}
 						{storiesLoading &&
 						<CircularProgress size={24} />}
-						<Box m={5} />
 					</div>
+					{seeMoreVisible &&
+					<div className={classes.seeMoreContainer}>
+						<Button variant='outlined' color='primary' onClick={loadAdditionalPublicStories}>
+							See More
+						</Button>
+					</div>}
+					<Box m={5} />
 				</div>
 			</div>
 			<Dialog open={filterDialogOpen} onClose={onCloseFilterDialog}>

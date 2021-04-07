@@ -61,7 +61,7 @@ const styles = makeStyles(() => {
 			flexDirection: 'column',
 		},
 		storyCardImageContainer: {
-			borderRadius: '0px 0px 12px 12px',
+			borderRadius: '12px 12px 0px 0px',
 			display: 'flex',
 			position: 'relative',
 			height: '100%',
@@ -70,12 +70,13 @@ const styles = makeStyles(() => {
 		storyCardActionsContainer: {
 			position: 'absolute',
 			right: '0px',
-			bottom: '0px',
+			top: '0px',
 			height: '48px',
 			display: 'flex',
 			flexDirection: 'row-reverse',
 			borderRadius: '0px 0px 12px 0px',
-			alignItems: 'center'
+			alignItems: 'center',
+			paddingRight: '8px'
 		},
 		storyActionBackground: {
 			width: '30px',
@@ -90,7 +91,7 @@ const styles = makeStyles(() => {
 		storyCardImage: {
 			width: '100%',
 			height: '100%',
-			borderRadius: '0px 0px 12px 12px',
+			borderRadius: '12px 12px 0px 0px',
 			backgroundSize: 'cover',
 			backgroundPosition: 'center',
 		},
@@ -278,10 +279,9 @@ const ProjectCard: FC<ProjectCardProps> = ({
 		return projectCreator?.email;
 	}
 
-	const onOpenQRCodeDialog = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.stopPropagation();
-
+	const onOpenQRCodeDialog = () => {
 		setQrCodeDialogOpen(true);
+		setMenuOpen(false);
 	}
 
 	const onCloseQRCodeDialog = () => {
@@ -290,6 +290,30 @@ const ProjectCard: FC<ProjectCardProps> = ({
 
 	return (
 		<div className={classes.projectCardContainer}>
+			<div className={classes.storyCardImageContainer} onClick={isPublic ? onViewStory : onEditStory}>
+				{thumbnailUrl
+				&& (
+					<div
+						className={classes.storyCardImage}
+						style={{
+							backgroundImage: `url(${thumbnailUrl})`,
+						}}
+					/>
+				)}
+				{isPublic &&
+				<>
+					<div className={classes.storyCardActionsContainer}>
+						{!favorite && user &&
+						<IconButton onClick={markProjectAsFavorite} size='small'>
+							<img src='/icons/heart-empty.svg' />
+						</IconButton>}
+						{favorite && user &&
+						<IconButton onClick={unmarkProjectAsFavorite} size='small'>
+							<img src='/icons/heart-filled.svg' />
+						</IconButton>}
+					</div>
+				</>}
+			</div>
 			<div className={classes.projectCardHeader}>
 				<div className={classes.projectCardTitle} onClick={isPublic ? onViewStory : onEditStory}>
 					<Typography variant="h6" className={classes.title}>
@@ -307,67 +331,38 @@ const ProjectCard: FC<ProjectCardProps> = ({
 					</Typography>
 				</div>
 				<div className={classes.cardActionsContainer}>
-					{/* Only show edit options for user stories */}
-					{!isPublic && (
-						<>
-							<IconButton ref={menuAnchorRef} aria-controls="card-menu" aria-haspopup="true" onClick={onOpenMenu}>
-								<MoreHoriz />
-							</IconButton>
-							<Menu
+					<>
+						<IconButton ref={menuAnchorRef} aria-controls="card-menu" aria-haspopup="true" onClick={onOpenMenu}>
+							<MoreHoriz />
+						</IconButton>
+						<Menu
 
-								id="simple-menu"
-								anchorEl={menuAnchorRef.current}
-								keepMounted
-								open={menuOpen}
-								onClose={onCloseMenu}
-							>
-								<MenuItem onClick={onOpenShareStory}>
-									<Typography variant='body2'>
-										Share
-									</Typography>
-								</MenuItem>
-								<MenuItem onClick={onDownloadStoryArchive}>
-									<Typography variant='body2'>
-										Download (.zip)
-									</Typography>
-								</MenuItem>
-							</Menu>
-						</>
-					)}
+							id="simple-menu"
+							anchorEl={menuAnchorRef.current}
+							keepMounted
+							open={menuOpen}
+							onClose={onCloseMenu}
+						>
+							{!isPublic &&
+							<MenuItem onClick={onOpenShareStory}>
+								<Typography variant='body2'>
+									Share
+								</Typography>
+							</MenuItem>}
+							{isPublic &&
+							<MenuItem onClick={onOpenQRCodeDialog}>
+								<Typography variant='body2'>
+									View QR Code
+								</Typography>
+							</MenuItem>}
+							<MenuItem onClick={onDownloadStoryArchive}>
+								<Typography variant='body2'>
+									Download (.zip)
+								</Typography>
+							</MenuItem>
+						</Menu>
+					</>
 				</div>
-			</div>
-			<div className={classes.storyCardImageContainer} onClick={isPublic ? onViewStory : onEditStory}>
-				{thumbnailUrl
-				&& (
-					<div
-						className={classes.storyCardImage}
-						style={{
-							backgroundImage: `url(${thumbnailUrl})`,
-						}}
-					/>
-				)}
-				{isPublic &&
-				<>
-					<div className={classes.storyCardActionsContainer}>
-						{!favorite && user &&
-						<div className={classes.storyActionBackground}>
-							<IconButton onClick={markProjectAsFavorite} size='small'>
-								<FavoriteBorder />
-							</IconButton>
-						</div>}
-						{favorite && user &&
-						<div className={classes.storyActionBackground}>
-							<IconButton onClick={unmarkProjectAsFavorite} size='small'>
-								<Favorite color='primary' />
-							</IconButton>
-						</div>}
-						<div className={classes.storyActionBackground}>
-							<IconButton onClick={onOpenQRCodeDialog} size='small'>
-								<img src='/icons/qr-code.svg' className={classes.icon} />
-							</IconButton>
-						</div>
-					</div>
-				</>}
 			</div>
 			{shareStoryDialogOpen && <ShareStoryDialog onClose={onCloseShareStory} thumbnailUrl={thumbnailUrl} project={project} />}
 			{qrCodeDialogOpen && <StoryQRCodeDialog project={project} onClose={onCloseQRCodeDialog} />}

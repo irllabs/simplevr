@@ -29,6 +29,9 @@ class Firebase {
 
 	public currentUser: firebase.User;
 
+	private lastLoadedUserStory: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>;
+	private lastLoadedPublicStory: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>;
+
 	constructor() {
 		if (!firebase.apps.length) {
 			firebase.initializeApp(firebaseConfig);
@@ -96,14 +99,26 @@ class Firebase {
 		return userModels;
 	}
 
-	loadUserStories = async (userId: string) => {
-		const storiesData: Project[] = [];
+	loadUserStories = async (userId: string, fromStart?: boolean) => {
+		if (fromStart) {
+			this.lastLoadedUserStory = null;
+		}
 
 		const stories = await this.firestore
-			.collection('projects')
-			.where('userId', '==', userId)
-			.get();
+		.collection('projects')
+		.where('userId', '==', userId)
+		.orderBy('id')
+		.limit(8)
+		.startAfter(this.lastLoadedUserStory || null)
+		.get();
 
+		if (stories.docs.length === 0) {
+			return [];
+		}
+
+		this.lastLoadedUserStory = stories.docs[stories.docs.length - 1];
+
+		const storiesData: Project[] = [];
 		stories.forEach((story) => {
 			storiesData.push(story.data() as Project);
 		});
@@ -111,11 +126,24 @@ class Firebase {
 		return storiesData;
 	}
 
-	loadPublicStories = async () => {
+	loadPublicStories = async (limit?: boolean, fromStart?: boolean) => {
+		if (fromStart) {
+			this.lastLoadedPublicStory = null;
+		}
+
 		const stories = await this.firestore
 			.collection('projects')
 			.where('isPublic', '==', true)
+			.orderBy('id')
+			.limit(limit ? 8 : 100)
+			.startAfter(this.lastLoadedPublicStory || null)
 			.get();
+
+		if (stories.docs.length === 0) {
+			return [];
+		}
+
+		this.lastLoadedPublicStory = stories.docs[stories.docs.length - 1];
 
 		const storyModels: StorageProject[] = [];
 		stories.forEach((story) => {

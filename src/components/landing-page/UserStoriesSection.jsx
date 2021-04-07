@@ -1,5 +1,5 @@
 // External libraries
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
@@ -47,6 +47,13 @@ const styles = makeStyles(() => {
 			gridGap: '12px',
 			width: '100%',
 		},
+		seeMoreContainer: {
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center',
+			width: '100%',
+			margin: '24px'
+		}
 	};
 });
 function UserStoriesSection({
@@ -57,13 +64,33 @@ function UserStoriesSection({
 }) {
 	const classes = styles();
 
+	const [seeMoreVisible, setSeeMoreVisible] = useState(true);
+
 	useEffect(() => {
 		if (user) {
-			firebase.loadUserStories(user.id).then((stories) => {
+			firebase.loadUserStories(user.id, true).then((stories) => {
 				setUserStoriesAction(stories);
 			});
 		}
 	}, [user, setUserStoriesAction]);
+
+	const loadAdditionalUserStories = async () => {
+		const userStoriesPage = await firebase.loadUserStories(user.id);
+
+		if (userStoriesPage.length === 0) {
+			setSeeMoreVisible(false);
+			return;
+		}
+
+		if (userStoriesPage.length < 8) {
+			setSeeMoreVisible(false);
+		}
+
+		setUserStoriesAction([
+			...userStories,
+			...userStoriesPage
+		]);
+	}
 
 	function onSignInClick() {
 		setIsShowingSignInDialogAction(true);
@@ -110,6 +137,12 @@ function UserStoriesSection({
 							);
 						})}
 					</div>
+					{seeMoreVisible &&
+					<div className={classes.seeMoreContainer}>
+						<Button variant='outlined' color='primary' onClick={loadAdditionalUserStories}>
+							See More
+						</Button>
+					</div>}
 				</div>
 			)}
 			{/* Show a 'See more' button to load more stories for user */}
