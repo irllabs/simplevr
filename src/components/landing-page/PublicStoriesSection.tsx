@@ -261,7 +261,7 @@ const PublicStoriesSection: FC<ReduxProps> = ({ publicStories, setPublicStoriesA
 						</div>
 						<div>
 							<IconButton onClick={onOpenFilterDialog}>
-								<Search className={classes.icon} />
+								<img src='/icons/filter.svg' className={classes.icon} />
 							</IconButton>
 						</div>
 					</div>
