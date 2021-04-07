@@ -16,6 +16,7 @@ import {
 	Typography,
 } from '@material-ui/core';
 import StorageProject from '../../models/storage/StorageProject';
+import { v1 as uuid } from 'uuid';
 
 const styles = makeStyles(() => {
 	return {
@@ -44,7 +45,7 @@ const StoryQRCodeDialog = ({ project, onClose }: StoryQRCodeDialogProps): JSX.El
 	const qrCodeCanvas = useRef<HTMLCanvasElement>();
 
 	useEffect(() => {
-		setLink(`${window.location.origin}/view/${project.id}`);
+		setLink(`${window.location.origin}/session/${project.id}/${uuid().replace(/-/g, '')}`);
 	}, [project]);
 
 	useEffect(() => {
@@ -71,12 +72,12 @@ const StoryQRCodeDialog = ({ project, onClose }: StoryQRCodeDialogProps): JSX.El
 			<DialogContent>
 				<div className={classes.publicDataContainer}>
 					<canvas ref={qrCodeCanvas} />
-					<Typography variant="body2" align="center">
+					<Typography variant="body2" align="center" style={{wordWrap: 'break-word'}}>
 						{link}
 					</Typography>
 					<Box m={2} />
 					<Button fullWidth variant="outlined" onClick={onCopyLink}>
-						Copy link
+						Copy session link
 					</Button>
 				</div>
 			</DialogContent>
