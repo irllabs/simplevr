@@ -126,7 +126,7 @@ function EditorImageSelector({
             && (
                 <EditorFileSelector accept="image/png, image/jpeg, image/jpg" onChange={processSelectedImage}>
                     <Button variant="outlined" fullWidth >
-                        Select image
+                        Select image (png, jpg)
                     </Button>
                 </EditorFileSelector>
             )}
