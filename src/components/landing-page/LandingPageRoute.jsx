@@ -14,7 +14,6 @@ import {
 
 // Components
 import Header from '../header/Header';
-import SignInDialog from '../dialogs/SignInDialog';
 import UserStoriesSection from './UserStoriesSection';
 import PublicStoriesSection from './PublicStoriesSection.tsx';
 import EditorFileSelector from '../editor/EditorFileSelector';
@@ -176,7 +175,6 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
 			</div>
 			<UserStoriesSection />
 			<PublicStoriesSection />
-			<SignInDialog />
 		</>
 	);
 }

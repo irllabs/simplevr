@@ -90,8 +90,8 @@ const SignInDialog = ({ isShowingSignInDialog, setIsShowingSignInDialogAction, s
 				favoriteProjects: []
 			};
 			await firebaseContext.createUser(user);
-			setUserAction(user);
 		}
+		setUserAction(user);
 	};
 
 	const onShowEmailSigninClick = () => {

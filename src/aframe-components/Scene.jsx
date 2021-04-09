@@ -7,15 +7,12 @@ import 'aframe';
 import Hotspot from './Hotspot';
 import Door from './Door';
 import PanelButton from './PanelButton';
-import { setCurrentRoom } from '../redux/actions';
+import { setCurrentRoom, setIsShowingSignInDialog } from '../redux/actions';
 
 import loadImageForRoom, { getImageFromChar, loadImage } from '../util/ImageLoader';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, makeStyles, TextField, Typography } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import ArrowBackIcon from '@material-ui/icons/KeyboardBackspace';
-
-// Firebase
-import firebase from '../firebase/firebase';
 
 const styles = makeStyles(() => {
 	return {
@@ -54,7 +51,7 @@ let micEnabledd = true;
 const connectedClientProfileImages = {};
 let usernameGlobal = '';
 
-function Scene({ sessionId, story, setCurrentRoomAction, viewOpenedFromApplication }) {
+function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFromApplication, setIsShowingSignInDialogAction }) {
 	const classes = styles();
 
 	const sceneRef = useRef();
@@ -66,7 +63,7 @@ function Scene({ sessionId, story, setCurrentRoomAction, viewOpenedFromApplicati
 	const [micEnabled, setMicEnabled] = useState(true);
 	const [connectedClients, setConnectedClients] = useState([]);
 	const [username, setUsername] = useState('');
-	const [usernameDialogOpen, setUsernameDialogOpen] = useState(true);
+	const [usernameDialogOpen, setUsernameDialogOpen] = useState(userProp ? false : true);
 
 	const activeRoom = story.rooms.find((room) => {
 		return room.active;
@@ -188,8 +185,8 @@ function Scene({ sessionId, story, setCurrentRoomAction, viewOpenedFromApplicati
 	const onReceivedData = async (senderId, dataType, data, targetId) => {
 		// When receiving profile image request, send back URL for profile image
 		if (data === 'profile_image_request') {
-			if (firebase.currentUser) {
-				NAF.connection.sendDataGuaranteed(senderId, 'string', `image_url${firebase.currentUser.photoURL}`);
+			if (userProp && userProp.avatar) {
+				NAF.connection.sendDataGuaranteed(senderId, 'string', `image_url${userProp.avatar}`);
 			}
 			else if (usernameGlobal) {
 				NAF.connection.sendDataGuaranteed(senderId, 'string', `image_name${usernameGlobal.toUpperCase().charAt(0)}`);
@@ -252,6 +249,10 @@ function Scene({ sessionId, story, setCurrentRoomAction, viewOpenedFromApplicati
 
 	const isEmptyHotspot = (hotspot) => {
 		return !hotspot.text && !hotspot.image.data && !hotspot.audio.data;
+	}
+
+	const onSignIn = () => {
+		setIsShowingSignInDialogAction(true);
 	}
 
 	return (
@@ -433,7 +434,7 @@ function Scene({ sessionId, story, setCurrentRoomAction, viewOpenedFromApplicati
 					</Typography>
 				</IconButton>
 			</div>
-			{!firebase.currentUser && sessionId
+			{!userProp && sessionId
 			&& <Dialog
 				open={usernameDialogOpen}
 				disableBackdropClick={true}
@@ -455,8 +456,11 @@ function Scene({ sessionId, story, setCurrentRoomAction, viewOpenedFromApplicati
 					/>
 				</DialogContent>
 				<DialogActions>
+					<Button onClick={onSignIn} color="primary">
+						Sign In
+					</Button>
 					<Button disabled={!username} onClick={onUsernameDialogSubmit} color="primary">
-						OK
+						Ok
 					</Button>
 				</DialogActions>
 			</Dialog>}
@@ -466,6 +470,7 @@ function Scene({ sessionId, story, setCurrentRoomAction, viewOpenedFromApplicati
 
 const mapStateToProps = (state) => {
 	return {
+		userProp: state.user,
 		story: state.project.story,
 		viewOpenedFromApplication: state.navigation.viewOpenedFromApplication,
 	};
@@ -475,5 +480,6 @@ export default connect(
 	mapStateToProps,
 	{
 		setCurrentRoomAction: setCurrentRoom,
+		setIsShowingSignInDialogAction: setIsShowingSignInDialog,
 	},
 )(Scene);

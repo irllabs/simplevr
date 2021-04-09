@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 
 // State
-import { setUsers } from '../redux/actions';
+import { setUser, setUsers } from '../redux/actions';
 
 // External UI Components
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -21,11 +21,12 @@ import LandingPageRoute from './landing-page/LandingPageRoute';
 import EditorRoute from './editor/EditorRoute';
 import ViewerRoute from './viewer/ViewerRoute';
 import SnackbarNotification from './shared/SnackbarNotification';
+import SignInDialog from './dialogs/SignInDialog';
 
 // Database
 import firebase from './../firebase/firebase';
 
-function App({setUsersAction}) {
+function App({setUsersAction, setUserAction}) {
 	const theme = React.useMemo(
 		() => {
 			return createMuiTheme({
@@ -92,11 +93,26 @@ function App({setUsersAction}) {
 		loadUsers();
 	}, [setUsersAction]);
 
+	useEffect(() => {
+		firebase.auth.onAuthStateChanged(async (authUser) => {
+			if (authUser) {
+				const user = await firebase.loadUser(authUser.uid);
+				if (user) {
+					if (!user.favoriteProjects) {
+						user.favoriteProjects = [];
+					}
+					setUserAction(user);
+				}
+			}
+		});
+	}, [setUserAction]);
+
 	return (
 		<div className="App">
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
 				<SnackbarNotification />
+				<SignInDialog />
 				<Router>
 					<Switch>
 						<Route path="/editor" component={EditorRoute} />
@@ -118,6 +134,7 @@ const mapStateToProps = () => {
 export default connect(
 	mapStateToProps,
 	{
+		setUserAction: setUser,
 		setUsersAction: setUsers,
 	},
 )(App);
