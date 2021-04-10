@@ -144,6 +144,8 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 
 		setCurrentRoomAction(targetRoom);
 
+		NAF.connection.broadcastDataGuaranteed('string', `room_id${targetRoom.id}`);
+
 		skyRef.current.addEventListener('materialtextureloaded', function () {
 			sceneRef.current.emit('reset-camera');
 		});
@@ -170,13 +172,15 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 
 		// Send request for profile image to connected client
 		NAF.connection.sendDataGuaranteed(event.detail.clientId, 'string', 'profile_image_request');
+		NAF.connection.sendDataGuaranteed(event.detail.clientId, 'string', `room_id${activeRoom.id}`);
 
 		setConnectedClients((prevState) => {
 			return [
 				...prevState,
 				{
 					id: event.detail.clientId,
-					image: ''
+					image: '',
+					roomId: ''
 				}
 			]
 		});
@@ -206,7 +210,12 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 			imageData = await loadImage('/icons/user_filled.png');
 		}
 
-		if (imageData) {
+		let roomId = '';
+		if (data.startsWith('room_id')) {
+			roomId = data.split('room_id')[1];
+		}
+
+		if (imageData || roomId) {
 			setConnectedClients((prevState) => {
 				return prevState.map((client) => {
 					if (senderId !== client.id) {
@@ -214,8 +223,9 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 					}
 					else {
 						return {
-							id: senderId,
-							image: imageData
+							id: client.id,
+							image: imageData ? imageData : client.image,
+							roomId: roomId ? roomId : client.roomId,
 						}
 					}
 				});
@@ -416,6 +426,7 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 								position={`${-1.9 + (index * 0.7)} 0 0`}
 								color="#FFF"
 								transparent='true'
+								opacity={client.roomId === activeRoom.id ? 1 : 0.5}
 							/>
 						);
 					})}
