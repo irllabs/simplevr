@@ -13,6 +13,7 @@ import loadImageForRoom, { getImageFromChar, loadImage } from '../util/ImageLoad
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, makeStyles, TextField, Typography } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import ArrowBackIcon from '@material-ui/icons/KeyboardBackspace';
+import { getClientSound } from '../util/GetClientEntity';
 
 const styles = makeStyles(() => {
 	return {
@@ -47,7 +48,6 @@ const styles = makeStyles(() => {
 });
 
 const roomHistory = [];
-let micEnabledd = true;
 const connectedClientProfileImages = {};
 let usernameGlobal = '';
 
@@ -73,11 +73,55 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 		roomHistory.push(activeRoom);
 	}
 
+	/**
+	 * Register microphone toggle event callback.
+	 */
 	useEffect(() => {
-		sceneRef.current.addEventListener('switch-room', (e) => {
-			goToRoom(e.detail);
-		});
+		const sceneElement = sceneRef.current;
 
+		sceneElement.addEventListener('toggle-mic', toggleMic);
+
+		return () => {
+			sceneElement.removeEventListener('toggle-mic', toggleMic);
+		}
+	}, []);
+
+	/**
+	 * Register client connected event callback.
+	 */
+	useEffect(() => {
+		document.body.addEventListener('clientConnected', onClientConnected, false);
+
+		return () => {
+			document.body.removeEventListener('clientConnected', onClientConnected, false);
+		}
+	}, [story.rooms]);
+
+	/**
+	 * Register data received event callback.
+	 */
+	useEffect(() => {
+		NAF.connection.subscribeToDataChannel('string', onReceivedData);
+
+		return () => {
+			NAF.connection.unsubscribeToDataChannel('string', onReceivedData);
+		}
+	}, [connectedClients]);
+
+	/**
+	 * Register room change event callback.
+	 */
+	useEffect(() => {
+		const sceneElement = sceneRef.current;
+
+		sceneElement.addEventListener('switch-room', goToRoom);
+
+		return () => {
+			sceneElement.removeEventListener('switch-room', goToRoom);
+		}
+	}, [connectedClients]);
+
+	useEffect(() => {
 		sceneRef.current.addEventListener('enter-vr', function () {
 			setVrEnabled(true);
 		});
@@ -86,9 +130,7 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 			setVrEnabled(false);
 		});
 
-		sceneRef.current.addEventListener('toggle-mic', () => {
-			toggleMic();
-		});
+
 
 		// Define custom schema for syncing avatar color, set by random-color
 		NAF.schemas.add({
@@ -99,10 +141,10 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 			]
 		});
 
-		document.body.addEventListener('clientConnected', onClientConnected, false);
+
 		document.body.addEventListener('clientDisconnected', onClientDisconnected, false);
 
-		NAF.connection.subscribeToDataChannel('string', onReceivedData);
+
 	}, []);
 
 	const onBack = () => {
@@ -117,7 +159,9 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 		}
 	}
 
-	const goToRoom = async (roomId) => {
+	const goToRoom = async (event) => {
+		const roomId = event.detail;
+
 		let targetRoom = story.rooms.find((room) => {
 			return room.id === roomId;
 		});
@@ -145,6 +189,7 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 		setCurrentRoomAction(targetRoom);
 
 		NAF.connection.broadcastDataGuaranteed('string', `room_id${targetRoom.id}`);
+		updateClientsVolume(targetRoom.id);
 
 		skyRef.current.addEventListener('materialtextureloaded', function () {
 			sceneRef.current.emit('reset-camera');
@@ -159,12 +204,11 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 	}
 
 	const toggleMic = () => {
-		const enabled = micEnabledd;
+		setMicEnabled((prevState) => {
+			NAF.connection.adapter.enableMicrophone(!prevState);
 
-		NAF.connection.adapter.enableMicrophone(!enabled);
-
-		setMicEnabled(!enabled);
-		micEnabledd = !micEnabledd;
+			return !prevState;
+		});
 	};
 
 	const onClientConnected = (event) => {
@@ -213,6 +257,8 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 		let roomId = '';
 		if (data.startsWith('room_id')) {
 			roomId = data.split('room_id')[1];
+
+			updateClientVolume(roomId, senderId)
 		}
 
 		if (imageData || roomId) {
@@ -231,6 +277,28 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 				});
 			});
 		}
+	}
+
+	const updateClientVolume = (clientRoomId, clientId) => {
+		let volume = 1;
+		if (clientRoomId !== activeRoom.id) {
+			volume = 0.02;
+		}
+
+		const clientSound = getClientSound(clientId);
+		clientSound.setVolume(volume);
+	}
+
+	const updateClientsVolume = (targetRoomId) => {
+		connectedClients.forEach((client) => {
+			let volume = 1;
+			if (client.roomId !== targetRoomId) {
+				volume = 0.02;
+			}
+
+			const clientSound = getClientSound(client.id);
+			clientSound.setVolume(volume);
+		});
 	}
 
 	const onClientDisconnected = (event) => {
