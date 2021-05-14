@@ -16,7 +16,7 @@ import {
 import { Close } from '@material-ui/icons';
 import { connect } from 'react-redux';
 
-import { updateDoor } from '../../redux/actions';
+import { setCurrentRoom, updateDoor } from '../../redux/actions';
 
 const styles = makeStyles(() => {
     return {
@@ -40,6 +40,7 @@ function EditorEditDoor({
     door,
     story,
     updateDoorAction,
+	setCurrentRoomAction
 }) {
     const classes = styles();
 
@@ -48,6 +49,14 @@ function EditorEditDoor({
 
         updateDoorAction(door);
     };
+
+	const onGoToRoom = () => {
+		const targetRoom = story.rooms.find((storyRoom) => {
+			return storyRoom.id === door.targetRoomId;
+		});
+
+		setCurrentRoomAction(targetRoom);
+	}
 
     return (
         <Dialog onClose={onClose} open maxWidth="xs" fullWidth>
@@ -82,6 +91,9 @@ function EditorEditDoor({
                 </FormControl>
             </DialogContent>
             <DialogActions>
+				<Button variant="text" color="primary" onClick={onGoToRoom}>
+                    Go there
+                </Button>
                 <Button variant="text" color="primary">
                     Delete door
                 </Button>
@@ -100,5 +112,6 @@ export default connect(
     mapStateToProps,
     {
         updateDoorAction: updateDoor,
+		setCurrentRoomAction: setCurrentRoom
     },
 )(EditorEditDoor);
