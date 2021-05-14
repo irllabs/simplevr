@@ -119,6 +119,7 @@ function EditorRoomCard({
                     </div>
                 </div>
                 <div
+					onClick={goToRoom}
                     className={classes.roomThumbnail}
                     style={{ backgroundImage: `url(${room.panoramaUrl.thumbnail.data})` }}
                 />
