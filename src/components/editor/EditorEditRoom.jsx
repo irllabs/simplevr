@@ -22,6 +22,9 @@ import {
     setRoomBackground,
     setRoomBackgroundMusic,
     setRoomBackgroundNarration,
+	deleteRoom,
+	showSnackbar,
+	setCurrentRoom,
 } from '../../redux/actions';
 
 import EditorAudioSelector from './EditorAudioSelector';
@@ -59,7 +62,11 @@ function EditorEditRoom({
     setRoomBackgroundAction,
     setRoomBackgroundMusicAction,
     setRoomBackgroundNarrationAction,
+	deleteRoomAction,
+	showSnackbarAction,
+	setCurrentRoomAction,
     room,
+	story,
 }) {
     const classes = styles();
 
@@ -141,6 +148,22 @@ function EditorEditRoom({
         );
     }
 
+	const onDeleteRoom = () => {
+		const anotherRoom = story.rooms.find((storyRoom) => {
+			return storyRoom.id !== room.id;
+		});
+
+		if (!anotherRoom) {
+			showSnackbarAction(`Can't delete last room in the story.`);
+			return;
+		}
+
+		setCurrentRoomAction(anotherRoom);
+		deleteRoomAction(room.id);
+
+		onClose();
+	}
+
     return (
         <Dialog onClose={onClose} open maxWidth="xs" fullWidth>
             <DialogTitle className={classes.root}>
@@ -212,7 +235,7 @@ function EditorEditRoom({
                 />
             </DialogContent>
             <DialogActions>
-                <Button variant="text" color="primary">
+                <Button variant="text" color="primary" onClick={onDeleteRoom}>
                     Delete room
                 </Button>
             </DialogActions>
@@ -220,17 +243,22 @@ function EditorEditRoom({
     );
 }
 
-const mapStateToProps = () => {
-    return {};
+const mapStateToProps = (state) => {
+    return {
+		story: state.project.story
+	};
 };
 
 export default connect(
     mapStateToProps,
     {
+		deleteRoomAction: deleteRoom,
         setRoomNameAction: setRoomName,
         setRoomIsHomeAction: setRoomIsHome,
         setRoomBackgroundAction: setRoomBackground,
         setRoomBackgroundMusicAction: setRoomBackgroundMusic,
         setRoomBackgroundNarrationAction: setRoomBackgroundNarration,
+		setCurrentRoomAction: setCurrentRoom,
+		showSnackbarAction: showSnackbar,
     },
 )(EditorEditRoom);

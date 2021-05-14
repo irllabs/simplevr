@@ -30,6 +30,7 @@ import {
     REMOVE_USER_STORY,
     REMOVE_PUBLIC_STORY,
 	SET_USERS,
+	REMOVE_ROOM,
 } from './actionTypes';
 
 // User
@@ -178,6 +179,14 @@ export const addRoom = (room) => {
         type: ADD_ROOM,
         payload: {
             room: room,
+        },
+    };
+};
+export const deleteRoom = (roomId) => {
+    return {
+        type: REMOVE_ROOM,
+        payload: {
+            roomId: roomId,
         },
     };
 };

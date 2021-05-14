@@ -28,6 +28,7 @@ export const SET_CURRENT_ROOM = 'SET_CURRENT_ROOM';
 export const ADD_HOTSPOT = 'ADD_HOTSPOT';
 export const ADD_DOOR = 'ADD_DOOR';
 export const ADD_ROOM = 'ADD_ROOM';
+export const REMOVE_ROOM = 'REMOVE_ROOM';
 export const SET_HOTSPOT_LOCATION = 'SET_HOTSPOT_LOCATION';
 export const SET_STORY_NAME = 'SET_STORY_NAME';
 export const SET_STORY_TAGS = 'SET_STORY_TAGS';

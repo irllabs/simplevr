@@ -21,6 +21,7 @@ import {
     SET_ROOM_BACKGROUND_MUSIC,
     SET_ROOM_BACKGROUND_NARRATION,
     SET_ROOM_IS_HOME,
+	REMOVE_ROOM
 } from '../actionTypes';
 
 const initialState = null;
@@ -102,6 +103,17 @@ export default function projectReducer(state = initialState, action) {
             },
         });
     }
+	case REMOVE_ROOM: {
+		return update(state, {
+			story: {
+				rooms: {
+					$set: state.story.rooms.filter((room) => {
+						return room.id !== action.payload.roomId
+					})
+				}
+			}
+        })
+	}
     case SET_HOTSPOT_LOCATION: {
         return update(state, {
             story: {
