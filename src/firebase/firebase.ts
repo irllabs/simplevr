@@ -230,7 +230,8 @@ class Firebase {
 	}
 
 	uploadFileFromDataUrl = async (uploadPath: string, fileData: string) => {
-		if (!fileData) {
+		// If file data is empty, or it's not in a valid data url format, skip upload.
+		if (!fileData || !fileData.startsWith('data:')) {
 			return;
 		}
 		await this.storage.ref(uploadPath).putString(fileData, firebase.storage.StringFormat.DATA_URL);
