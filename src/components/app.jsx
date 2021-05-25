@@ -26,7 +26,7 @@ import SignInDialog from './dialogs/SignInDialog';
 // Database
 import firebase from './../firebase/firebase';
 
-function App({setUsersAction, setUserAction}) {
+function App({project, setUsersAction, setUserAction}) {
 	const theme = React.useMemo(
 		() => {
 			return createMuiTheme({
@@ -107,6 +107,15 @@ function App({setUsersAction, setUserAction}) {
 		});
 	}, [setUserAction]);
 
+	useEffect(() => {
+		const unloadPage = () => {
+			if(project.unsavedChanges) {
+				return "There are unsaved changes, are you sure you want to leave the page?";
+			}
+		}
+		window.onbeforeunload = unloadPage;
+	}, [project])
+
 	return (
 		<div className="App">
 			<ThemeProvider theme={theme}>
@@ -127,8 +136,10 @@ function App({setUsersAction, setUserAction}) {
 	);
 }
 
-const mapStateToProps = () => {
-	return {};
+const mapStateToProps = (state) => {
+	return {
+		project: state.project
+	};
 };
 
 export default connect(

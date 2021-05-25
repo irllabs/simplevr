@@ -1,6 +1,8 @@
 // External libraries
 import { makeStyles, Typography } from '@material-ui/core';
 import React, { useEffect, useRef, useState } from 'react';
+import { connect } from 'react-redux';
+import { setUnsavedChanges } from '../../redux/actions';
 import { normalizeAbsolutePosition, denormalizePosition } from '../../util/IconPosition';
 import Vector2 from '../../util/Vector2';
 import EditorEditDoor from './EditorEditDoor';
@@ -37,7 +39,7 @@ const styles = makeStyles(() => {
         },
     };
 });
-export default function EditorDoor({ door, targetRoomName }) {
+function EditorDoor({ door, targetRoomName, setUnsavedChangesAction }) {
     const classes = styles();
 
     const [position, setPosition] = useState({
@@ -125,10 +127,13 @@ export default function EditorDoor({ door, targetRoomName }) {
 
         if (mouseDownPosition.current.distanceTo(mouseUpPosition) < 5) {
             setEditorOpen(true);
+			return;
         }
 
         const location = normalizeAbsolutePosition(doorCenter.getX(), doorCenter.getY());
         door.location.setPosition(location.x, location.y);
+
+		setUnsavedChangesAction(true);
     }
 
     function closeEditor() {
@@ -178,3 +183,14 @@ export default function EditorDoor({ door, targetRoomName }) {
         </div>
     );
 }
+
+const mapStateToProps = () => {
+	return {};
+};
+
+export default connect(
+	mapStateToProps,
+	{
+		setUnsavedChangesAction: setUnsavedChanges,
+	},
+)(EditorDoor);

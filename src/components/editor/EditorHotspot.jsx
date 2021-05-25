@@ -2,7 +2,7 @@
 import { makeStyles, Typography } from '@material-ui/core';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import { updateHotspot } from '../../redux/actions';
+import { setUnsavedChanges, updateHotspot } from '../../redux/actions';
 import getHotspotIconName from '../../util/GetHotspotIconName';
 import { normalizeAbsolutePosition, denormalizePosition } from '../../util/IconPosition';
 import Vector2 from '../../util/Vector2';
@@ -41,7 +41,7 @@ const styles = makeStyles(() => {
         },
     };
 });
-function EditorHotspot({ hotspot }) {
+function EditorHotspot({ hotspot, setUnsavedChangesAction }) {
     const classes = styles();
 
     const [position, setPosition] = useState({
@@ -129,12 +129,13 @@ function EditorHotspot({ hotspot }) {
 
         if (mouseDownPosition.current.distanceTo(mouseUpPosition) < 5) {
             setEditorOpen(true);
+			return;
         }
 
         const location = normalizeAbsolutePosition(hotspotCenter.getX(), hotspotCenter.getY());
         hotspot.location.setPosition(location.x, location.y);
 
-        // updateHotspotAction(hotspot);
+		setUnsavedChangesAction(true);
     }
 
     function closeEditor() {
@@ -192,6 +193,6 @@ const mapStateToProps = () => {
 export default connect(
     mapStateToProps,
     {
-        updateHotspotAction: updateHotspot,
+        setUnsavedChangesAction: setUnsavedChanges,
     },
 )(EditorHotspot);

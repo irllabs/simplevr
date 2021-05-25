@@ -31,6 +31,7 @@ import {
     REMOVE_PUBLIC_STORY,
 	SET_USERS,
 	REMOVE_ROOM,
+	SET_UNSAVED_CHANGES,
 } from './actionTypes';
 
 // User
@@ -322,6 +323,14 @@ export const setRoomIsHome = (roomId, isHome) => {
         payload: {
             roomId: roomId,
             isHome: isHome,
+        }
+    }
+}
+export const setUnsavedChanges = (unsavedChanges) => {
+    return {
+        type: SET_UNSAVED_CHANGES,
+        payload: {
+            unsavedChanges: unsavedChanges,
         }
     }
 }

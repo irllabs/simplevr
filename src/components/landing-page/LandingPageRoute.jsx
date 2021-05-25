@@ -19,7 +19,7 @@ import PublicStoriesSection from './PublicStoriesSection.tsx';
 import EditorFileSelector from '../editor/EditorFileSelector';
 
 // Redux Actions
-import { setCurrentRoom, setProject, setStory, showSnackbar } from '../../redux/actions';
+import { setCurrentRoom, setProject, setStory, setUnsavedChanges, showSnackbar } from '../../redux/actions';
 
 // Util
 import FileLoaderUtil from '../../util/FileLoader';
@@ -67,7 +67,7 @@ const styles = makeStyles((theme) => {
 		},
 	};
 });
-function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomAction, showSnackbarAction }) {
+function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomAction, showSnackbarAction, setUnsavedChangesAction }) {
 	const classes = styles();
 	const fileInput = useRef();
 	const history = useHistory();
@@ -117,6 +117,8 @@ function LandingPageRoute({ setProjectAction, setStoryAction, setCurrentRoomActi
 		setProjectAction(project);
 		setStoryAction(project.story);
 		setCurrentRoomAction(room);
+
+		setUnsavedChangesAction(true);
 
 		// Navigate to editor for further story edits
 		history.push('/editor');
@@ -189,6 +191,7 @@ export default connect(
 		setProjectAction: setProject,
 		setStoryAction: setStory,
 		setCurrentRoomAction: setCurrentRoom,
-		showSnackbarAction: showSnackbar
+		showSnackbarAction: showSnackbar,
+		setUnsavedChangesAction: setUnsavedChanges,
 	},
 )(LandingPageRoute);
