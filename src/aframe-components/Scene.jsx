@@ -188,13 +188,19 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 
 		setCurrentRoomAction(targetRoom);
 
-		NAF.connection.broadcastDataGuaranteed('string', `room_id${targetRoom.id}`);
-		updateClientsVolume(targetRoom.id);
+		if (isConnected()) {
+			NAF.connection.broadcastDataGuaranteed('string', `room_id${targetRoom.id}`);
+			updateClientsVolume(targetRoom.id);
+		}
 
 		skyRef.current.addEventListener('materialtextureloaded', function () {
 			sceneRef.current.emit('reset-camera');
 		});
 	};
+
+	const isConnected = () => {
+		return Boolean(NAF.connection.adapter);
+	}
 
 	const getRoomName = (roomId) => {
 		const room = story.rooms.find((room) => {
@@ -204,6 +210,10 @@ function Scene({ userProp, sessionId, story, setCurrentRoomAction, viewOpenedFro
 	}
 
 	const toggleMic = () => {
+		if (!isConnected()) {
+			return;
+		}
+
 		setMicEnabled((prevState) => {
 			NAF.connection.adapter.enableMicrophone(!prevState);
 
