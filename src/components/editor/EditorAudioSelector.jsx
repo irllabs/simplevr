@@ -294,12 +294,12 @@ function EditorAudioSelector({
 		audioRecorder.stopRecording();
 	}
 
-	const onRecordedDataAvailable = (data, duration) => {
+	const onRecordedDataAvailable = async (data, duration, type) => {
 		setAudioData(data);
 		setFileName('Recording');
 		setDuration(duration);
 
-		onChange(data, 'Recording', 'audio/oog');
+		onChange(data, 'Recording', type);
 	}
 
 	return (

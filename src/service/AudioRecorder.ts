@@ -1,3 +1,5 @@
+import FileLoaderUtil from "../util/FileLoader";
+
 class AudioRecorder {
 	private mediaStream: MediaStream;
 	private mediaRecorder: MediaRecorder;
@@ -6,7 +8,7 @@ class AudioRecorder {
 	private recordStartTime: Date;
 	private recordEndTime: Date;
 
-	public onDataAvailable: (data: string, duration: number) => void;
+	public onDataAvailable: (data: string, duration: number, type: string) => void;
 
 	public async requestMediaDeviceAccess(): Promise<void> {
 		if (navigator.mediaDevices) {
@@ -35,12 +37,15 @@ class AudioRecorder {
 		}
 	}
 
-	private onMediaAvailable() {
-		const audioBlob = new Blob(this.recordedDataChunks);
+	private async onMediaAvailable() {
+		const audioBlob = new Blob(this.recordedDataChunks, {
+			type: this.recordedDataChunks[0].type
+		});
+		FileLoaderUtil.getBinaryFileData(audioBlob).then((fileData) => {
+			const duration = (this.recordEndTime.getTime() - this.recordStartTime.getTime()) / 1000;
 
-		const duration = (this.recordEndTime.getTime() - this.recordStartTime.getTime()) / 1000;
-
-		this.onDataAvailable(URL.createObjectURL(audioBlob), duration);
+			this.onDataAvailable(fileData, duration, audioBlob.type);
+		});
 	}
 
 	private onChuckRecorded(event: BlobEvent) {
