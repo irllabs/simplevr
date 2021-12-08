@@ -1,118 +1,130 @@
 // External libraries
-import React, { FC, useEffect, useRef, useState } from 'react';
-import { connect, ConnectedProps } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import React, { FC, useEffect, useRef, useState } from "react";
+import { connect, ConnectedProps } from "react-redux";
+import { useHistory } from "react-router-dom";
 
 // External UI Components
-import { IconButton, makeStyles, Menu, MenuItem, Typography } from '@material-ui/core';
+import {
+	IconButton,
+	makeStyles,
+	Menu,
+	MenuItem,
+	Typography,
+} from "@material-ui/core";
 
 // External Icons
-import { MoreHoriz } from '@material-ui/icons';
+import { MoreHoriz } from "@material-ui/icons";
 
 // Database
-import firebase from '../../firebase/firebase';
+import firebase from "../../firebase/firebase";
 
 // State
-import { setCurrentRoom, setOpenedPreviewFromApplication, setProject, setStory } from '../../redux/actions';
-import { RootState } from '../../redux/reducers';
+import {
+	setCurrentRoom,
+	setOpenedPreviewFromApplication,
+	setProject,
+	setStory,
+} from "../../redux/actions";
+import { RootState } from "../../redux/reducers";
 
 // Service
-import ProjectArchiveCreator from '../../service/ProjectArchiveCreator';
+import ProjectArchiveCreator from "../../service/ProjectArchiveCreator";
 
 // Components
-import ShareStoryDialog from '../dialogs/ShareStoryDialog';
+import ShareStoryDialog from "../dialogs/ShareStoryDialog";
 
 // Models
-import StorageProject from '../../models/storage/StorageProject';
-import StorageRoom from '../../models/storage/StorageRoom';
-import StoryQRCodeDialog from './QRCodeDialog';
+import StorageProject from "../../models/storage/StorageProject";
+import StorageRoom from "../../models/storage/StorageRoom";
+import StoryQRCodeDialog from "./QRCodeDialog";
 
 const styles = makeStyles(() => {
 	return {
 		projectCardContainer: {
-			width: '100%',
-			backgroundColor: 'white',
-			display: 'flex',
-			flexDirection: 'column',
-			boxShadow: '0px 1px 1px rgba(0, 0, 0, 0.08), -1px 0px 1px rgba(0, 0, 0, 0.08), 1px 0px 1px rgba(0, 0, 0, 0.08), 0px -1px 1px rgba(0, 0, 0, 0.08)',
-			borderRadius: '12px',
-			height: '300px'
+			width: "100%",
+			backgroundColor: "white",
+			display: "flex",
+			flexDirection: "column",
+			boxShadow:
+				"0px 1px 1px rgba(0, 0, 0, 0.08), -1px 0px 1px rgba(0, 0, 0, 0.08), 1px 0px 1px rgba(0, 0, 0, 0.08), 0px -1px 1px rgba(0, 0, 0, 0.08)",
+			borderRadius: "12px",
+			height: "300px",
 		},
 		projectCardHeader: {
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'space-between'
+			display: "flex",
+			alignItems: "center",
+			justifyContent: "space-between",
 		},
 		projectCardTitle: {
-			display: 'flex',
-			flexDirection: 'column',
-			padding: '12px',
-			cursor: 'pointer',
-			maxWidth: 'calc(100% - 48px)'
+			display: "flex",
+			flexDirection: "column",
+			padding: "12px",
+			cursor: "pointer",
+			maxWidth: "calc(100% - 48px)",
 		},
 		title: {
-			whiteSpace: 'nowrap',
-			textOverflow: 'ellipsis',
-			overflow: 'hidden',
-			maxWidth: '100%'
+			whiteSpace: "nowrap",
+			textOverflow: "ellipsis",
+			overflow: "hidden",
+			maxWidth: "100%",
 		},
 		cardActionsContainer: {
-			display: 'flex',
-			flexDirection: 'column',
+			display: "flex",
+			flexDirection: "column",
 		},
 		storyCardImageContainer: {
-			borderRadius: '12px 12px 0px 0px',
-			display: 'flex',
-			position: 'relative',
-			height: '100%',
-			cursor: 'pointer'
+			borderRadius: "12px 12px 0px 0px",
+			display: "flex",
+			position: "relative",
+			height: "100%",
+			cursor: "pointer",
 		},
 		storyCardActionsContainer: {
-			position: 'absolute',
-			right: '0px',
-			top: '0px',
-			height: '48px',
-			display: 'flex',
-			flexDirection: 'row-reverse',
-			borderRadius: '0px 0px 12px 0px',
-			alignItems: 'center',
-			paddingRight: '8px'
+			position: "absolute",
+			right: "0px",
+			top: "0px",
+			height: "48px",
+			display: "flex",
+			flexDirection: "row-reverse",
+			borderRadius: "0px 0px 12px 0px",
+			alignItems: "center",
+			paddingRight: "8px",
 		},
 		storyActionBackground: {
-			width: '30px',
-			height: '30px',
-			borderRadius: '24px',
-			backgroundColor: 'white',
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'center',
-			marginRight: '8px'
+			width: "30px",
+			height: "30px",
+			borderRadius: "24px",
+			backgroundColor: "white",
+			display: "flex",
+			alignItems: "center",
+			justifyContent: "center",
+			marginRight: "8px",
 		},
 		storyCardImage: {
-			width: '100%',
-			height: '100%',
-			borderRadius: '12px 12px 0px 0px',
-			backgroundSize: 'cover',
-			backgroundPosition: 'center',
+			width: "100%",
+			height: "100%",
+			borderRadius: "12px 12px 0px 0px",
+			backgroundSize: "cover",
+			backgroundPosition: "center",
 		},
 		storyCardOptions: {
-			position: 'absolute',
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center',
-			left: '0px',
-			top: '0px',
-			width: '100%',
-			height: '100%',
-			backgroundColor: 'rgba(255, 255, 255, 0.9)',
-			borderRadius: '0px 0px 12px 12px',
+			position: "absolute",
+			display: "flex",
+			justifyContent: "center",
+			alignItems: "center",
+			left: "0px",
+			top: "0px",
+			width: "100%",
+			height: "100%",
+			backgroundColor: "rgba(255, 255, 255, 0.9)",
+			borderRadius: "0px 0px 12px 12px",
 		},
 		icon: {
-			color: 'rgba(0, 0, 0, 0.54)'
+			color: "rgba(0, 0, 0, 0.54)",
 		},
 		smallFont: {
-			fontSize: '11px'
-		}
+			fontSize: "11px",
+		},
 	};
 });
 
@@ -127,15 +139,12 @@ const mapDispatch = {
 	setProjectAction: setProject,
 	setStoryAction: setStory,
 	setCurrentRoomAction: setCurrentRoom,
-	setOpenedPreviewFromApplicationAction: setOpenedPreviewFromApplication
-}
+	setOpenedPreviewFromApplicationAction: setOpenedPreviewFromApplication,
+};
 
-const connector = connect(
-	mapStateToProps,
-	mapDispatch,
-);
+const connector = connect(mapStateToProps, mapDispatch);
 
-type ReduxProps = ConnectedProps<typeof connector>
+type ReduxProps = ConnectedProps<typeof connector>;
 
 interface ProjectCardProps extends ReduxProps {
 	project: StorageProject;
@@ -152,7 +161,7 @@ const ProjectCard: FC<ProjectCardProps> = ({
 	setProjectAction,
 	setStoryAction,
 	setCurrentRoomAction,
-	setOpenedPreviewFromApplicationAction
+	setOpenedPreviewFromApplicationAction,
 }: ProjectCardProps) => {
 	const classes = styles();
 
@@ -162,18 +171,20 @@ const ProjectCard: FC<ProjectCardProps> = ({
 
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [favorite, setFavorite] = useState(false);
-	const [thumbnailUrl, setThumbnailUrl] = useState('');
+	const [thumbnailUrl, setThumbnailUrl] = useState("");
 	const [shareStoryDialogOpen, setShareStoryDialogOpen] = useState(false);
 	const [qrCodeDialogOpen, setQrCodeDialogOpen] = useState(false);
 
 	useEffect(() => {
-		const fetchProjectThumbnailUrl = async() => {
+		const fetchProjectThumbnailUrl = async () => {
 			const firstRoom = getHomeRoom(project.story.rooms);
 
-			const url = await firebase.getDownloadUrl(firstRoom.thumbnail.remoteFilePath);
+			const url = await firebase.getDownloadUrl(
+				firstRoom.thumbnail.remoteFilePath
+			);
 
 			setThumbnailUrl(url);
-		}
+		};
 
 		fetchProjectThumbnailUrl();
 	}, [project]);
@@ -183,7 +194,7 @@ const ProjectCard: FC<ProjectCardProps> = ({
 			return;
 		}
 
-		const isFavorite = user.favoriteProjects.indexOf(project.id) > -1;
+		const isFavorite = user?.favoriteProjects?.indexOf(project.id) > -1;
 		setFavorite(isFavorite);
 	}, [user, project]);
 
@@ -209,7 +220,7 @@ const ProjectCard: FC<ProjectCardProps> = ({
 		setCurrentRoomAction(projectModel.story.rooms[0]);
 
 		// Navigate to editor for further story edits
-		history.push('/editor');
+		history.push("/editor");
 	};
 
 	const onViewStory = async () => {
@@ -223,7 +234,7 @@ const ProjectCard: FC<ProjectCardProps> = ({
 		setOpenedPreviewFromApplicationAction(true);
 
 		history.push(`/view/${project.id}`);
-	}
+	};
 
 	const getHomeRoom = (rooms: StorageRoom[]) => {
 		let homeRoom = rooms.find((room) => {
@@ -233,38 +244,42 @@ const ProjectCard: FC<ProjectCardProps> = ({
 			homeRoom = rooms[0];
 		}
 		return homeRoom;
-	}
+	};
 
 	const onDownloadStoryArchive = async () => {
 		const archiver = new ProjectArchiveCreator();
 		archiver.create(project);
 
 		setMenuOpen(false);
-	}
+	};
 
 	const onOpenMenu = () => {
 		setMenuOpen(true);
-	}
+	};
 
 	const onCloseMenu = () => {
 		setMenuOpen(false);
-	}
+	};
 
-	const markProjectAsFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
+	const markProjectAsFavorite = (
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
 		event.stopPropagation();
 
 		firebase.addProjectAsFavorite(user, project.id);
 
 		setFavorite(true);
-	}
+	};
 
-	const unmarkProjectAsFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
+	const unmarkProjectAsFavorite = (
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
 		event.stopPropagation();
 
 		firebase.removeProjectFromFavorites(user, project.id);
 
 		setFavorite(false);
-	}
+	};
 
 	const getNumberOfHotspots = () => {
 		let count = 0;
@@ -272,35 +287,37 @@ const ProjectCard: FC<ProjectCardProps> = ({
 			count += room.hotspots.length;
 		});
 		return count;
-	}
+	};
 
 	const getUserEmail = () => {
 		const projectCreator = users.find((userData) => {
 			return userData.id === project.userId;
 		});
 		return projectCreator?.email;
-	}
+	};
 
 	const onOpenQRCodeDialog = () => {
 		setQrCodeDialogOpen(true);
 		setMenuOpen(false);
-	}
+	};
 
 	const onCloseQRCodeDialog = () => {
 		setQrCodeDialogOpen(false);
-	}
+	};
 
 	const onDeleteStory = async () => {
 		onDelete(project.id);
 
 		await firebase.deleteProject(project.id);
-	}
+	};
 
 	return (
 		<div className={classes.projectCardContainer}>
-			<div className={classes.storyCardImageContainer} onClick={isPublic ? onViewStory : onEditStory}>
-				{thumbnailUrl
-				&& (
+			<div
+				className={classes.storyCardImageContainer}
+				onClick={isPublic ? onViewStory : onEditStory}
+			>
+				{thumbnailUrl && (
 					<div
 						className={classes.storyCardImage}
 						style={{
@@ -308,69 +325,102 @@ const ProjectCard: FC<ProjectCardProps> = ({
 						}}
 					/>
 				)}
-				{isPublic &&
-				<>
-					<div className={classes.storyCardActionsContainer}>
-						{!favorite && user &&
-						<IconButton onClick={markProjectAsFavorite} size='small'>
-							<img src='/icons/heart-empty.svg' />
-						</IconButton>}
-						{favorite && user &&
-						<IconButton onClick={unmarkProjectAsFavorite} size='small'>
-							<img src='/icons/heart-filled.svg' />
-						</IconButton>}
-					</div>
-				</>}
+				{isPublic && (
+					<>
+						<div className={classes.storyCardActionsContainer}>
+							{!favorite && user && (
+								<IconButton
+									onClick={markProjectAsFavorite}
+									size="small"
+								>
+									<img src="/icons/heart-empty.svg" />
+								</IconButton>
+							)}
+							{favorite && user && (
+								<IconButton
+									onClick={unmarkProjectAsFavorite}
+									size="small"
+								>
+									<img src="/icons/heart-filled.svg" />
+								</IconButton>
+							)}
+						</div>
+					</>
+				)}
 			</div>
 			<div className={classes.projectCardHeader}>
-				<div className={classes.projectCardTitle} onClick={isPublic ? onViewStory : onEditStory}>
+				<div
+					className={classes.projectCardTitle}
+					onClick={isPublic ? onViewStory : onEditStory}
+				>
 					<Typography variant="h6" className={classes.title}>
 						{project.story.name}
 					</Typography>
-					<Typography variant="caption" className={`${classes.title} ${classes.smallFont}`}>
-						Rooms | Hotspots: <b>{project.story.rooms.length} | {getNumberOfHotspots()}</b>
+					<Typography
+						variant="caption"
+						className={`${classes.title} ${classes.smallFont}`}
+					>
+						Rooms | Hotspots:{" "}
+						<b>
+							{project.story.rooms.length} |{" "}
+							{getNumberOfHotspots()}
+						</b>
 					</Typography>
-					{isPublic &&
-					<Typography variant="caption" className={`${classes.title} ${classes.smallFont}`}>
-						Creator: <b>{getUserEmail()}</b>
-					</Typography>}
-					<Typography variant="caption" className={`${classes.title} ${classes.smallFont}`}>
-						Tags: <b>{project.story.tags || ''}</b>
+					{isPublic && (
+						<Typography
+							variant="caption"
+							className={`${classes.title} ${classes.smallFont}`}
+						>
+							Creator: <b>{getUserEmail()}</b>
+						</Typography>
+					)}
+					<Typography
+						variant="caption"
+						className={`${classes.title} ${classes.smallFont}`}
+					>
+						Tags: <b>{project.story.tags || ""}</b>
 					</Typography>
 				</div>
 				<div className={classes.cardActionsContainer}>
 					<>
-						<IconButton ref={menuAnchorRef} aria-controls="card-menu" aria-haspopup="true" onClick={onOpenMenu}>
+						<IconButton
+							ref={menuAnchorRef}
+							aria-controls="card-menu"
+							aria-haspopup="true"
+							onClick={onOpenMenu}
+						>
 							<MoreHoriz />
 						</IconButton>
 						<Menu
-
 							id="simple-menu"
 							anchorEl={menuAnchorRef.current}
 							keepMounted
 							open={menuOpen}
 							onClose={onCloseMenu}
 						>
-							{!isPublic &&
-							<MenuItem onClick={onOpenShareStory}>
-								<Typography variant='body2'>
-									Share
-								</Typography>
-							</MenuItem>}
-							{!isPublic &&
-							<MenuItem onClick={onDeleteStory}>
-								<Typography variant='body2'>
-									Delete
-								</Typography>
-							</MenuItem>}
-							{isPublic &&
-							<MenuItem onClick={onOpenQRCodeDialog}>
-								<Typography variant='body2'>
-									View QR Code
-								</Typography>
-							</MenuItem>}
+							{!isPublic && (
+								<MenuItem onClick={onOpenShareStory}>
+									<Typography variant="body2">
+										Share
+									</Typography>
+								</MenuItem>
+							)}
+							{!isPublic && (
+								<MenuItem onClick={onDeleteStory}>
+									<Typography variant="body2">
+										Delete
+									</Typography>
+								</MenuItem>
+							)}
+							{isPublic && (
+								<MenuItem onClick={onOpenQRCodeDialog}>
+									<Typography variant="body2">
+										View QR Code
+									</Typography>
+								</MenuItem>
+							)}
 							<MenuItem onClick={onDownloadStoryArchive}>
-								<Typography variant='body2'>
+								<Typography variant="body2">
 									Download (.zip)
 								</Typography>
 							</MenuItem>
@@ -378,9 +428,20 @@ const ProjectCard: FC<ProjectCardProps> = ({
 					</>
 				</div>
 			</div>
-			{shareStoryDialogOpen && <ShareStoryDialog onClose={onCloseShareStory} thumbnailUrl={thumbnailUrl} project={project} />}
-			{qrCodeDialogOpen && <StoryQRCodeDialog project={project} onClose={onCloseQRCodeDialog} />}
+			{shareStoryDialogOpen && (
+				<ShareStoryDialog
+					onClose={onCloseShareStory}
+					thumbnailUrl={thumbnailUrl}
+					project={project}
+				/>
+			)}
+			{qrCodeDialogOpen && (
+				<StoryQRCodeDialog
+					project={project}
+					onClose={onCloseQRCodeDialog}
+				/>
+			)}
 		</div>
 	);
-}
+};
 export default connector(ProjectCard);

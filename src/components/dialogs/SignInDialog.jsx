@@ -76,22 +76,21 @@ const SignInDialog = ({ isShowingSignInDialog, setIsShowingSignInDialogAction, s
 	const onGoogleSigninClick = async () => {
 		onClose();
 		const provider = new firebase.auth.GoogleAuthProvider();
-
-		const authResult = await firebaseContext.auth.signInWithPopup(provider);
-		const authUser = authResult.user;
-		let user = await firebaseContext.loadUser(authUser.uid);
-		if (_.isNil(user)) {
-			user = {
-				displayName: authUser.displayName,
-				email: authUser.email,
-				avatar: authUser.photoURL,
-				id: authUser.uid,
-				isGuest: false,
-				favoriteProjects: []
+		try {
+			const authResult = await firebaseContext.auth.signInWithPopup(provider);
+			const authUser = authResult?.user;
+			const user = {
+					displayName: authUser.displayName,
+					email: authUser.email,
+					id: authUser.uid,
+					isGuest: false,
+					favoriteProjects: []
 			};
 			await firebaseContext.createUser(user);
+			setUserAction(user);
+		} catch (e) {
+			setErrorMessage(e.message);
 		}
-		setUserAction(user);
 	};
 
 	const onShowEmailSigninClick = () => {
@@ -102,7 +101,17 @@ const SignInDialog = ({ isShowingSignInDialog, setIsShowingSignInDialogAction, s
 		const email = emailAddressInput.current.querySelectorAll('input')[0].value;
 		const password = passwordInput.current.querySelectorAll('input')[0].value;
 		try {
-			await firebaseContext.auth.signInWithEmailAndPassword(email, password);
+			const singinResult = await firebaseContext.auth.signInWithEmailAndPassword(email, password)
+			const authUser = singinResult?.user;
+			const user = {
+					displayName: authUser.displayName,
+					email: email,
+					id: authUser.uid,
+					isGuest: false,
+					favoriteProjects: []
+				};
+			await firebaseContext.createUser(user);
+			setUserAction(user);
 			onClose();
 		} catch (e) {
 			setErrorMessage(e.message);
@@ -154,14 +163,12 @@ const SignInDialog = ({ isShowingSignInDialog, setIsShowingSignInDialogAction, s
 				const authResult = await firebaseContext.auth.signInAnonymously();
 
 				const authUser = authResult.user;
-
 				const user = {
 					isGuest: true,
 					displayName: displayName,
 					id: authUser.uid,
 					favoriteProjects: []
 				};
-
 				await firebaseContext.createUser(user);
 				setUserAction(user);
 				onClose();
