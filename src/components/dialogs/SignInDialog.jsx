@@ -82,6 +82,7 @@ const SignInDialog = ({ isShowingSignInDialog, setIsShowingSignInDialogAction, s
 			const user = {
 					displayName: authUser.displayName,
 					email: authUser.email,
+					avatar: authUser.photoURL,
 					id: authUser.uid,
 					isGuest: false,
 					favoriteProjects: []
