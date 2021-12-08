@@ -78,7 +78,7 @@ const SignInDialog = ({ isShowingSignInDialog, setIsShowingSignInDialogAction, s
 		const provider = new firebase.auth.GoogleAuthProvider();
 		try {
 			const authResult = await firebaseContext.auth.signInWithPopup(provider);
-			const authUser = authResult?.user;
+			const authUser = authResult.user;
 			const user = {
 					displayName: authUser.displayName,
 					email: authUser.email,
@@ -103,7 +103,7 @@ const SignInDialog = ({ isShowingSignInDialog, setIsShowingSignInDialogAction, s
 		const password = passwordInput.current.querySelectorAll('input')[0].value;
 		try {
 			const singinResult = await firebaseContext.auth.signInWithEmailAndPassword(email, password)
-			const authUser = singinResult?.user;
+			const authUser = singinResult.user;
 			const user = {
 					displayName: authUser.displayName,
 					email: email,
