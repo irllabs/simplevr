@@ -48,7 +48,7 @@
 		"downloadjs": "^1.4.7",
 		"firebase": "^8.2.6",
 		"immutability-helper": "^3.1.1",
-		"jszip": "^3.6.0",
+		"jszip": "^3.7.0",
 		"lodash": "^4.17.20",
 		"mime-types": "^2.1.29",
 		"networked-aframe": "0.8.2",
